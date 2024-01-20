@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "lexi"
+version = "0.0.1"
+description = "Main repository for all data analysis related to LEXI"
+authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
+maintainers = [
+    "Brian Walsh <bwalsh@bu.edu>",
+    "Jane Smith <janesmith@example.org>",
+]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+spacepy = "^0.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
