@@ -1,9 +1,49 @@
 # Define class called LEXI with a list of different functions that can be called
+import numpy as np
+import pandas as pd
+from .lxi_exposure_map_fnc import exposure_map
 
+
+# TODO: Rewrite all docstrings
 
 class LEXI:
+
+    def __init__(self, input_params):
+
+        self.LEXI_FOV = 9.1 # LEXI field of view in degrees
+
+        # Set up input parameters
+
+        # ZLC: should probably clarify what "the dataframe" is supposed to refer to (final? expmaps? skybgs? other?)
+        # ZLC: Also, should make sure these are actually respected, else remove them
+        self.save_df = input_params.get("save_df", False) # If True, save the dataframe to a file
+        self.filename = input_params.get("filename", "../data/LEXI_pointing_ephem_highres") # filename to save df to
+        self.filetype = input_params.get("filetype", "pkl") # Filetype to save df to. Options: 'csv','pkl'
+
+        self.interp_method = input_params.get("interp_method", "ffill") # Interpolation method
+        self.background_correction_on = input_params.get("background_correction_on", True)
+
+        # ZLC: should document what time formats are appropriate
+        # ZLC: should check this is not None and is [a, b]; maybe change them to pd.Timestamps right here
+        # and raise error if cannot
+        self.t_range = input_params.get("t_range")
+        # exposure map step time in seconds: For each look-direction in spc params (after resampling/interpolation),
+        # this many seconds are added to each in-FOV cell in the exposure map.
+        # ZLC: What is a reasonable value for this? I think 0.01 is way too small?
+        self.t_step = input_params.get("t_step", 0.01)
+        # integration time in seconds for lexi histograms and exposure maps
+        self.t_integrate = input_params.get("t_integrate", 60)
+
+        self.ra_range = input_params.get("ra_range", [325.0, 365.0]) # RA range in degrees for plotted histogram
+        self.dec_range = input_params.get("dec_range", [-21.0, 6.0]) # DEC range in degrees for plotted histogram
+        self.ra_res = input_params.get("ra_res", 0.1) # RA res in degrees. Ideal value is 0.1 deg
+        self.dec_res = input_params.get("dec_res", 0.1) # DEC res in degrees. Ideal value is 0.1 deg
+        # TODO Add "nbins" option, decide which one "wins" if both supplied.
+        # Do the conversion here; then all the other functions can just assume one or the other.
+
+
     # Define the first function called "get_spc_prams" that takes time as an argument and returns the
-    # time, look direction (gamma) and the roll angle (phi) of the lander
+    # time, look direction, and roll angle of the lander
     def get_spc_prams(self, time, time_resolution):
         # Define the time, look direction (gamma) and the roll angle (phi) of the lander
         # Define the format of each of the inputs
@@ -32,11 +72,18 @@ class LEXI:
         # If a time resolution is given then the code will also interpolate the ephemeris data to the
         # given time resolution
 
-        time = [0, 0]  # The start and end time of the simulation
-        gamma = 0
-        alpha = 0
-        time_array = 0
-        return time_array, gamma, alpha
+        # Note: Current sample data does not include roll angle.
+        # Roll angle = gimbal + lander + altitude
+
+        # TODO: Need to decide on path to the actual spc params file...
+        df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
+        # Make datetime index from epoch_utc
+        df.index = pd.DatetimeIndex(df.epoch_utc)
+        # Slice, resample, interpolate
+        # TODO: get interpolation method from user dict instead of hardcoding 'ffill'
+        return df[pd.Timestamp(time[0]):pd.Timestamp(time[1])].resample(pd.Timedelta(time_resolution, unit='s')).ffill()
+
+
 
     # Define a second function which takes the following list of arguments:
     #    --time
@@ -46,7 +93,7 @@ class LEXI:
     #    --nbins
     #    --integration_time
     # The function then computes the sky background and returns the sky background
-    def get_sky_background(self, time, RA, DEC, binsize, nbins, integration_time):
+    def get_sky_background(self):
         # Define the format of each of the inputs
         #    --time: [start time, end time] (see above for the format of the time input)
         #    --RA: [start RA, end RA]
@@ -75,10 +122,42 @@ class LEXI:
         # direction (gamma) and the roll angle (phi) of the lander. The code will then return the
         # sky background
 
-        time_array, gamma, alpha = self.get_spc_prams(time, 0)
-        sky_background = 0
+        # Get exposure maps
+        exposure_maps = exposure_map(
+                spc_df = self.get_spc_prams(self.t_range, self.t_step),
+                t_range = self.t_range,
+                t_integrate = self.t_integrate,
+                t_step = self.t_step,
+                lexi_fov = self.LEXI_FOV,
+                ra_range = self.ra_range,
+                dec_range = self.dec_range,
+                ra_res = self.ra_res,
+                dec_res = self.dec_res,
+                save_maps = False # TODO: check if save_df param was for only final dfs, or for these too
+                )
 
-        return sky_background
+        # Get ROSAT background
+        # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
+        # For now, this is Cadin's sample xray data:
+        rosat_df = pd.read_csv('sample_xray_background.csv',header=None)
+        # Slice to RA/DEC range, interpolate to RA/DEC res
+        # For now just interpolate Cadin data:
+
+        # TODO: when using actual data, check that axes are correct (index/column to ra/dec)
+        rosat_df.index = np.linspace(self.ra_range[0], self.ra_range[1], 100)
+        rosat_df.columns = np.linspace(self.dec_range[0], self.dec_range[1], 100)
+        bigrosat = rosat_df.reindex(index=np.arange(self.ra_range[0], self.ra_range[1], self.ra_res),
+                                    columns=np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)).interpolate().interpolate(axis=1)
+
+        # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
+        #sky_backgrounds = exposure_maps * bigrosat
+        # Blagh, right now it won't do this because the dimensions... are correct but I guess are not labeled the same???
+        # anyway, pandas can't tell that the dimensions are OK.
+        # For now, doing it manually:
+        # TODO fix
+        sky_backgrounds = [e * bigrosat for e in exposure_maps]
+
+        return sky_backgrounds
 
     # Define a third function which takes the following list of arguments:
     #    --time
