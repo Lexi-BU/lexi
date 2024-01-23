@@ -3,9 +3,9 @@ import pickle
 
 
 # Get the data from global variables
-counts = global_variables.data_lin["counts"]
-xedges = global_variables.data_lin["xedges"]
-yedges = global_variables.data_lin["yedges"]
+# counts = global_variables.data_lin["counts"]
+# xedges = global_variables.data_lin["xedges"]
+# yedges = global_variables.data_lin["yedges"]
 
 # Save the array as an image
 plt.figure()
