@@ -27,7 +27,8 @@ class LEXI:
         # ZLC: should check this is not None and is [a, b]; maybe change them to pd.Timestamps right here
         # and raise error if cannot
         self.t_range = input_params.get("t_range")
-        # exposure map step time in seconds: For each look-direction in spc params (after resampling/interpolation),
+        # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
+        # time resolution; then, for each look-direction datum,
         # this many seconds are added to each in-FOV cell in the exposure map.
         # ZLC: What is a reasonable value for this? I think 0.01 is way too small?
         self.t_step = input_params.get("t_step", 0.01)
@@ -44,7 +45,7 @@ class LEXI:
 
     # Define the first function called "get_spc_prams" that takes time as an argument and returns the
     # time, look direction, and roll angle of the lander
-    def get_spc_prams(self, time, time_resolution):
+    def get_spc_prams(self):
         # Define the time, look direction (gamma) and the roll angle (phi) of the lander
         # Define the format of each of the inputs
         #    --time: [start time, end time]
@@ -81,7 +82,7 @@ class LEXI:
         df.index = pd.DatetimeIndex(df.epoch_utc)
         # Slice, resample, interpolate
         # TODO: get interpolation method from user dict instead of hardcoding 'ffill'
-        return df[pd.Timestamp(time[0]):pd.Timestamp(time[1])].resample(pd.Timedelta(time_resolution, unit='s')).ffill()
+        return df[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])].resample(pd.Timedelta(self.t_step, unit='s')).ffill()
 
 
 
@@ -124,7 +125,7 @@ class LEXI:
 
         # Get exposure maps
         exposure_maps = exposure_map(
-                spc_df = self.get_spc_prams(self.t_range, self.t_step),
+                spc_df = self.get_spc_prams(),
                 t_range = self.t_range,
                 t_integrate = self.t_integrate,
                 t_step = self.t_step,
@@ -143,11 +144,30 @@ class LEXI:
         # Slice to RA/DEC range, interpolate to RA/DEC res
         # For now just interpolate Cadin data:
 
+        breakpoint()
         # TODO: when using actual data, check that axes are correct (index/column to ra/dec)
         rosat_df.index = np.linspace(self.ra_range[0], self.ra_range[1], 100)
         rosat_df.columns = np.linspace(self.dec_range[0], self.dec_range[1], 100)
+        # TODO: Problemino:
+        # If the new resolution is not a perfect multiple of the old resolution (the general case),
+        # then the reindex will throw out most of the rows/columns...
+        # You could upsample all the way to the LCM and downsample again, but with the right (wrong) numbers
+        # that will probably land you with an unworkably enormous array here...
+        # There's no way this is not a solved pandas problem -_-
         bigrosat = rosat_df.reindex(index=np.arange(self.ra_range[0], self.ra_range[1], self.ra_res),
-                                    columns=np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)).interpolate().interpolate(axis=1)
+                                    columns=np.arange(self.dec_range[0], self.dec_range[1], self.dec_res))#.interpolate().interpolate(axis=1)
+        # TODO: In general (for ephemeris data as well as here) wouldn't we rather do linear interpolation than ffill???
+        bigrosat = bigrosat.interpolate()
+        bigrosat = bigrosat.interpolate(axis=1)
+
+        # Sanity check this "multiply" step by literally making a rectangle:
+        rectangle = np.full((400,270), 1)
+        rectangle[0:100,0:70] = 0
+        #return [rectangle]
+        #return [e * rectangle for e in exposure_maps] # K well this works as expected...
+
+        # What if I just look at bigrosat
+        return [bigrosat]
 
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
         #sky_backgrounds = exposure_maps * bigrosat

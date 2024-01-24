@@ -247,6 +247,7 @@ def exposure_map(
             print(group, end="\n\n")
 
             for row in group.itertuples():
+              # TODO ZLC wait... also need to modulo 360 right?!
               # Get distance in degrees to the pointing step
               r = np.sqrt(
                   (ra_grid_arr - row.mp_ra) ** 2 + (dec_grid_arr - row.mp_dec) ** 2
