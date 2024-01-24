@@ -164,3 +164,4 @@ cython_debug/
 
 # Ignore the local_data directory
 local_data/
+lexi/.DS_Store
