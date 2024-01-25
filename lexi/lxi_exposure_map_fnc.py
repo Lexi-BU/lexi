@@ -241,11 +241,7 @@ def exposure_map(
 
         # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
         # Loop through each pointing step and add the exposure to the map
-        for (map_idx, (name, group)) in enumerate(integ_groups):
-            # TODO remove prints
-            print("Group: ", name)
-            print(group, end="\n\n")
-
+        for (map_idx, (_,group)) in enumerate(integ_groups):
             for row in group.itertuples():
               # Get distance in degrees to the pointing step
               # Wrap-proofing: First make everything [0,360), then +-360 on second operand
@@ -261,31 +257,10 @@ def exposure_map(
                   (r < lexi_fov * 0.5), vignette(r) * t_step, 0
               )
               exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
-
-        # TODO: Print progress. But this depends on whether we keep the loop or not
-        """
-        # Check how long it takes to run a single step and based on that estimate how long it will take
-        # to run
-        start_time_loop = time.time()
-        r = np.sqrt((ra_grid_arr - df.lookdir_ra[0]) ** 2 + (dec_grid_arr - df.lookdir_dec[0]) ** 2)
-        exposure_delt = np.where(
-            (r < lexi_fov * 0.5), vignette(r) * t_step, 0
-        )
-        exposure += exposure_delt
-        end_time_loop = time.time()
-        print(
-            f"Estimated time to run: \x1b[1;32;255m{np.round((end_time_loop - start_time_loop) * len(df) / 60, 1)} \x1b[0m minutes"
-        )
-        [...]
-        for i in range(len(df)):
-            # Print the progress in terminal in percentage complete without a new line for each one percent
-            # increase
             print(
-                f"Computing exposure map ==> \x1b[1;32;255m {np.round(i/len(df)*100, 6)}\x1b[0m % complete",
+                f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                 end="\r",
             )
-        # #return exposure
-        """
 
         # TODO: Confirm this is fine: I am defining t_step to be in seconds, therefore no need for normalization.
         # since the ROSAT data are in counts/sec anyway
