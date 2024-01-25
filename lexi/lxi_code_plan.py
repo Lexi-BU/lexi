@@ -157,16 +157,6 @@ class LEXI:
         rosat_interpolated = rosat_enlarged_idx.interpolate(method='index').interpolate(method='index',axis=1)
         rosat_resampled = rosat_interpolated.reindex(index=desired_ra_idx,columns=desired_dec_idx)
 
-        #return [rosat_resampled] # k it works but I should test for downsampling as well;
-        # am upsampling the fake data but my understanding is the rosat data will be higher res than what we want
-        # ^ TODO
-
-        # Sanity check this "multiply" step by literally making a rectangle:
-        #rectangle = np.full((400,270), 1)
-        #rectangle[0:100,0:70] = 0
-        #return [rectangle]
-        #return [e * rectangle for e in exposure_maps] # K well this works as expected...
-
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
