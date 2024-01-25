@@ -186,9 +186,7 @@ class LEXI:
     #    --background_correction
     # The function then makes the background corrected image from LEXI data and returns the
     # background corrected image
-    def get_background_corrected_image(
-        self, time, RA, DEC, binsize, nbins, integration_time, background_correction
-    ):
+    def get_background_corrected_image(self):
         # Define the format of each of the inputs
         #    --time: [start time, end time] (see above for the format of the time input)
         #    --RA: [start RA, end RA] (see above for the format of the RA input)
@@ -200,8 +198,46 @@ class LEXI:
         #    --background_correction: bool
         #    This will be a boolean that defines whether or not the background should be corrected
         #    for the image. If True, the background will be corrected.
-        # Define the background corrected image
-        if background_correction == True:
-            background_corrected_image = 1
-        background_corrected_image = 0
-        return background_corrected_image
+
+        # TODO: Get actual timeseries data
+        # With ra/dec resolution of 3, and no bg correction, this will draw a smiley face;
+        # bg correction lops off the left side of the smile
+        photons = pd.DataFrame({"ra":[355,355,335,333,330,333,335],
+                                "dec":[-15,-5,-15,-14,-10, -6, -5]},
+                                index=[pd.Timestamp("Jul 08 2024 15:01:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:02:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:03:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:04:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:05:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:06:00.000000000"),
+                                       pd.Timestamp("Jul 08 2024 15:07:00.000000000"),
+                                       ])
+
+        # Set up coordinate grid for lexi histograms
+        ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
+        dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
+
+        # Slice to relevant time range; make groups of rows spanning t_integration
+        integ_groups = photons[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])].resample(pd.Timedelta(self.t_integrate, unit='s'))
+
+        # Make as many empty lexi histograms as there are integration groups
+        histograms = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
+
+        for (hist_idx, (_,group)) in enumerate(integ_groups):
+            # Loop through each photon strike and add it to the map
+            for row in group.itertuples():
+                ra_idx = np.nanargmin(np.where(ra_grid%360 >= row.ra%360, 1, np.nan))
+                dec_idx = np.nanargmin(np.where(dec_grid%360 >= row.dec%360, 1, np.nan))
+                if ra_idx != np.NaN and dec_idx != np.NaN:
+                    histograms[hist_idx][ra_idx][dec_idx] += 1
+
+        # Early exit if no bg correction
+        if not self.background_correction_on:
+            return histograms
+
+        # Else make background corrected images
+        sky_backgrounds = self.get_sky_background()
+        bgcorr_histograms = np.maximum(histograms - sky_backgrounds, 0)
+        return bgcorr_histograms
+
+        # TODO make FITS files
