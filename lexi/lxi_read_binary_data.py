@@ -4,14 +4,12 @@ import os
 import logging
 import struct
 from pathlib import Path
-from tkinter import filedialog
 from typing import NamedTuple
 
-import global_variables
 import numpy as np
 import pandas as pd
 import pytz
-
+import pickle
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -226,41 +224,18 @@ def read_binary_data_sci(
             index += 28
     else:
         # Raise FileNameError mentioning that the file name does not contain proper keywords
-        raise FileNotFoundError(
-            "The file name does not contain the keyword 'payload'."
-        )
+        raise FileNotFoundError("The file name does not contain the keyword 'payload'.")
 
     # Split the file name in a folder and a file name
     # Format filenames and folder names for the different operating systems
-    if os.name == "posix":
-        output_file_name = (
-            os.path.basename(os.path.normpath(in_file_name)).split(".")[0]
-            + "_sci_output.csv"
-        )
-        output_folder_name = (
-            os.path.dirname(os.path.normpath(in_file_name)) + "/processed_data/sci"
-        )
-        save_file_name = output_folder_name + "/" + output_file_name
-    elif os.name == "nt":
-        output_file_name = (
-            os.path.basename(os.path.normpath(in_file_name)).split(".")[0]
-            + "_sci_output.csv"
-        )
-        output_folder_name = (
-            os.path.dirname(os.path.normpath(in_file_name)) + "\\processed_data\\sci"
-        )
-        save_file_name = output_folder_name + "\\" + output_file_name
-    elif os.name == "darwin":
-        output_file_name = (
-            os.path.basename(os.path.normpath(in_file_name)).split(".")[0]
-            + "_sci_output.csv"
-        )
-        output_folder_name = (
-            os.path.dirname(os.path.normpath(in_file_name)) + "/processed_data/sci"
-        )
-        save_file_name = output_folder_name + "/" + output_file_name
-    else:
-        raise OSError("The operating system is not supported.")
+    output_file_name = (
+        os.path.basename(os.path.normpath(in_file_name)).split(".")[0]
+        + "_sci_output.csv"
+    )
+    output_folder_name = (
+        os.path.dirname(os.path.normpath(in_file_name)) + "/processed_data/sci/level_1a"
+    )
+    save_file_name = output_folder_name + "/" + output_file_name
 
     # Check if the save folder exists, if not then create it
     if not Path(output_folder_name).exists():
@@ -312,15 +287,13 @@ def read_binary_data_sci(
                 )
     else:
         # Raise FileNameError mentioning that the file name does not contain proper keyword
-        raise FileNotFoundError(
-            "The file name does not contain the keyword 'payload'."
-        )
+        raise FileNotFoundError("The file name does not contain the keyword 'payload'.")
 
     # Read the saved file data in a dataframe
     df = pd.read_csv(save_file_name)
 
     # Convert the date column to datetime
-    df["Date"] = pd.to_datetime(df["Date"])
+    df["Date"] = pd.to_datetime(df["Date"], format="mixed", utc=True)
 
     # Set index to the date
     df.set_index("Date", inplace=False)
@@ -359,75 +332,6 @@ def read_binary_data_sci(
     return df, save_file_name
 
 
-def open_file_b(t_start=None, t_end=None):
-    # define a global variable for the file name
-    file_val = filedialog.askopenfilename(
-        initialdir="C:\\Users\\Lexi-User\\Desktop\\PIT_softwares\\PIT_23_05_05\\Target\\rec_tlm\\not_sent\\",
-        title="Select file",
-        filetypes=(("all files", "*.*"), ("text files", "*.txt")),
-    )
-    # Check if t_start and t_end are datetime objects, if not, convert them to datetime objects and
-    # set the timezone to UTC
-    if not isinstance(t_start, datetime.datetime):
-        t_start = datetime.datetime.strptime(t_start, "%Y-%m-%d %H:%M:%S")
-        # Set timezone to UTC
-        t_start = t_start.replace(tzinfo=pytz.UTC)
-    if not isinstance(t_end, datetime.datetime):
-        t_end = datetime.datetime.strptime(t_end, "%Y-%m-%d %H:%M:%S")
-        # Set timezone to UTC
-        t_end = t_end.replace(tzinfo=pytz.UTC)
-
-    # Check if t_start and t_end are timezones aware, if not, make them timezone aware
-    if t_start.tzinfo is None:
-        t_start = t_start.tz_localize("UTC")
-    if t_end.tzinfo is None:
-        t_end = t_end.tz_localize("UTC")
-
-    # Read the binary file
-    file_name_b = file_val
-    (
-        df_slice_sci,
-        file_name_sci,
-        df_all_sci,
-    ) = read_binary_file(file_val=file_val, t_start=t_start, t_end=t_end)
-    global_variables.all_file_details["file_name_b"] = file_name_b
-    global_variables.all_file_details["file_name_sci"] = file_name_sci
-
-    global_variables.all_file_details["df_slice_sci"] = df_slice_sci
-    global_variables.all_file_details["df_all_sci"] = df_all_sci
-
-    print(
-        f"\n Loaded \x1b[1;32;255m{file_name_b}\x1b[0m in the data base,\n and the csv file for "
-        f"\x1b[1;32;255m{file_name_sci}\x1b[0m"
-    )
-
-    return file_val
-
-
-def open_file_b_multiple(file_val=None, t_start=None, t_end=None, multiple_files=True):
-    # Cut path to the file off
-    file_name_b = file_val
-    (
-        df_slice_sci,
-        file_name_sci,
-        df_all_sci,
-    ) = read_binary_file(
-        file_val=file_val, t_start=t_start, t_end=t_end, multiple_files=multiple_files
-    )
-    global_variables.all_file_details["file_name_b"] = file_name_b
-    global_variables.all_file_details["file_name_sci"] = file_name_sci
-
-    global_variables.all_file_details["df_slice_sci"] = df_slice_sci
-    global_variables.all_file_details["df_all_sci"] = df_all_sci
-
-    print(
-        f"\n Loaded \x1b[1;32;255m{file_name_b}\x1b[0m in the data base,\n  and the csv file for "
-        f"\x1b[1;32;255m{file_name_sci}\x1b[0m"
-    )
-
-    return file_val
-
-
 def lin_correction(
     x,
     y,
@@ -444,6 +348,48 @@ def lin_correction(
     return x_lin, y_lin
 
 
+def non_lin_correction(
+    x,
+    y,
+):
+    """
+    Function to apply nonlinearity correction to MCP position x/y data. The model to apply the
+    nonlinearity correction is a Gaussian Process model trained on the data from the LEXI massk
+    testing. The kernel used is Matern with length scale = 5 and nu = 2.5.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        x position data.
+    y : numpy.ndarray
+        y position data.
+
+    Returns
+    -------
+    x_nln : numpy.ndarray
+        x position data after applying nonlinearity correction.
+    y_nln : numpy.ndarray
+        y position data after applying nonlinearity correction.
+    """
+    gp_model_file_name = "../data/gp_models/gp_data_3.0_10_0.0_0.8_4_Matern(length_scale=5, nu=2.5).pickle"
+
+    # Get the gp_model from the pickle file
+    with open(gp_model_file_name, "rb") as f:
+        gp_model = pickle.load(f)
+
+    # Close the pickle file
+    f.close()
+
+    xy_coord = np.array([x, y]).T
+    delta_xy, sigma = gp_model.predict(xy_coord, return_std=True)
+
+    corrected_xy = xy_coord - delta_xy
+    x_nln = corrected_xy[:, 0]
+    y_nln = corrected_xy[:, 1]
+
+    return x_nln, y_nln
+
+
 def volt_to_mcp(x, y):
     """
     Function to convert voltage coordinates to MCP coordinates
@@ -452,16 +398,6 @@ def volt_to_mcp(x, y):
     y_mcp = (y - 0.564) * 78.55
 
     return x_mcp, y_mcp
-
-
-def volt_to_deg(x, y):
-    """
-    Function to convert voltage coordinates to MCP coordinates
-    """
-    x_deg = (x - 0.544) * 9.1 / 7.5
-    y_deg = (y - 0.564) * 9.1 / 7.5
-
-    return x_deg, y_deg
 
 
 def compute_position(v1=None, v2=None, n_bins=401, bin_min=0, bin_max=4):
@@ -533,9 +469,9 @@ def read_csv_sci(file_val=None, t_start=None, t_end=None):
 
     Parameters
     ----------
-    file_val : str
+    file_val:str
         Path to the input file. Default is None.
-    t_start : float
+    t_start:float
         Start time of the data. Default is None.
     t_end : float
         End time of the data. Default is None.
@@ -581,29 +517,8 @@ def read_csv_sci(file_val=None, t_start=None, t_end=None):
         if t_end.tzinfo is None:
             t_end = t_end.replace(tzinfo=pytz.utc)
 
-    # Select dataframe from timestamp t_start to t_end
-    df_slice_sci = df.loc[t_start:t_end].copy()
-
-    # For both the sliced and entire dataframes, compute the x and y-coordinates and the shift in
-    # the voltages
-    x_slice, v1_shift_slice, v3_shift_slice = compute_position(
-        v1=df_slice_sci["Channel1"],
-        v2=df_slice_sci["Channel3"],
-        n_bins=401,
-        bin_min=0,
-        bin_max=4,
-    )
-
     x, v1_shift, v3_shift = compute_position(
         v1=df["Channel1"], v2=df["Channel3"], n_bins=401, bin_min=0, bin_max=4
-    )
-
-    y_slice, v4_shift_slice, v2_shift_slice = compute_position(
-        v1=df_slice_sci["Channel4"],
-        v2=df_slice_sci["Channel2"],
-        n_bins=401,
-        bin_min=0,
-        bin_max=4,
     )
 
     y, v4_shift, v2_shift = compute_position(
@@ -611,60 +526,29 @@ def read_csv_sci(file_val=None, t_start=None, t_end=None):
     )
 
     # Correct for the non-linearity in the positions
-    x_lin_slice, y_lin_slice = lin_correction(x_slice, y_slice)
     x_lin, y_lin = lin_correction(x, y)
 
     # Get the x,y value in mcp units
-    x_mcp_slice, y_mcp_slice = volt_to_mcp(x_slice, y_slice)
     x_mcp, y_mcp = volt_to_mcp(x, y)
-    x_mcp_lin_slice, y_mcp_lin_slice = volt_to_mcp(x_lin_slice, y_lin_slice)
     x_mcp_lin, y_mcp_lin = volt_to_mcp(x_lin, y_lin)
 
-    # Get the x,y value in deg units
-    x_deg_slice, y_deg_slice = volt_to_deg(x_mcp_slice, y_mcp_slice)
-    x_deg, y_deg = volt_to_deg(x_mcp, y_mcp)
-    x_deg_lin_slice, y_deg_lin_slice = volt_to_deg(x_mcp_lin_slice, y_mcp_lin_slice)
-    x_deg_lin, y_deg_lin = volt_to_deg(x_mcp_lin, y_mcp_lin)
-
     # Add the x-coordinate to the dataframe
-    df_slice_sci["x_val"] = x_slice
-    df_slice_sci.loc[:, "x_val_lin"] = x_lin_slice
-    df_slice_sci.loc[:, "x_mcp"] = x_mcp_slice
-    df_slice_sci.loc[:, "x_mcp_lin"] = x_mcp_lin_slice
-    df_slice_sci.loc[:, "x_deg"] = x_deg_slice
-    df_slice_sci.loc[:, "x_deg_lin"] = x_deg_lin_slice
-    df_slice_sci.loc[:, "v1_shift"] = v1_shift_slice
-    df_slice_sci.loc[:, "v3_shift"] = v3_shift_slice
-
     df.loc[:, "x_val"] = x
     df.loc[:, "x_val_lin"] = x_lin
     df.loc[:, "x_mcp"] = x_mcp
     df.loc[:, "x_mcp_lin"] = x_mcp_lin
-    df.loc[:, "x_deg"] = x_deg
-    df.loc[:, "x_deg_lin"] = x_deg_lin
     df.loc[:, "v1_shift"] = v1_shift
     df.loc[:, "v3_shift"] = v3_shift
 
     # Add the y-coordinate to the dataframe
-    df_slice_sci.loc[:, "y_val"] = y_slice
-    df_slice_sci.loc[:, "y_val_lin"] = y_lin_slice
-    df_slice_sci.loc[:, "y_mcp"] = y_mcp_slice
-    df_slice_sci.loc[:, "y_mcp_lin"] = y_mcp_lin_slice
-    df_slice_sci.loc[:, "y_deg"] = y_deg_slice
-    df_slice_sci.loc[:, "y_deg_lin"] = y_deg_lin_slice
-    df_slice_sci.loc[:, "v4_shift"] = v4_shift_slice
-    df_slice_sci.loc[:, "v2_shift"] = v2_shift_slice
-
     df.loc[:, "y_val"] = y
     df.loc[:, "y_val_lin"] = y_lin
     df.loc[:, "y_mcp"] = y_mcp
     df.loc[:, "y_mcp_lin"] = y_mcp_lin
-    df.loc[:, "y_deg"] = y_deg
-    df.loc[:, "y_deg_lin"] = y_deg_lin
     df.loc[:, "v4_shift"] = v4_shift
     df.loc[:, "v2_shift"] = v2_shift
 
-    return df, df_slice_sci
+    return df
 
 
 def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=False):
@@ -683,8 +567,6 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
 
     Returns
     -------
-    df_slice_sci : pandas.DataFrame
-        The Science dataframe for the selected time range.
     df_sci : pandas.DataFrame
         The Science dataframe for the entire time range in the file.
     file_name_sci : str
@@ -692,11 +574,12 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
     """
 
     if multiple_files is False:
-
         # Read the science data
         df_sci, file_name_sci = read_binary_data_sci(
             in_file_name=file_val, save_file_name=None, number_of_decimals=6
         )
+        # Add the file_name_sci to a list
+        file_name_sci_list = [file_name_sci]
 
     else:
         # If only one of t_start and t_end is None, raise an error
@@ -705,7 +588,7 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
         ):
             raise ValueError(
                 "when multiple_files is True, both t_start and t_end must either be"
-                f"None or a valid time value. The vlaues provided are t_start ="
+                f"None or a valid time value. The values provided are t_start ="
                 f"{t_start} and t_end = {t_end}."
             )
         # If both t_start and t_end are None, raise a warning stating that the times are set to none
@@ -721,7 +604,6 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
             # Convert t_start and t_end from string to datetime in UTC timezone
             t_start = pd.to_datetime(t_start, utc=True)
             t_end = pd.to_datetime(t_end, utc=True)
-
             try:
                 # Convert t_start and t_end from string to unix time in seconds in UTC timezone
                 t_start_unix = t_start.timestamp()
@@ -791,69 +673,30 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
         df_sci = pd.concat(df_sci_list)
 
         # Set file_names_sci to dates of first and last files
-        save_dir = os.path.dirname(file_val)
-        # If save_dir does not exist, create it
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        save_dir_l1b = Path(Path(file_val).parent, "processed_data/sci/level_1b")
 
-        # Get the file name based on the os path
-        if os.name == "nt":
-            file_name_sci = (
-                save_dir
-                + "\\processed_data\\sci\\"
-                + file_name_sci_list[0].split("\\")[-1].split(".")[0].split("_")[1]
-                + "_"
-                + file_name_sci_list[0].split("\\")[-1].split(".")[0].split("_")[0]
-                + "_"
-                + file_name_sci_list[0].split("\\")[-1].split(".")[0].split("_")[2]
-                + "_"
-                + file_name_sci_list[0].split("\\")[-1].split(".")[0].split("_")[3]
-                + "_"
-                + file_name_sci_list[-1].split("\\")[-1].split(".")[0].split("_")[-4]
-                + "_"
-                + file_name_sci_list[-1].split("\\")[-1].split(".")[0].split("_")[-3]
-                + "_sci_output.csv"
-            )
-        elif os.name == "posix":
-            file_name_sci = (
-                save_dir
-                + "/processed_data/sci/"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
-                + "_"
-                + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
-                + "_"
-                + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
-                + "_sci_output.csv"
-            )
-        elif os.name == "darwin":
-            file_name_sci = (
-                save_dir
-                + "/processed_data/sci/"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
-                + "_"
-                + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
-                + "_"
-                + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
-                + "_"
-                + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
-                + "_sci_output.csv"
-            )
-        else:
-            raise OSError("Operating system not supported")
+        # If save_dir does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
 
-        print(
-            f"The Science File name =\x1b[1;32;255m{file_name_sci} \x1b[0m \n"
+        # Get the file name
+        file_name_sci = (
+            str(save_dir_l1b)
+            + "/"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
+            + "_sci_output.csv"
         )
+
+        print(f"The Science File name =\x1b[1;32;255m{file_name_sci} \x1b[0m \n")
         # Save the dataframe to a csv file
         df_sci.to_csv(file_name_sci, index=False)
 
@@ -873,21 +716,10 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
     if t_end is None:
         t_end = df_sci.index.max()
 
-    df_sci, df_slice_sci = read_csv_sci(
-        file_val=file_name_sci, t_start=t_start, t_end=t_end
-    )
-
     # Select only those where "IsCommanded" is False
-    df_slice_sci = df_slice_sci[df_slice_sci["IsCommanded"] == False]
     df_sci = df_sci[df_sci["IsCommanded"] == False]
 
     # Select only rows where all channels are greater than 0
-    df_slice_sci = df_slice_sci[
-        (df_slice_sci["Channel1"] > 0)
-        & (df_slice_sci["Channel2"] > 0)
-        & (df_slice_sci["Channel3"] > 0)
-        & (df_slice_sci["Channel4"] > 0)
-    ]
     df_sci = df_sci[
         (df_sci["Channel1"] > 0)
         & (df_sci["Channel2"] > 0)
@@ -895,51 +727,102 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
         & (df_sci["Channel4"] > 0)
     ]
 
-    # Select dataframe from timestamp t_start to t_end
-    df_slice_sci = df_sci.loc[t_start:t_end].copy()
-
-    # For both the sliced and entire dataframes, compute the x and y-coordinates and the
-    # shift in the voltages
-    x_slice, v1_shift_slice, v3_shift_slice = compute_position(
-        v1=df_slice_sci["Channel1"],
-        v2=df_slice_sci["Channel3"],
-        n_bins=401,
-        bin_min=0,
-        bin_max=4,
-    )
-
+    # For the entire dataframes, compute the x and y-coordinates and the shift in the voltages
     x, v1_shift, v3_shift = compute_position(
         v1=df_sci["Channel1"], v2=df_sci["Channel3"], n_bins=401, bin_min=0, bin_max=4
     )
 
-    # Add the x-coordinate to the dataframe
-    df_slice_sci.loc[:, "x_val"] = x_slice
-    df_slice_sci.loc[:, "v1_shift"] = v1_shift_slice
-    df_slice_sci.loc[:, "v3_shift"] = v3_shift_slice
-
     df_sci.loc[:, "x_val"] = x
     df_sci.loc[:, "v1_shift"] = v1_shift
     df_sci.loc[:, "v3_shift"] = v3_shift
-
-    y_slice, v4_shift_slice, v2_shift_slice = compute_position(
-        v1=df_slice_sci["Channel4"],
-        v2=df_slice_sci["Channel2"],
-        n_bins=401,
-        bin_min=0,
-        bin_max=4,
-    )
 
     y, v4_shift, v2_shift = compute_position(
         v1=df_sci["Channel4"], v2=df_sci["Channel2"], n_bins=401, bin_min=0, bin_max=4
     )
 
     # Add the y-coordinate to the dataframe
-    df_slice_sci.loc[:, "y_val"] = y_slice
-    df_slice_sci.loc[:, "v4_shift"] = v4_shift_slice
-    df_slice_sci.loc[:, "v2_shift"] = v2_shift_slice
-
     df_sci.loc[:, "y_val"] = y
     df_sci.loc[:, "v4_shift"] = v4_shift
     df_sci.loc[:, "v2_shift"] = v2_shift
 
-    return df_slice_sci, file_name_sci, df_sci
+    # Correct for the non-linearity in the positions using linear correction
+    # NOTE: Linear correction must be applied to the data when the data is in the
+    # voltage/dimensionless units.
+    x_lin, y_lin = lin_correction(x, y)
+
+    # Get the x,y value in mcp units
+    x_mcp, y_mcp = volt_to_mcp(x, y)
+    x_mcp_lin, y_mcp_lin = volt_to_mcp(x_lin, y_lin)
+
+    # Correct for the non-linearity in the positions using non-linear correction model
+    # NOTE: The non-linear correction is only applied on the mcp coordinates after linear correction
+    # has been applied.
+    x_mcp_nln, y_mcp_nln = non_lin_correction(x_mcp_lin, y_mcp_lin)
+
+    # Add the x-coordinate to the dataframe
+    df_sci.loc[:, "x_val_lin"] = x_lin
+    df_sci.loc[:, "x_mcp"] = x_mcp
+    df_sci.loc[:, "x_mcp_lin"] = x_mcp_lin
+    df_sci.loc[:, "x_mcp_nln"] = x_mcp_nln
+
+    # Add the y-coordinate to the dataframe
+    df_sci.loc[:, "y_val_lin"] = y_lin
+    df_sci.loc[:, "y_mcp"] = y_mcp
+    df_sci.loc[:, "y_mcp_lin"] = y_mcp_lin
+    df_sci.loc[:, "y_mcp_nln"] = y_mcp_nln
+
+    if multiple_files is True:
+        # Set file_names_sci to dates of first and last files
+        save_dir_l1b = Path(Path(file_val), "processed_data/sci/level_1b")
+
+        # If the save_dir_l1b does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
+    else:
+        # Set file_names_sci to dates of first and last files
+        save_dir_l1b = Path(Path(file_val).parent, "processed_data/sci/level_1b")
+
+        # If the save_dir_l1b does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
+
+    # Get the file name
+    # Check if the length of file_name_sci_list is greater than 1. If it is greater than 1, then the
+    # file name should be the first and last file name. Else, the file name should be the first file
+    if len(file_name_sci_list) > 1:
+        file_name_sci = (
+            str(save_dir_l1b)
+            + "/"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
+            + "_level_1b.csv"
+        )
+    else:
+        file_name_sci = (
+            str(save_dir_l1b)
+            + "/"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
+            + "_level_1b.csv"
+        )
+
+    # Save the dataframe to a csv file
+    df_sci.to_csv(file_name_sci, index=False)
+    # Print in green color that the file has been saved
+    print(
+        f"\n \x1b[1;32;255m Saved the dataframes to csv files. \n"
+        f"The Science File name =\x1b[1;32;255m{file_name_sci} \x1b[0m \n"
+    )
+    return file_name_sci, df_sci
