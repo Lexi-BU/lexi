@@ -144,38 +144,31 @@ class LEXI:
         # Slice to RA/DEC range, interpolate to RA/DEC res
         # For now just interpolate Cadin data:
 
-        breakpoint()
         # TODO: when using actual data, check that axes are correct (index/column to ra/dec)
         rosat_df.index = np.linspace(self.ra_range[0], self.ra_range[1], 100)
         rosat_df.columns = np.linspace(self.dec_range[0], self.dec_range[1], 100)
-        # TODO: Problemino:
-        # If the new resolution is not a perfect multiple of the old resolution (the general case),
-        # then the reindex will throw out most of the rows/columns...
-        # You could upsample all the way to the LCM and downsample again, but with the right (wrong) numbers
-        # that will probably land you with an unworkably enormous array here...
-        # There's no way this is not a solved pandas problem -_-
-        bigrosat = rosat_df.reindex(index=np.arange(self.ra_range[0], self.ra_range[1], self.ra_res),
-                                    columns=np.arange(self.dec_range[0], self.dec_range[1], self.dec_res))#.interpolate().interpolate(axis=1)
+        # Reindex to include desired RA/DEC indices (but don't throw out old indices yet; need for interpolation)
+        desired_ra_idx = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
+        desired_dec_idx = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
+        rosat_enlarged_idx = rosat_df.reindex(index=np.union1d(rosat_df.index, desired_ra_idx),
+                                              columns=np.union1d(rosat_df.columns, desired_dec_idx))
+        # Interpolate and then throw out the old indices to get correct dimensions
         # TODO: In general (for ephemeris data as well as here) wouldn't we rather do linear interpolation than ffill???
-        bigrosat = bigrosat.interpolate()
-        bigrosat = bigrosat.interpolate(axis=1)
+        rosat_interpolated = rosat_enlarged_idx.interpolate(method='index').interpolate(method='index',axis=1)
+        rosat_resampled = rosat_interpolated.reindex(index=desired_ra_idx,columns=desired_dec_idx)
+
+        #return [rosat_resampled] # k it works but I should test for downsampling as well;
+        # am upsampling the fake data but my understanding is the rosat data will be higher res than what we want
+        # ^ TODO
 
         # Sanity check this "multiply" step by literally making a rectangle:
-        rectangle = np.full((400,270), 1)
-        rectangle[0:100,0:70] = 0
+        #rectangle = np.full((400,270), 1)
+        #rectangle[0:100,0:70] = 0
         #return [rectangle]
         #return [e * rectangle for e in exposure_maps] # K well this works as expected...
 
-        # What if I just look at bigrosat
-        return [bigrosat]
-
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
-        #sky_backgrounds = exposure_maps * bigrosat
-        # Blagh, right now it won't do this because the dimensions... are correct but I guess are not labeled the same???
-        # anyway, pandas can't tell that the dimensions are OK.
-        # For now, doing it manually:
-        # TODO fix
-        sky_backgrounds = [e * bigrosat for e in exposure_maps]
+        sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
         return sky_backgrounds
 
