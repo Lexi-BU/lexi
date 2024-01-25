@@ -249,12 +249,12 @@ def exposure_map(
             for row in group.itertuples():
               # Get distance in degrees to the pointing step
               # Wrap-proofing: First make everything [0,360), then +-360 on second operand
-              ra_diff  = min(abs((ra_grid_arr%360)-(row.mp_ra%360))
-                            ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
-                            ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
-              dec_diff = min(abs((dec_grid_arr%360)-(row.mp_dec%360))
-                            ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
-                            ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
+              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.mp_ra%360))
+                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
+                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
+              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.mp_dec%360))
+                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
+                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
               r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
               # Make an exposure delta for this span
               exposure_delt = np.where(
