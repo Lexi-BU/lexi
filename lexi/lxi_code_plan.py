@@ -47,8 +47,13 @@ class LEXI:
         self.dec_range = input_params.get("dec_range", [-21.0, 6.0]) # DEC range in degrees for plotted histogram
         self.ra_res = input_params.get("ra_res", 0.1) # RA res in degrees. Ideal value is 0.1 deg
         self.dec_res = input_params.get("dec_res", 0.1) # DEC res in degrees. Ideal value is 0.1 deg
-        # TODO Add "nbins" option, decide which one "wins" if both supplied.
-        # Do the conversion here; then all the other functions can just assume one or the other.
+        if input_params.get("nbins") is not None:
+            nbins = input_params["nbins"]
+            if input_params.get("ra_res") or input_params.get("dec_res"):
+                print(f"Requested both (ra_res and/or dec_res) and nbins; ignoring res value and using "
+                      f"requested nbins of {nbins}")
+            self.ra_res = (self.ra_range[1] - self.ra_range[0]) / nbins
+            self.dec_res = (self.dec_range[1] - self.dec_range[0]) / nbins
 
 
     # Define the first function called "get_spc_prams" that takes time as an argument and returns the
