@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel
-from sklearn.gaussian_process import GaussianProcessRegressor
 
 # Turn on latex rendering for matplotlib
 plt.rc("text", usetex=True)
@@ -233,7 +231,7 @@ xy_new_holes_nan = np.array(
 )
 
 gp_model_file_name = (
-    "../data/gp_models/gp_data_3.0_10_0.0_0.8_4_Matern(length_scale=5, nu=0.5).pickle"
+    "../data/gp_models/gp_data_3.0_10_0.0_0.8_4_Matern(length_scale=5, nu=2.5).pickle"
 )
 
 # Get the gp_model from the pickle file
