@@ -20,7 +20,15 @@ class LEXI:
         self.filename = input_params.get("filename", "../data/LEXI_pointing_ephem_highres") # filename to save df to
         self.filetype = input_params.get("filetype", "pkl") # Filetype to save df to. Options: 'csv','pkl'
 
-        self.interp_method = input_params.get("interp_method", "ffill") # Interpolation method
+        # Interpolation method used when upsampling/resampling ephemeris data, ROSAT data
+        self.interp_method = input_params.get("interp_method", "index")
+        if self.interp_method not in ["linear", "index", "values", "pad"]:
+            print(f"Requested integration method '{self.interp_method}' not currently supported; "
+                  f"defaulting to 'index'. Currently supported interpolation methods include: "
+                  f"linear, index, values, pad. See pandas.DataFrame.interpolate documentation "
+                  f"for more information.")
+            self.interp_method = "index"
+        # Toggle background correction
         self.background_correction_on = input_params.get("background_correction_on", True)
 
         # ZLC: should document what time formats are appropriate
@@ -81,8 +89,10 @@ class LEXI:
         # Make datetime index from epoch_utc
         df.index = pd.DatetimeIndex(df.epoch_utc)
         # Slice, resample, interpolate
-        # TODO: get interpolation method from user dict instead of hardcoding 'ffill'
-        return df[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])].resample(pd.Timedelta(self.t_step, unit='s')).ffill()
+        dfslice = df[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])]
+        dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
+        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        return dfinterp
 
 
 
@@ -153,8 +163,7 @@ class LEXI:
         rosat_enlarged_idx = rosat_df.reindex(index=np.union1d(rosat_df.index, desired_ra_idx),
                                               columns=np.union1d(rosat_df.columns, desired_dec_idx))
         # Interpolate and then throw out the old indices to get correct dimensions
-        # TODO: In general (for ephemeris data as well as here) wouldn't we rather do linear interpolation than ffill???
-        rosat_interpolated = rosat_enlarged_idx.interpolate(method='index').interpolate(method='index',axis=1)
+        rosat_interpolated = rosat_enlarged_idx.interpolate(method=self.interp_method).interpolate(method=self.interp_method,axis=1)
         rosat_resampled = rosat_interpolated.reindex(index=desired_ra_idx,columns=desired_dec_idx)
 
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
