@@ -247,11 +247,15 @@ def exposure_map(
             print(group, end="\n\n")
 
             for row in group.itertuples():
-              # TODO ZLC wait... also need to modulo 360 right?!
               # Get distance in degrees to the pointing step
-              r = np.sqrt(
-                  (ra_grid_arr - row.mp_ra) ** 2 + (dec_grid_arr - row.mp_dec) ** 2
-              )
+              # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+              ra_diff  = min(abs((ra_grid_arr%360)-(row.mp_ra%360))
+                            ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
+                            ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
+              dec_diff = min(abs((dec_grid_arr%360)-(row.mp_dec%360))
+                            ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
+                            ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
+              r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
               # Make an exposure delta for this span
               exposure_delt = np.where(
                   (r < lexi_fov * 0.5), vignette(r) * t_step, 0
