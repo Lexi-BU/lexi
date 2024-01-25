@@ -151,14 +151,14 @@ def read_binary_data_sci(
     if "payload" in in_file_name:
         while index < len(raw) - 28:
             if (
-                raw[index : index + 2] == sync_pit
-                and raw[index + 12 : index + 16] == sync_lxi
+                raw[index:index + 2] == sync_pit
+                and raw[index + 12:index + 16] == sync_lxi
             ):
-                packets.append(sci_packet_cls.from_bytes(raw[index : index + 28]))
+                packets.append(sci_packet_cls.from_bytes(raw[index:index + 28]))
                 index += 28
                 continue
-            elif (raw[index : index + 2] == sync_pit) and (
-                raw[index + 12 : index + 16] != sync_lxi
+            elif (raw[index:index + 2] == sync_pit) and (
+                raw[index + 12:index + 16] != sync_lxi
             ):
                 # Ignore the last packet
                 if index >= len(raw) - 28 - 16:
@@ -167,16 +167,16 @@ def read_binary_data_sci(
                     index += 28
                     continue
                 # Check if sync_lxi is present in the next 16 bytes
-                if sync_lxi in raw[index + 12 : index + 28] and index + 28 < len(raw):
+                if sync_lxi in raw[index + 12:index + 28] and index + 28 < len(raw):
                     # Find the index of sync_lxi
                     index_sync = (
-                        index + 12 + raw[index + 12 : index + 28].index(sync_lxi)
+                        index + 12 + raw[index + 12:index + 28].index(sync_lxi)
                     )
                     # Reorder the packet
                     new_packet = (
-                        raw[index + 28 : index + 12 + 28]
-                        + raw[index_sync : index + 28]
-                        + raw[index + 12 + 28 : index_sync + 28]
+                        raw[index + 28:index + 12 + 28]
+                        + raw[index_sync:index + 28]
+                        + raw[index + 12 + 28:index_sync + 28]
                     )
                     # Check if the packet length is 28
                     if len(new_packet) != 28:
@@ -187,34 +187,34 @@ def read_binary_data_sci(
                     index += 28
                     continue
                 # Check if raw[index - 3:index] + raw[index+12:index+13] == sync_lxi
-                elif raw[index - 3 : index] + raw[index + 12 : index + 13] == sync_lxi:
+                elif raw[index - 3:index] + raw[index + 12:index + 13] == sync_lxi:
                     # Reorder the packet
                     new_packet = (
-                        raw[index : index + 12]
-                        + raw[index - 3 : index]
-                        + raw[index + 12 : index + 25]
+                        raw[index:index + 12]
+                        + raw[index - 3:index]
+                        + raw[index + 12:index + 25]
                     )
                     packets.append(sci_packet_cls.from_bytes(new_packet))
                     index += 28
                     continue
                 # Check if raw[index - 2:index] + raw[index+12:index+14] == sync_lxi
-                elif raw[index - 2 : index] + raw[index + 12 : index + 14] == sync_lxi:
+                elif raw[index - 2:index] + raw[index + 12:index + 14] == sync_lxi:
                     # Reorder the packet
                     new_packet = (
-                        raw[index : index + 12]
-                        + raw[index - 2 : index]
-                        + raw[index + 13 : index + 26]
+                        raw[index:index + 12]
+                        + raw[index - 2:index]
+                        + raw[index + 13:index + 26]
                     )
                     packets.append(sci_packet_cls.from_bytes(new_packet))
                     index += 28
                     continue
                 # Check if raw[index - 1:index] + raw[index+12:index+15] == sync_lxi
-                elif raw[index - 1 : index] + raw[index + 12 : index + 15] == sync_lxi:
+                elif raw[index - 1:index] + raw[index + 12:index + 15] == sync_lxi:
                     # Reorder the packet
                     new_packet = (
-                        raw[index : index + 12]
-                        + raw[index - 1 : index]
-                        + raw[index + 14 : index + 27]
+                        raw[index:index + 12]
+                        + raw[index - 1:index]
+                        + raw[index + 14:index + 27]
                     )
                     packets.append(sci_packet_cls.from_bytes(new_packet))
                     index += 28
@@ -233,7 +233,7 @@ def read_binary_data_sci(
         + "_sci_output.csv"
     )
     output_folder_name = (
-        os.path.dirname(os.path.normpath(in_file_name)) + "/processed_data/sci"
+        os.path.dirname(os.path.normpath(in_file_name)) + "/processed_data/sci/level_1a"
     )
     save_file_name = output_folder_name + "/" + output_file_name
 
@@ -293,8 +293,7 @@ def read_binary_data_sci(
     df = pd.read_csv(save_file_name)
 
     # Convert the date column to datetime
-    print(df["Date"])
-    df["Date"] = pd.to_datetime(df["Date"])
+    df["Date"] = pd.to_datetime(df["Date"], format="mixed", utc=True)
 
     # Set index to the date
     df.set_index("Date", inplace=False)
@@ -445,8 +444,8 @@ def compute_position(v1=None, v2=None, n_bins=401, bin_min=0, bin_max=4):
     # Find the index where the histogram is the maximum
     # NOTE/TODO: I don't quite understand why the offset is computed this way. Need to talk to
     # Dennis about this and get an engineering/physics reason for it.
-    max_index_v1 = np.argmax(hist_v1[0][0 : int(n_bins / 2)])
-    max_index_v2 = np.argmax(hist_v2[0][0 : int(n_bins / 2)])
+    max_index_v1 = np.argmax(hist_v1[0][0:int(n_bins / 2)])
+    max_index_v2 = np.argmax(hist_v2[0][0:int(n_bins / 2)])
 
     z1_min = 1000 * xx[max_index_v1]
 
@@ -579,6 +578,8 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
         df_sci, file_name_sci = read_binary_data_sci(
             in_file_name=file_val, save_file_name=None, number_of_decimals=6
         )
+        # Add the file_name_sci to a list
+        file_name_sci_list = [file_name_sci]
 
     else:
         # If only one of t_start and t_end is None, raise an error
@@ -672,15 +673,15 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
         df_sci = pd.concat(df_sci_list)
 
         # Set file_names_sci to dates of first and last files
-        save_dir = os.path.dirname(file_val)
-        # If save_dir does not exist, create it
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        save_dir_l1b = Path(Path(file_val).parent, "processed_data/sci/level_1b")
+
+        # If save_dir does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
 
         # Get the file name
         file_name_sci = (
-            save_dir
-            + "/processed_data/sci/"
+            str(save_dir_l1b)
+            + "/"
             + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
             + "_"
             + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
@@ -770,25 +771,58 @@ def read_binary_file(file_val=None, t_start=None, t_end=None, multiple_files=Fal
     df_sci.loc[:, "y_mcp_lin"] = y_mcp_lin
     df_sci.loc[:, "y_mcp_nln"] = y_mcp_nln
 
+    if multiple_files is True:
+        # Set file_names_sci to dates of first and last files
+        save_dir_l1b = Path(Path(file_val), "processed_data/sci/level_1b")
+
+        # If the save_dir_l1b does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
+    else:
+        # Set file_names_sci to dates of first and last files
+        save_dir_l1b = Path(Path(file_val).parent, "processed_data/sci/level_1b")
+
+        # If the save_dir_l1b does not exist, create it using Path
+        Path(save_dir_l1b).mkdir(parents=True, exist_ok=True)
+
     # Get the file name
-    file_name_sci = (
-        save_dir
-        + "/processed_data/sci/l1b/"
-        + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
-        + "_"
-        + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
-        + "_"
-        + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
-        + "_"
-        + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
-        + "_"
-        + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
-        + "_"
-        + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
-        + "_sci_output.csv"
-    )
+    # Check if the length of file_name_sci_list is greater than 1. If it is greater than 1, then the
+    # file name should be the first and last file name. Else, the file name should be the first file
+    if len(file_name_sci_list) > 1:
+        file_name_sci = (
+            str(save_dir_l1b)
+            + "/"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-4]
+            + "_"
+            + file_name_sci_list[-1].split("/")[-1].split(".")[0].split("_")[-3]
+            + "_level_1b.csv"
+        )
+    else:
+        file_name_sci = (
+            str(save_dir_l1b)
+            + "/"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[1]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[0]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[2]
+            + "_"
+            + file_name_sci_list[0].split("/")[-1].split(".")[0].split("_")[3]
+            + "_level_1b.csv"
+        )
 
     # Save the dataframe to a csv file
     df_sci.to_csv(file_name_sci, index=False)
-
+    # Print in green color that the file has been saved
+    print(
+        f"\n \x1b[1;32;255m Saved the dataframes to csv files. \n"
+        f"The Science File name =\x1b[1;32;255m{file_name_sci} \x1b[0m \n"
+    )
     return file_name_sci, df_sci
