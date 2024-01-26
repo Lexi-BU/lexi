@@ -46,16 +46,16 @@ class LEXI:
         # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
         # time resolution; then, for each look-direction datum,
         # this many seconds are added to each in-FOV cell in the exposure map.
-        # ZLC: What is a reasonable value for this? I think 0.01 is way too small?
-        self.t_step = input_params.get("t_step", 0.01)
+        # ZLC: What is a reasonable value for this? I think 0.1 is way too small?
+        self.t_step = input_params.get("t_step", 0.1)
         # integration time in seconds for lexi histograms and exposure maps
-        self.t_integrate = input_params.get("t_integrate", 60)
+        self.t_integrate = input_params.get("t_integrate", 60*10)
 
 
         # RA range to plot, in degrees. [start RA, end RA]
-        self.ra_range = input_params.get("ra_range", [325.0, 365.0])
+        self.ra_range = input_params.get("ra_range", [0.0, 360.0])
         # DEC range to plot, in degrees. [start DEC, end DEC]
-        self.dec_range = input_params.get("dec_range", [-21.0, 6.0])
+        self.dec_range = input_params.get("dec_range", [-90.0, 90.0])
         # RA resolution to plot at, in degrees. Ideal value is 0.1 deg.
         self.ra_res = input_params.get("ra_res", 0.1)
         # DEC resolution to plot at, in degrees. Ideal value is 0.1 deg.
