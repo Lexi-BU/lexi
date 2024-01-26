@@ -224,6 +224,14 @@ def exposure_map(
     except FileNotFoundError:
         print("Exposure map not found, computing now. This may take a while \n")
 
+        # TODO: REMOVE ME once we start using real ephemeris data
+        # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
+        # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
+        # Therefore...
+        spc_df['ra'] = spc_df.mp_ra
+        spc_df['dec'] = spc_df.mp_dec
+        # (end of chunk that must be removed once we start using real ephemeris data)
+
         # Set up coordinate grid
         ra_grid = np.arange(ra_range[0], ra_range[1], ra_res)
         dec_grid = np.arange(dec_range[0], dec_range[1], dec_res)
@@ -242,12 +250,12 @@ def exposure_map(
             for row in group.itertuples():
               # Get distance in degrees to the pointing step
               # Wrap-proofing: First make everything [0,360), then +-360 on second operand
-              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.mp_ra%360))
-                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
-                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
-              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.mp_dec%360))
-                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
-                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
+              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.ra%360))
+                                   ,abs((ra_grid_arr%360)-(row.ra%360-360))
+                                   ,abs((ra_grid_arr%360)-(row.ra%360+360)))
+              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.dec%360))
+                                   ,abs((dec_grid_arr%360)-(row.dec%360-360))
+                                   ,abs((dec_grid_arr%360)-(row.dec%360+360)))
               r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
               # Make an exposure delta for this span
               exposure_delt = np.where(
