@@ -66,9 +66,9 @@ class LEXI:
             ra_res/dec_res are specified, nbins will be used and ra_res/dec_res will be ignored.
         save_exposure_maps: bool
             If True, save the exposure maps to a file of given filename and filetype.
-        save_sky_background: bool
+        save_sky_backgrounds: bool
             If True, save the sky background to a file of given filename and filetype.
-        save_background_corrected_image: bool
+        save_lexi_images: bool
             If True, save the background corrected image to a file of given filename and filetype.
 
     Methods:
@@ -83,18 +83,18 @@ class LEXI:
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
             t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
             dec_range and dec_res.
-        get_sky_background:
+        get_sky_backgrounds:
             Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
             t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
             dec_range and dec_res.
-        get_background_corrected_image:
+        get_lexi_images:
             Returns an array of LEXI science histograms.
             Shape: num-images * ra-pixels * dec-pixels,
             where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
             ra_res, and dec-pixels depends on dec_range and dec_res.
         array_to_image:
-            Convert a 2D array from get_exposure_maps or get_background_corrected_image to an image.
+            Convert a 2D array from get_exposure_maps or get_lexi_images to an image.
     """
 
     def __init__(self, input_params):
@@ -108,7 +108,7 @@ class LEXI:
             "save_df", False
         )  # If True, save the dataframe to a file
         self.filename = input_params.get(
-            "filename", "../data/LEXI_pointing_ephem_highres"
+            "filename", "data/LEXI_pointing_ephem_highres"
         )  # filename to save df to
         self.filetype = input_params.get(
             "filetype", "pkl"
@@ -187,10 +187,8 @@ class LEXI:
             self.dec_res = (self.dec_range[1] - self.dec_range[0]) / dec_nbins
 
         self.save_exposure_maps = input_params.get("save_exposure_maps", False)
-        self.save_sky_background = input_params.get("save_sky_background", False)
-        self.save_background_corrected_image = input_params.get(
-            "save_background_corrected_image", False
-        )
+        self.save_sky_backgrounds = input_params.get("save_sky_backgrounds", False)
+        self.save_lexi_images = input_params.get("save_lexi_images", False)
 
     def get_spc_prams(self):
         """
@@ -359,7 +357,7 @@ class LEXI:
             # Read the exposure map from a pickle file
             # TODO: Must match filename to the save_maps step; and the filename should include ALL the params
             exposure = np.load(
-                f"../data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
+                f"data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
             )
             print("Exposure map loaded from file \n")
         except FileNotFoundError:
@@ -448,7 +446,7 @@ class LEXI:
                         figure_format="png",
                         figure_font_size=12,
                         save=True,
-                        save_path="../figures/exposure_maps",
+                        save_path="figures/exposure_maps",
                         save_name=f"exposure_map_{i}",
                         dpi=300,
                         dark_mode=False,
@@ -456,7 +454,7 @@ class LEXI:
 
         return exposure_maps
 
-    def get_sky_background(self):
+    def get_sky_backgrounds(self):
         """
         Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
         Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
@@ -534,7 +532,7 @@ class LEXI:
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
         # If requested, save the sky background as an image
-        if self.save_sky_background:
+        if self.save_sky_backgrounds:
             for i, sky_background in enumerate(sky_backgrounds):
                 self.array_to_image(
                     sky_background,
@@ -556,14 +554,14 @@ class LEXI:
                     figure_format="png",
                     figure_font_size=12,
                     save=True,
-                    save_path="../figures/sky_background",
+                    save_path="figures/sky_background",
                     save_name="sky_background_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
         return sky_backgrounds
 
-    def get_background_corrected_image(self):
+    def get_lexi_images(self):
         """
         Returns an array of LEXI science histograms. Shape: num-images.ra-pixels.dec-pixels,
         where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
@@ -664,19 +662,16 @@ class LEXI:
                 except ValueError:
                     pass  # photon was out of bounds on one or both axes
 
-        # Early exit if no bg correction
-        if not self.background_correction_on:
-            return histograms
+        # Do background correction if requested
+        if self.background_correction_on:
+            sky_backgrounds = self.get_sky_backgrounds()
+            histograms = np.maximum(histograms - sky_backgrounds, 0)
 
-        # Else make background corrected images
-        sky_backgrounds = self.get_sky_background()
-        bgcorr_histograms = np.maximum(histograms - sky_backgrounds, 0)
-
-        # If requested, save the background corrected image as an image
-        if self.save_background_corrected_image:
-            for i, bgcorr_histogram in enumerate(bgcorr_histograms):
+        # If requested, save the histograms as images
+        if self.save_lexi_images:
+            for i, histogram in enumerate(histograms):
                 self.array_to_image(
-                    bgcorr_histogram,
+                    histogram,
                     x_range=self.ra_range,
                     y_range=self.dec_range,
                     v_min=0,
@@ -685,7 +680,9 @@ class LEXI:
                     norm=None,
                     norm_type="linear",
                     aspect="auto",
-                    figure_title="Background Corrected Image",
+                    figure_title="Background Corrected LEXI Image"
+                    if self.background_correction_on
+                    else "LEXI Image (no background correction)",
                     show_colorbar=True,
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
@@ -695,13 +692,13 @@ class LEXI:
                     figure_format="png",
                     figure_font_size=12,
                     save=True,
-                    save_path="../figures/background_corrected_image",
-                    save_name="background_corrected_image_{i}",
+                    save_path="figures/lexi_images",
+                    save_name="lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
 
-        return bgcorr_histograms
+        return histograms
 
     # TODO make FITS files
 
