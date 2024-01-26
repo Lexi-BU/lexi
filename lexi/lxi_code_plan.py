@@ -1,8 +1,12 @@
 # Define class called LEXI with a list of different functions that can be called
 import numpy as np
 import pandas as pd
+import urllib.request
+from pathlib import Path
 from spacepy import pycdf
+
 from .lxi_exposure_map_fnc import exposure_map
+import warnings
 
 
 # TODO: Rewrite all docstrings
@@ -10,10 +14,23 @@ from .lxi_exposure_map_fnc import exposure_map
 class LEXI:
 
     def __init__(self, input_params):
+        """
+        TODO all those comments below should probably just go in a nice docstring...
+        """
 
-        self.LEXI_FOV = 9.1 # LEXI field of view in degrees
+        # ==============================================================================
+        #                              Constants
+        # ==============================================================================
 
-        # Set up input parameters
+        # LEXI field of view in degrees
+        self.LEXI_FOV = 9.1
+
+        # Link to the CDAweb website, from which ephemeris data are pulled
+        self.CDA_LINK = "https://cdaweb.gsfc.nasa.gov/pub/data/lexi/ephemeris/"
+
+        # ==============================================================================
+        #                      User-defined input parameters
+        # ==============================================================================
 
         # ZLC: should probably clarify what "the dataframe" is supposed to refer to (final? expmaps? skybgs? other?)
         # ZLC: Also, should make sure these are actually respected, else remove them
@@ -24,121 +41,185 @@ class LEXI:
         # Interpolation method used when upsampling/resampling ephemeris data, ROSAT data
         self.interp_method = input_params.get("interp_method", "index")
         if self.interp_method not in ["linear", "index", "values", "pad"]:
-            print(f"Requested integration method '{self.interp_method}' not currently supported; "
-                  f"defaulting to 'index'. Currently supported interpolation methods include: "
-                  f"linear, index, values, pad. See pandas.DataFrame.interpolate documentation "
-                  f"for more information.")
+            warnings.warn(f"Requested integration method '{self.interp_method}' not currently supported; "
+                f"defaulting to 'index'. Currently supported interpolation methods include: "
+                f"linear, index, values, pad. See pandas.DataFrame.interpolate documentation "
+                f"for more information.")
             self.interp_method = "index"
         # Toggle background correction
         self.background_correction_on = input_params.get("background_correction_on", True)
 
-        # ZLC: should document what time formats are appropriate
-        # ZLC: should check this is not None and is [a, b]; maybe change them to pd.Timestamps right here
-        # and raise error if cannot
-        self.t_range = input_params.get("t_range")
-        # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
-        # time resolution; then, for each look-direction datum,
-        # this many seconds are added to each in-FOV cell in the exposure map.
-        # ZLC: What is a reasonable value for this? I think 0.01 is way too small?
-        self.t_step = input_params.get("t_step", 0.01)
-        # integration time in seconds for lexi histograms and exposure maps
-        self.t_integrate = input_params.get("t_integrate", 60)
-
-        self.ra_range = input_params.get("ra_range", [325.0, 365.0]) # RA range in degrees for plotted histogram
-        self.dec_range = input_params.get("dec_range", [-21.0, 6.0]) # DEC range in degrees for plotted histogram
-        self.ra_res = input_params.get("ra_res", 0.1) # RA res in degrees. Ideal value is 0.1 deg
-        self.dec_res = input_params.get("dec_res", 0.1) # DEC res in degrees. Ideal value is 0.1 deg
-        if input_params.get("nbins") is not None:
-            nbins = input_params["nbins"]
-            if input_params.get("ra_res") or input_params.get("dec_res"):
-                print(f"Requested both (ra_res and/or dec_res) and nbins; ignoring res value and using "
-                      f"requested nbins of {nbins}")
-            self.ra_res = (self.ra_range[1] - self.ra_range[0]) / nbins
-            self.dec_res = (self.dec_range[1] - self.dec_range[0]) / nbins
-
-
-    # Define the first function called "get_spc_prams" that takes time as an argument and returns the
-    # time, look direction, and roll angle of the lander
-    def get_spc_prams(self):
-        # Define the time, look direction (gamma) and the roll angle (phi) of the lander
-        # Define the format of each of the inputs
-        #    --time: [start time, end time]
-        #    This will be a list of two elements, the first element is the start time and the second
-        #    element is the end time. Each element of the list can be either of the following types:
+        # Time range to consider. [start time, end time]
+        # Times can be expressed in the following formats:
         #    1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
         #    2. A datetime object
         #    3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        self.t_range = input_params.get("t_range")
+        if type(self.t_range) not in [tuple, list]:
+            raise TypeError(f"t_range should be a tuple or list; instead got {type(self.t_range)}")
+        if len(self.t_range) != 2:
+            raise ValueError(f"t_range should contain exactly 2 elements; instead got {len(self.t_range)}")
+        try:
+          # (the 'unit' arg is only used if input is of type int/float, so no type checking is needed here)
+          self.t_range = (pd.Timestamp(self.t_range[0], unit='s'), pd.Timestamp(self.t_range[1], unit='s'))
+        except ValueError as err:
+            raise ValueError(f"Could not process the given t_range: {err}. Check that t_range is in "
+                             f"one of the allowed formats.")
 
-        #    --time_resolution: float
-        #    This will be a float that defines the time resolution of the data in seconds
+        # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
+        # time resolution; then, for each look-direction datum,
+        # this many seconds are added to each in-FOV cell in the exposure map.
+        # ZLC: What is a reasonable value for this? I think 0.1 is way too small?
+        self.t_step = input_params.get("t_step", 0.1)
+        # integration time in seconds for lexi histograms and exposure maps
+        self.t_integrate = input_params.get("t_integrate", 60*10)
 
-        #    --gamma: 1-d array of floats in the range of [0, 2*pi] where the length of the array
-        #    will be defined by the number of data points in the time range as derived from reading
-        #    the lander ephemeris file
 
-        #    --alpha: 1-d array of floats in the range of [0, 2*pi] where the length of the array
-        #    will be defined by the number of data points in the time range as derived from reading
-        #    the lander ephemeris file
+        # RA range to plot, in degrees. [start RA, end RA]
+        self.ra_range = input_params.get("ra_range", [0.0, 360.0])
+        # DEC range to plot, in degrees. [start DEC, end DEC]
+        self.dec_range = input_params.get("dec_range", [-90.0, 90.0])
+        # RA resolution to plot at, in degrees. Ideal value is 0.1 deg.
+        self.ra_res = input_params.get("ra_res", 0.1)
+        # DEC resolution to plot at, in degrees. Ideal value is 0.1 deg.
+        self.dec_res = input_params.get("dec_res", 0.1)
+        # Alternative to ra_res/dec_res: nbins defines the number of bins in the RA and DEC directions.
+        # Either a scalar integer or [ra_nbins, dec_nbins].
+        if input_params.get("nbins") is not None:
+            nbins = input_params["nbins"]
+            ra_nbins, dec_nbins = (nbins[0],nbins[1]) if type(nbins) in [tuple, list] else (nbins, nbins)
+            if input_params.get("ra_res") or input_params.get("dec_res"):
+                print(f"Both (ra_res and/or dec_res) and nbins were specified; ignoring res value and setting "
+                      f"RA nbins: {ra_nbins}, DEC nbins: {dec_nbins}")
+            self.ra_res = (self.ra_range[1] - self.ra_range[0]) / ra_nbins
+            self.dec_res = (self.dec_range[1] - self.dec_range[0]) / dec_nbins
 
-        #    --time_array: 1-d array of floats in the range of [time[0], time[1]] where the length of
-        #    the array will be defined by the number of data points in the time range as derived from
-        #    reading the lander ephemeris file
 
-        # If a time resolution is given then the code will also interpolate the ephemeris data to the
-        # given time resolution
 
-        # Note: Current sample data does not include roll angle.
-        # Roll angle = gimbal + lander + altitude
+    def get_spc_prams(self):
+        """
+        Gets spacecraft ephemeris data for the given t_range by downloading the appropriate file(s)
+        from the NASA CDAweb website.
 
-        # TODO: Need to decide on path to the actual spc params file...
+        Returns a dataframe containing all ephemeris data (time, look direction RA, look direction DEC,
+        roll angle, and potentially other columns), sliced to t_range and interpolated to t_step using
+        interp_method.
+        """
+        # TODO: REMOVE ME once we start using real ephemeris data
         df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
-        # Make datetime index from epoch_utc
         df.index = pd.DatetimeIndex(df.epoch_utc)
-        # Slice, resample, interpolate
-        dfslice = df[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])]
+        dfslice = df[self.t_range[0]:self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
         dfinterp = dfresamp.interpolate(method=self.interp_method)
+        return dfinterp
+        # (end of chunk that must be removed once we start using real ephemeris data)
+
+
+        # Get the year, month, and day of the start and stop times
+        start_time = self.t_range[0]
+        stop_time = self.t_range[1]
+
+        start_year = start_time.year
+        start_month = start_time.month
+        start_day = start_time.day
+
+        stop_year = stop_time.year
+        stop_month = stop_time.month
+        stop_day = stop_time.day
+
+        # Given that ephemeris files are named in the the format of lexi_ephm_YYYYMMDD_v01.cdf, get a
+        # list of all the files that are within the time range of interest
+        file_list = []
+        for year in range(start_year, stop_year + 1):
+            for month in range(start_month, stop_month + 1):
+                for day in range(start_day, stop_day + 1):
+                    # Create a string for the date in the format of YYYYMMDD
+                    date_string = str(year) + str(month).zfill(2) + str(day).zfill(2)
+
+                    # Create a string for the filename
+                    filename = "lexi_ephm_" + date_string + "_v01.cdf"
+
+                    # Create a string for the full link to the file
+                    link = self.CDA_LINK + filename
+
+                    # Try to open the link, if it doesn't exist then skip to the next date
+                    try:
+                        urllib.request.urlopen(link)
+                    except urllib.error.HTTPError:
+                        # Print in that the file doesn't exist or is unavailable for download from the CDAweb website
+                        warnings.warn(
+                            f"Following file is unavailable for downloading or doesn't exist. Skipping the file: \033[93m {filename}\033[0m"
+                        )
+                        continue
+
+                    # If the link exists, then check if the date is within the time range of interest
+                    # If it is, then add it to the list of files to download
+                    if (
+                        (year == start_year)
+                        and (month == start_month)
+                        and (day < start_day)
+                    ):
+                        continue
+                    elif (year == stop_year) and (month == stop_month) and (day > stop_day):
+                        continue
+                    else:
+                        file_list.append(filename)
+
+        # Download the files in the file list to the data/ephemeris directory
+        data_dir = Path(__file__).resolve().parent.parent / "data/ephemeris"
+        # If the data directory doesn't exist, then create it
+        Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+        # Download the files in the file list to the data/ephemeris directory
+        for file in file_list:
+            urllib.request.urlretrieve(self.CDA_LINK + file, data_dir / file)
+
+        # Read the files into a single dataframe
+        df_list = []
+        for file in file_list:
+            eph_data = pycdf.CDF(file)
+            # Save the data to a dataframe
+            df = pd.DataFrame()
+            df["epoch_utc"] = eph_data["Epoch"]
+            df["ra"] = eph_data["RA"]
+            df["dec"] = eph_data["DEC"]
+            df["roll"] = eph_data["ROLL"]
+
+            # Set the index to be the epoch_utc column
+            df = df.set_index("epoch_utc", inplace=False)
+            # Set the timezone to UTC
+            df = df.tz_localize("UTC")
+            # Append the dataframe to the list of dataframes
+            df_list.append(df)
+
+        # Concatenate the list of dataframes into a single dataframe
+        df = pd.concat(df_list)
+
+        # Sort the dataframe by the index
+        df = df.sort_index()
+
+        # Remove any duplicate rows
+        df = df[~df.index.duplicated(keep="first")]
+
+        # Remove any rows that have NaN values
+        df = df.dropna()
+
+        # Slice, resample, interpolate
+        dfslice = df[self.t_range[0]:self.t_range[1]]
+        dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
+        dfinterp = dfresamp.interpolate(method=self.interp_method)
+
         return dfinterp
 
 
 
-    # Define a second function which takes the following list of arguments:
-    #    --time
-    #    --RA
-    #    --DEC
-    #    --binsize
-    #    --nbins
-    #    --integration_time
-    # The function then computes the sky background and returns the sky background
     def get_sky_background(self):
-        # Define the format of each of the inputs
-        #    --time: [start time, end time] (see above for the format of the time input)
-        #    --RA: [start RA, end RA]
-        #    This will be a list of two elements, the first element is the start RA and the second
-        #    element is the end RA. Each element of the list can be either of the following types:
-        #    1. A string in the format 'HH:MM:SS' (e.g. '00:00:00')
-        #    2. A float in the format of decimal hours (e.g. 0.0)
-
-        #    --DEC: [start DEC, end DEC]
-        #    This will be a list of two elements, the first element is the start DEC and the second
-        #    element is the end DEC. Each element of the list can be either of the following types:
-        #    1. A float in the format of decimal degrees (e.g. 0.0)
-
-        #    --binsize: [RA binsize, DEC binsize] (optional)
-        #    This will be a float that defines the size of the bins in degrees for DEC and in minutes
-        #    for RA.
-
-        #    --nbins: int or 1x2 array (optional)
-        #    This will be an integer that defines the number of bins in the RA and DEC directions
-
-        #    --integration_time: float
-        #    This will be a float that defines the integration time of the data in seconds
-
-        # The code will then compute the sky background for the given time, RA, DEC, binsize, nbins,
-        # and integration time and by accessing the get_spc_prams function to get the time, look
-        # direction (gamma) and the roll angle (phi) of the lander. The code will then return the
-        # sky background
-
+        """
+        Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
+        Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
+        t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+        dec_range and dec_res.
+        """
         # Get exposure maps
         exposure_maps = exposure_map(
                 spc_df = self.get_spc_prams(),
@@ -177,29 +258,12 @@ class LEXI:
 
         return sky_backgrounds
 
-    # Define a third function which takes the following list of arguments:
-    #    --time
-    #    --RA
-    #    --DEC
-    #    --binsize
-    #    --nbins
-    #    --integration_time
-    #    --background_correction
-    # The function then makes the background corrected image from LEXI data and returns the
-    # background corrected image
     def get_background_corrected_image(self):
-        # Define the format of each of the inputs
-        #    --time: [start time, end time] (see above for the format of the time input)
-        #    --RA: [start RA, end RA] (see above for the format of the RA input)
-        #    --DEC: [start DEC, end DEC] (see above for the format of the DEC input)
-        #    --binsize: [RA binsize, DEC binsize] (optional) (see above for the format of the binsize
-        #    input)
-        #    --nbins: int or 1x2 array (optional) (see above for the format of the nbins input)
-        #    --integration_time: float (see above for the format of the integration_time input)
-        #    --background_correction: bool
-        #    This will be a boolean that defines whether or not the background should be corrected
-        #    for the image. If True, the background will be corrected.
-
+        """
+        Returns an array of LEXI science histograms. Shape: num-images.ra-pixels.dec-pixels,
+        where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
+        ra_res, and dec-pixels depends on dec_range and dec_res.
+        """
         # TODO: Get actual timeseries data
         # With ra/dec resolution of 3, and no bg correction, this will draw a smiley face;
         # bg correction lops off the left side of the smile
@@ -229,7 +293,7 @@ class LEXI:
         dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
 
         # Slice to relevant time range; make groups of rows spanning t_integration
-        integ_groups = photons[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])].resample(pd.Timedelta(self.t_integrate, unit='s'))
+        integ_groups = photons[self.t_range[0]:self.t_range[1]].resample(pd.Timedelta(self.t_integrate, unit='s'))
 
         # Make as many empty lexi histograms as there are integration groups
         histograms = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))

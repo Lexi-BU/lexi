@@ -197,25 +197,22 @@ def read_create_df(input_dict=None, filename=None):
 # TODO: All parameters should just be required; then pass defaults from the LEXI class.
 # Maybe do that after we decide what is a method of the LEXI class and what is "private".
 def exposure_map(
-        spc_df,    # spacecraft orientation dataframe with timestamps,
-                   # look-directions (gamma) and roll-angles (phi).
-                   # Roll angles are not used in this function.
-        t_range, # [start time, end time] (unit/format?)
-        t_integrate, # integration interval for final LEXI histograms (in seconds)
-        t_step=0.01, # exposure map step time in seconds: For each look-direction in
-                     # [insert name of dataframe arg here],
-                     # this many seconds are added to each in-FOV cell in the exposure map.
-                     # This must correspond to the resampling/interpolation interval
-                     # given to [insert name of function here].
-        lexi_fov=9.1, # LEXI FOV in degrees
-        ra_range=[325.0, 365.0], # [start RA, end RA]
-        dec_range=[-21.0, 6.0], # [start DEC, end DEC]
-        ra_res=0.1, # RA resolution in degrees. Ideal value is 0.1 deg
-        dec_res=0.1, # DEC resolution in degrees. Ideal value is 0.1 deg
+        spc_df,
+        t_range,
+        t_integrate,
+        t_step=0.01,
+        lexi_fov=9.1,
+        ra_range=[325.0, 365.0],
+        dec_range=[-21.0, 6.0],
+        ra_res=0.1,
+        dec_res=0.1,
         save_maps=False):
     """
-    (TODO: Docstring)
-    Returns an array of exposure maps.
+    Returns an array of exposure maps, made according to the ephemeris data and the
+    specified time/integration/resolution parameters.
+    Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
+    t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+    dec_range and dec_res.
     """
     try:
         # Read the exposure map from a pickle file
@@ -227,6 +224,14 @@ def exposure_map(
     except FileNotFoundError:
         print("Exposure map not found, computing now. This may take a while \n")
 
+        # TODO: REMOVE ME once we start using real ephemeris data
+        # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
+        # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
+        # Therefore...
+        spc_df['ra'] = spc_df.mp_ra
+        spc_df['dec'] = spc_df.mp_dec
+        # (end of chunk that must be removed once we start using real ephemeris data)
+
         # Set up coordinate grid
         ra_grid = np.arange(ra_range[0], ra_range[1], ra_res)
         dec_grid = np.arange(dec_range[0], dec_range[1], dec_res)
@@ -234,7 +239,7 @@ def exposure_map(
         dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
 
         # Slice to relevant time range; make groups of rows spanning t_integration
-        integ_groups = spc_df[pd.Timestamp(t_range[0]):pd.Timestamp(t_range[1])].resample(pd.Timedelta(t_integrate, unit='s'))
+        integ_groups = spc_df[t_range[0]:t_range[1]].resample(pd.Timedelta(t_integrate, unit='s'))
 
         # Make as many empty exposure maps as there are integration groups
         exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
@@ -245,12 +250,12 @@ def exposure_map(
             for row in group.itertuples():
               # Get distance in degrees to the pointing step
               # Wrap-proofing: First make everything [0,360), then +-360 on second operand
-              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.mp_ra%360))
-                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
-                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
-              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.mp_dec%360))
-                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
-                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
+              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.ra%360))
+                                   ,abs((ra_grid_arr%360)-(row.ra%360-360))
+                                   ,abs((ra_grid_arr%360)-(row.ra%360+360)))
+              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.dec%360))
+                                   ,abs((dec_grid_arr%360)-(row.dec%360-360))
+                                   ,abs((dec_grid_arr%360)-(row.dec%360+360)))
               r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
               # Make an exposure delta for this span
               exposure_delt = np.where(
