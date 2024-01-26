@@ -64,11 +64,25 @@ class LEXI:
             Alternative to ra_res/dec_res: nbins defines the number of bins in the RA and DEC
             directions. Either a scalar integer or [ra_nbins, dec_nbins]. If both nbins and
             ra_res/dec_res are specified, nbins will be used and ra_res/dec_res will be ignored.
+        save_exposure_maps: bool
+            If True, save the exposure maps to a file of given filename and filetype.
+        save_sky_background: bool
+            If True, save the sky background to a file of given filename and filetype.
+        save_background_corrected_image: bool
+            If True, save the background corrected image to a file of given filename and filetype.
 
     Methods:
         get_spc_prams:
             Gets spacecraft ephemeris data for the given t_range by downloading the appropriate
             file(s) from the NASA CDAweb website.
+        vignette:
+            Function to calculate the vignetting factor for a given distance from boresight.
+        get_exposure_maps:
+            Returns an array of exposure maps, made according to the ephemeris data and the specified
+            time/integration/resolution parameters.
+            Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
+            t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+            dec_range and dec_res.
         get_sky_background:
             Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
@@ -79,6 +93,8 @@ class LEXI:
             Shape: num-images * ra-pixels * dec-pixels,
             where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
             ra_res, and dec-pixels depends on dec_range and dec_res.
+        array_to_image:
+            Convert a 2D array from get_exposure_maps or get_background_corrected_image to an image.
     """
 
     def __init__(self, input_params):
@@ -169,6 +185,12 @@ class LEXI:
                 )
             self.ra_res = (self.ra_range[1] - self.ra_range[0]) / ra_nbins
             self.dec_res = (self.dec_range[1] - self.dec_range[0]) / dec_nbins
+
+        self.save_exposure_maps = input_params.get("save_exposure_maps", False)
+        self.save_sky_background = input_params.get("save_sky_background", False)
+        self.save_background_corrected_image = input_params.get(
+            "save_background_corrected_image", False
+        )
 
     def get_spc_prams(self):
         """
@@ -304,7 +326,6 @@ class LEXI:
 
         return dfinterp
 
-
     def vignette(self, d):
         """
         Function to calculate the vignetting factor for a given distance from boresight
@@ -325,7 +346,6 @@ class LEXI:
         f = 1
 
         return f
-
 
     def get_exposure_maps(self, save_maps=False):
         """
@@ -351,8 +371,8 @@ class LEXI:
             # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
             # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
             # Therefore...
-            spc_df['ra'] = spc_df.mp_ra
-            spc_df['dec'] = spc_df.mp_dec
+            spc_df["ra"] = spc_df.mp_ra
+            spc_df["dec"] = spc_df.mp_dec
             # (end of chunk that must be removed once we start using real ephemeris data)
 
             # Set up coordinate grid
@@ -362,29 +382,37 @@ class LEXI:
             dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
 
             # Slice to relevant time range; make groups of rows spanning t_integration
-            integ_groups = spc_df[self.t_range[0]:self.t_range[1]].resample(pd.Timedelta(self.t_integrate, unit='s'))
+            integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
+                pd.Timedelta(self.t_integrate, unit="s")
+            )
 
             # Make as many empty exposure maps as there are integration groups
             exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
 
             # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
             # Loop through each pointing step and add the exposure to the map
-            for (map_idx, (_,group)) in enumerate(integ_groups):
+            for map_idx, (_, group) in enumerate(integ_groups):
                 for row in group.itertuples():
-                  # Get distance in degrees to the pointing step
-                  # Wrap-proofing: First make everything [0,360), then +-360 on second operand
-                  ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.ra%360))
-                                       ,abs((ra_grid_arr%360)-(row.ra%360-360))
-                                       ,abs((ra_grid_arr%360)-(row.ra%360+360)))
-                  dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.dec%360))
-                                       ,abs((dec_grid_arr%360)-(row.dec%360-360))
-                                       ,abs((dec_grid_arr%360)-(row.dec%360+360)))
-                  r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
-                  # Make an exposure delta for this span
-                  exposure_delt = np.where(
-                      (r < self.LEXI_FOV * 0.5), self.vignette(r) * self.t_step, 0
-                  )
-                  exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
+                    # Get distance in degrees to the pointing step
+                    # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+                    ra_diff = np.minimum(
+                        abs((ra_grid_arr % 360) - (row.ra % 360)),
+                        abs((ra_grid_arr % 360) - (row.ra % 360 - 360)),
+                        abs((ra_grid_arr % 360) - (row.ra % 360 + 360)),
+                    )
+                    dec_diff = np.minimum(
+                        abs((dec_grid_arr % 360) - (row.dec % 360)),
+                        abs((dec_grid_arr % 360) - (row.dec % 360 - 360)),
+                        abs((dec_grid_arr % 360) - (row.dec % 360 + 360)),
+                    )
+                    r = np.sqrt(ra_diff**2 + dec_diff**2)
+                    # Make an exposure delta for this span
+                    exposure_delt = np.where(
+                        (r < self.LEXI_FOV * 0.5), self.vignette(r) * self.t_step, 0
+                    )
+                    exposure_maps[
+                        map_idx
+                    ] += exposure_delt  # Add the delta to the full map
                 print(
                     f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                     end="\r",
@@ -398,8 +426,35 @@ class LEXI:
                     exposure_maps,
                 )
 
-        return exposure_maps
+            if self.save_exposure_maps:
+                for i, exposure in enumerate(exposure_maps):
+                    self.array_to_image(
+                        exposure,
+                        x_range=self.ra_range,
+                        y_range=self.dec_range,
+                        v_min=0,
+                        v_max=1,
+                        cmap="viridis",
+                        norm=None,
+                        norm_type="linear",
+                        aspect="auto",
+                        figure_title=f"Exposure Map {i}",
+                        show_colorbar=True,
+                        cbar_label="Seconds",
+                        cbar_orientation="vertical",
+                        show_axes=True,
+                        display=False,
+                        figure_size=(10, 10),
+                        figure_format="png",
+                        figure_font_size=12,
+                        save=True,
+                        save_path="../figures/exposure_maps",
+                        save_name=f"exposure_map_{i}",
+                        dpi=300,
+                        dark_mode=False,
+                    )
 
+        return exposure_maps
 
     def get_sky_background(self):
         """
@@ -447,7 +502,7 @@ class LEXI:
         """
         # Get exposure maps
         exposure_maps = self.get_exposure_maps(
-                save_maps = False # TODO: check if save_df param was for only final dfs, or for these too
+            save_maps=False  # TODO: check if save_df param was for only final dfs, or for these too
         )
 
         # Get ROSAT background
@@ -478,6 +533,34 @@ class LEXI:
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
+        # If requested, save the sky background as an image
+        if self.save_sky_background:
+            for i, sky_background in enumerate(sky_backgrounds):
+                self.array_to_image(
+                    sky_background,
+                    x_range=self.ra_range,
+                    y_range=self.dec_range,
+                    v_min=0,
+                    v_max=1,
+                    cmap="viridis",
+                    norm=None,
+                    norm_type="linear",
+                    aspect="auto",
+                    figure_title="Sky Background",
+                    show_colorbar=True,
+                    cbar_label="Counts/sec",
+                    cbar_orientation="vertical",
+                    show_axes=True,
+                    display=False,
+                    figure_size=(10, 10),
+                    figure_format="png",
+                    figure_font_size=12,
+                    save=True,
+                    save_path="../figures/sky_background",
+                    save_name="sky_background_{i}",
+                    dpi=300,
+                    dark_mode=False,
+                )
         return sky_backgrounds
 
     def get_background_corrected_image(self):
@@ -588,10 +671,39 @@ class LEXI:
         # Else make background corrected images
         sky_backgrounds = self.get_sky_background()
         bgcorr_histograms = np.maximum(histograms - sky_backgrounds, 0)
+
+        # If requested, save the background corrected image as an image
+        if self.save_background_corrected_image:
+            for i, bgcorr_histogram in enumerate(bgcorr_histograms):
+                self.array_to_image(
+                    bgcorr_histogram,
+                    x_range=self.ra_range,
+                    y_range=self.dec_range,
+                    v_min=0,
+                    v_max=1,
+                    cmap="viridis",
+                    norm=None,
+                    norm_type="linear",
+                    aspect="auto",
+                    figure_title="Background Corrected Image",
+                    show_colorbar=True,
+                    cbar_label="Counts/sec",
+                    cbar_orientation="vertical",
+                    show_axes=True,
+                    display=False,
+                    figure_size=(10, 10),
+                    figure_format="png",
+                    figure_font_size=12,
+                    save=True,
+                    save_path="../figures/background_corrected_image",
+                    save_name="background_corrected_image_{i}",
+                    dpi=300,
+                    dark_mode=False,
+                )
+
         return bgcorr_histograms
 
-        # TODO make FITS files
-
+    # TODO make FITS files
 
     def array_to_image(
         self,
@@ -823,7 +935,10 @@ class LEXI:
 
             save_name = save_name + "." + figure_format
             plt.savefig(
-                save_path / save_name, format=figure_format, dpi=dpi, bbox_inches="tight"
+                save_path / save_name,
+                format=figure_format,
+                dpi=dpi,
+                bbox_inches="tight",
             )
             print(f"Saved figure to {save_path / save_name}")
 
