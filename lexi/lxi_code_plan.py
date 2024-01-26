@@ -1,7 +1,10 @@
 # Define class called LEXI with a list of different functions that can be called
 import numpy as np
 import pandas as pd
+import urllib.request
+from pathlib import Path
 from spacepy import pycdf
+
 from .lxi_exposure_map_fnc import exposure_map
 import warnings
 
@@ -15,9 +18,19 @@ class LEXI:
         TODO all those comments below should probably just go in a nice docstring...
         """
 
-        self.LEXI_FOV = 9.1 # LEXI field of view in degrees
+        # ==============================================================================
+        #                              Constants
+        # ==============================================================================
 
-        # Set up input parameters
+        # LEXI field of view in degrees
+        self.LEXI_FOV = 9.1
+
+        # Link to the CDAweb website, from which ephemeris data are pulled
+        self.CDA_LINK = "https://cdaweb.gsfc.nasa.gov/pub/data/lexi/ephemeris/"
+
+        # ==============================================================================
+        #                      User-defined input parameters
+        # ==============================================================================
 
         # ZLC: should probably clarify what "the dataframe" is supposed to refer to (final? expmaps? skybgs? other?)
         # ZLC: Also, should make sure these are actually respected, else remove them
@@ -82,23 +95,120 @@ class LEXI:
             self.dec_res = (self.dec_range[1] - self.dec_range[0]) / dec_nbins
 
 
+
     def get_spc_prams(self):
         """
+        Gets spacecraft ephemeris data for the given t_range by downloading the appropriate file(s)
+        from the NASA CDAweb website.
+
         Returns a dataframe containing all ephemeris data (time, look direction RA, look direction DEC,
         roll angle, and potentially other columns), sliced to t_range and interpolated to t_step using
         interp_method.
         """
-        # Note: Current sample data does not include roll angle.
-        # Roll angle = gimbal + lander + altitude
-
-        # TODO: Need to decide on path to the actual spc params file...
+        # TODO: REMOVE ME once we start using real ephemeris data
         df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
-        # Make datetime index from epoch_utc
         df.index = pd.DatetimeIndex(df.epoch_utc)
+        dfslice = df[self.t_range[0]:self.t_range[1]]
+        dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
+        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        return dfinterp
+        # (end of chunk that must be removed once we start using real ephemeris data)
+
+
+        # Get the year, month, and day of the start and stop times
+        start_time = self.t_range[0]
+        stop_time = self.t_range[1]
+
+        start_year = start_time.year
+        start_month = start_time.month
+        start_day = start_time.day
+
+        stop_year = stop_time.year
+        stop_month = stop_time.month
+        stop_day = stop_time.day
+
+        # Given that ephemeris files are named in the the format of lexi_ephm_YYYYMMDD_v01.cdf, get a
+        # list of all the files that are within the time range of interest
+        file_list = []
+        for year in range(start_year, stop_year + 1):
+            for month in range(start_month, stop_month + 1):
+                for day in range(start_day, stop_day + 1):
+                    # Create a string for the date in the format of YYYYMMDD
+                    date_string = str(year) + str(month).zfill(2) + str(day).zfill(2)
+
+                    # Create a string for the filename
+                    filename = "lexi_ephm_" + date_string + "_v01.cdf"
+
+                    # Create a string for the full link to the file
+                    link = self.CDA_LINK + filename
+
+                    # Try to open the link, if it doesn't exist then skip to the next date
+                    try:
+                        urllib.request.urlopen(link)
+                    except urllib.error.HTTPError:
+                        # Print in that the file doesn't exist or is unavailable for download from the CDAweb website
+                        warnings.warn(
+                            f"Following file is unavailable for downloading or doesn't exist. Skipping the file: \033[93m {filename}\033[0m"
+                        )
+                        continue
+
+                    # If the link exists, then check if the date is within the time range of interest
+                    # If it is, then add it to the list of files to download
+                    if (
+                        (year == start_year)
+                        and (month == start_month)
+                        and (day < start_day)
+                    ):
+                        continue
+                    elif (year == stop_year) and (month == stop_month) and (day > stop_day):
+                        continue
+                    else:
+                        file_list.append(filename)
+
+        # Download the files in the file list to the data/ephemeris directory
+        data_dir = Path(__file__).resolve().parent.parent / "data/ephemeris"
+        # If the data directory doesn't exist, then create it
+        Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+        # Download the files in the file list to the data/ephemeris directory
+        for file in file_list:
+            urllib.request.urlretrieve(self.CDA_LINK + file, data_dir / file)
+
+        # Read the files into a single dataframe
+        df_list = []
+        for file in file_list:
+            eph_data = pycdf.CDF(file)
+            # Save the data to a dataframe
+            df = pd.DataFrame()
+            df["epoch_utc"] = eph_data["Epoch"]
+            df["ra"] = eph_data["RA"]
+            df["dec"] = eph_data["DEC"]
+            df["roll"] = eph_data["ROLL"]
+
+            # Set the index to be the epoch_utc column
+            df = df.set_index("epoch_utc", inplace=False)
+            # Set the timezone to UTC
+            df = df.tz_localize("UTC")
+            # Append the dataframe to the list of dataframes
+            df_list.append(df)
+
+        # Concatenate the list of dataframes into a single dataframe
+        df = pd.concat(df_list)
+
+        # Sort the dataframe by the index
+        df = df.sort_index()
+
+        # Remove any duplicate rows
+        df = df[~df.index.duplicated(keep="first")]
+
+        # Remove any rows that have NaN values
+        df = df.dropna()
+
         # Slice, resample, interpolate
         dfslice = df[self.t_range[0]:self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
         dfinterp = dfresamp.interpolate(method=self.interp_method)
+
         return dfinterp
 
 
