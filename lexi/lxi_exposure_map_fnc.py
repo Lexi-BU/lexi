@@ -193,70 +193,89 @@ def read_create_df(input_dict=None, filename=None):
     return df
 
 
-def exposure_map(input_dict=None, df=None, save_map=False):
+
+# TODO: All parameters should just be required; then pass defaults from the LEXI class.
+# Maybe do that after we decide what is a method of the LEXI class and what is "private".
+def exposure_map(
+        spc_df,    # spacecraft orientation dataframe with timestamps,
+                   # look-directions (gamma) and roll-angles (phi).
+                   # Roll angles are not used in this function.
+        t_range, # [start time, end time] (unit/format?)
+        t_integrate, # integration interval for final LEXI histograms (in seconds)
+        t_step=0.01, # exposure map step time in seconds: For each look-direction in
+                     # [insert name of dataframe arg here],
+                     # this many seconds are added to each in-FOV cell in the exposure map.
+                     # This must correspond to the resampling/interpolation interval
+                     # given to [insert name of function here].
+        lexi_fov=9.1, # LEXI FOV in degrees
+        ra_range=[325.0, 365.0], # [start RA, end RA]
+        dec_range=[-21.0, 6.0], # [start DEC, end DEC]
+        ra_res=0.1, # RA resolution in degrees. Ideal value is 0.1 deg
+        dec_res=0.1, # DEC resolution in degrees. Ideal value is 0.1 deg
+        save_maps=False):
+    """
+    (TODO: Docstring)
+    Returns an array of exposure maps.
+    """
     try:
         # Read the exposure map from a pickle file
+        # TODO: Must match filename to the save_maps step; and the filename should include ALL the params
         exposure = np.load(
-            f"../data/exposure_map_xres_{input_dict['x_res']}_yres_{input_dict['y_res']}_tres_{input_dict['t_res']}.npy"
+            f"../data/exposure_map_rares_{ra_res}_decres_{dec_res}_tstep_{t_step}.npy"
         )
         print("Exposure map loaded from file \n")
     except FileNotFoundError:
         print("Exposure map not found, computing now. This may take a while \n")
-        # Make array for exposure mask
-        x_grid = np.arange(
-            input_dict["xrange"][0], input_dict["xrange"][1], input_dict["x_res"]
-        )
-        y_grid = np.arange(
-            input_dict["yrange"][0], input_dict["yrange"][1], input_dict["y_res"]
-        )
-        x_grid_arr = np.tile(x_grid, (len(y_grid), 1)).transpose()
-        y_grid_arr = np.tile(y_grid, (len(x_grid), 1))
 
-        # For each item in the time list, find out its distance from
-        # Make an empty exposure map
-        exposure = np.zeros((len(x_grid), len(y_grid)))
-        zero = np.zeros(exposure.shape)
+        # Set up coordinate grid
+        ra_grid = np.arange(ra_range[0], ra_range[1], ra_res)
+        dec_grid = np.arange(dec_range[0], dec_range[1], dec_res)
+        ra_grid_arr = np.tile(ra_grid, (len(dec_grid), 1)).transpose()
+        dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
 
-        # Check how long it takes to run a single step and based on that estimate how long it will take
-        # to run
-        start_time_loop = time.time()
-        r = np.sqrt((x_grid_arr - df.mp_ra[0]) ** 2 + (y_grid_arr - df.mp_dec[0]) ** 2)
-        exposure_delt = np.where(
-            (r < input_dict["LEXI_FOV"] * 0.5), vignette(r) * input_dict["step"], 0
-        )
-        exposure += exposure_delt
-        end_time_loop = time.time()
-        print(
-            f"Estimated time to run: \x1b[1;32;255m{np.round((end_time_loop - start_time_loop) * len(df) / 60, 1)} \x1b[0m minutes"
-        )
+        # Slice to relevant time range; make groups of rows spanning t_integration
+        integ_groups = spc_df[pd.Timestamp(t_range[0]):pd.Timestamp(t_range[1])].resample(pd.Timedelta(t_integrate, unit='s'))
+
+        # Make as many empty exposure maps as there are integration groups
+        exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
+
+        # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
         # Loop through each pointing step and add the exposure to the map
-        for i in range(len(df)):
-            r = np.sqrt(
-                (x_grid_arr - df.mp_ra[i]) ** 2 + (y_grid_arr - df.mp_dec[i]) ** 2
-            )  # Get distance in degrees to the pointing step
-            exposure_delt = np.where(
-                (r < input_dict["LEXI_FOV"] * 0.5), vignette(r) * input_dict["step"], 0
-            )  # Make an exposure delta for this span
-            exposure += exposure_delt  # Add the delta to the full map
-            # Print the progress in terminal in percentage complete without a new line for each one percent
-            # increase
+        for (map_idx, (_,group)) in enumerate(integ_groups):
+            for row in group.itertuples():
+              # Get distance in degrees to the pointing step
+              # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+              ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.mp_ra%360))
+                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360-360))
+                                   ,abs((ra_grid_arr%360)-(row.mp_ra%360+360)))
+              dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.mp_dec%360))
+                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360-360))
+                                   ,abs((dec_grid_arr%360)-(row.mp_dec%360+360)))
+              r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
+              # Make an exposure delta for this span
+              exposure_delt = np.where(
+                  (r < lexi_fov * 0.5), vignette(r) * t_step, 0
+              )
+              exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
             print(
-                f"Computing exposure map ==> \x1b[1;32;255m {np.round(i/len(df)*100, 6)}\x1b[0m % complete",
+                f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                 end="\r",
             )
-        # #return exposure
 
-        # Normalize the exposure map based on input_dict[t_res]'s value
-        exposure = exposure * int(input_dict["t_res"][:-1]) / 1000
+        # TODO: Confirm this is fine: I am defining t_step to be in seconds, therefore no need for normalization.
+        # since the ROSAT data are in counts/sec anyway
+        #exposure = exposure * int(input_dict["t_res"][:-1]) / 1000
 
-        if save_map:
-            # Save the exposure map to a pickle file
+        # TODO: see above re filename and matching
+        if save_maps:
+            # Save the exposure map array to a pickle file
             np.save(
-                f"../data/exposure_map_xres_{input_dict['x_res']}_yres_{input_dict['y_res']}_tres_{input_dict['t_res']}.npy",
-                exposure,
+                #f"../data/exposure_map_rares_{ra_res}_decres_{dec_res}_tstep_{t_step}_t0_{t_range[0]}_tf_{t_range[1]}.npy",
+                f"exposure_map_rares_{ra_res}_decres_{dec_res}_tstep_{t_step}_t0_{t_range[0]}_tf_{t_range[1]}.npy",
+                exposure_maps,
             )
 
-    return exposure
+    return exposure_maps
 
 
 def matplotlib_figure(

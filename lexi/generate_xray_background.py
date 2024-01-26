@@ -10,7 +10,7 @@ x_deg, y_deg = np.meshgrid(ra_deg,dec_deg)
 x_rad = np.deg2rad(x_deg) # Convert to radians
 y_rad = np.deg2rad(y_deg)
 # Generating counts via cosine function
-counts = np.cos((x_rad+y_rad)/2*np.pi)
+counts = abs(np.cos((x_rad+y_rad)/2*np.pi))
 
 # Save counts to csv
 with open('sample_xray_background.csv','w') as f:
