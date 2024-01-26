@@ -64,11 +64,25 @@ class LEXI:
             Alternative to ra_res/dec_res: nbins defines the number of bins in the RA and DEC
             directions. Either a scalar integer or [ra_nbins, dec_nbins]. If both nbins and
             ra_res/dec_res are specified, nbins will be used and ra_res/dec_res will be ignored.
+        save_exposure_maps: bool
+            If True, save the exposure maps to a file of given filename and filetype.
+        save_sky_background: bool
+            If True, save the sky background to a file of given filename and filetype.
+        save_background_corrected_image: bool
+            If True, save the background corrected image to a file of given filename and filetype.
 
     Methods:
         get_spc_prams:
             Gets spacecraft ephemeris data for the given t_range by downloading the appropriate
             file(s) from the NASA CDAweb website.
+        vignette:
+            Function to calculate the vignetting factor for a given distance from boresight.
+        get_exposure_maps:
+            Returns an array of exposure maps, made according to the ephemeris data and the specified
+            time/integration/resolution parameters.
+            Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
+            t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+            dec_range and dec_res.
         get_sky_background:
             Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
@@ -79,6 +93,8 @@ class LEXI:
             Shape: num-images * ra-pixels * dec-pixels,
             where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
             ra_res, and dec-pixels depends on dec_range and dec_res.
+        array_to_image:
+            Convert a 2D array from get_exposure_maps or get_background_corrected_image to an image.
     """
 
     def __init__(self, input_params):
