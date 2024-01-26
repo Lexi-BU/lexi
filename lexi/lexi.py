@@ -41,6 +41,8 @@ class LEXI:
                 3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
                 This time range defines the time range of the ephemeris data and the time range of
                 the LEXI data.
+            Note that endpoints are inclusive (the end time is a closed interval); this is because
+            the time range slicing is done with pandas, and label slicing in pandas is inclusive.
         t_step: float
             Time step in seconds for time resolution of the look direction datum.
         t_integrate: float
@@ -381,7 +383,7 @@ class LEXI:
 
             # Slice to relevant time range; make groups of rows spanning t_integration
             integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
-                pd.Timedelta(self.t_integrate, unit="s")
+                pd.Timedelta(self.t_integrate, unit="s"), origin="start"
             )
 
             # Make as many empty exposure maps as there are integration groups
@@ -645,7 +647,7 @@ class LEXI:
 
         # Slice to relevant time range; make groups of rows spanning t_integration
         integ_groups = photons[self.t_range[0] : self.t_range[1]].resample(
-            pd.Timedelta(self.t_integrate, unit="s")
+            pd.Timedelta(self.t_integrate, unit="s"), origin="start"
         )
 
         # Make as many empty lexi histograms as there are integration groups

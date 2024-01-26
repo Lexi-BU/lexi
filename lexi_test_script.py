@@ -6,10 +6,10 @@ lexi = LEXI(
     {
         "t_range": [
             "2024-07-08T15:01:00",
-            "2024-07-09T15:01:00",
+            "2024-07-09T15:00:00",
         ],  # Ephemeris data timerange
         # "t_range": ["2024-05-23T21:43:41","2024-05-23T21:48:41"], # Ramiz's PIT data timerange
-        "t_integrate": 60 * 60 * 24,  # 12 hours # usually couple secs to (10m) to hour
+        "t_integrate": 60 * 60 * 12,  # 12 hours # usually couple secs to (10m) to hour
         "t_step": 3,  # 1, #30
         "ra_range": [325.0, 365.0],
         "dec_range": [-21.0, 6.0],
