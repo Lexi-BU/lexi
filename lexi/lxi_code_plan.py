@@ -7,7 +7,6 @@ from spacepy import pycdf
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from .lxi_exposure_map_fnc import exposure_map
 import warnings
 
 
@@ -214,6 +213,101 @@ class LEXI:
         return dfinterp
 
 
+    def vignette(self, d):
+        """
+        Function to calculate the vignetting factor for a given distance from boresight
+
+        Parameters
+        ----------
+        d : float
+            Distance from boresight in degrees
+
+        Returns
+        -------
+        f : float
+            Vignetting factor
+        """
+
+        # Set the vignetting factor
+        # f = 1.0 - 0.5 * (d / (LEXI_FOV * 0.5)) ** 2
+        f = 1
+
+        return f
+
+
+    def get_exposure_maps(self, save_maps=False):
+        """
+        Returns an array of exposure maps, made according to the ephemeris data and the
+        specified time/integration/resolution parameters.
+        Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
+        t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+        dec_range and dec_res.
+        """
+        try:
+            # Read the exposure map from a pickle file
+            # TODO: Must match filename to the save_maps step; and the filename should include ALL the params
+            exposure = np.load(
+                f"../data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
+            )
+            print("Exposure map loaded from file \n")
+        except FileNotFoundError:
+            print("Exposure map not found, computing now. This may take a while \n")
+
+            spc_df = self.get_spc_prams()
+
+            # TODO: REMOVE ME once we start using real ephemeris data
+            # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
+            # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
+            # Therefore...
+            spc_df['ra'] = spc_df.mp_ra
+            spc_df['dec'] = spc_df.mp_dec
+            # (end of chunk that must be removed once we start using real ephemeris data)
+
+            # Set up coordinate grid
+            ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
+            dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
+            ra_grid_arr = np.tile(ra_grid, (len(dec_grid), 1)).transpose()
+            dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
+
+            # Slice to relevant time range; make groups of rows spanning t_integration
+            integ_groups = spc_df[self.t_range[0]:self.t_range[1]].resample(pd.Timedelta(self.t_integrate, unit='s'))
+
+            # Make as many empty exposure maps as there are integration groups
+            exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
+
+            # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
+            # Loop through each pointing step and add the exposure to the map
+            for (map_idx, (_,group)) in enumerate(integ_groups):
+                for row in group.itertuples():
+                  # Get distance in degrees to the pointing step
+                  # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+                  ra_diff  = np.minimum(abs((ra_grid_arr%360)-(row.ra%360))
+                                       ,abs((ra_grid_arr%360)-(row.ra%360-360))
+                                       ,abs((ra_grid_arr%360)-(row.ra%360+360)))
+                  dec_diff = np.minimum(abs((dec_grid_arr%360)-(row.dec%360))
+                                       ,abs((dec_grid_arr%360)-(row.dec%360-360))
+                                       ,abs((dec_grid_arr%360)-(row.dec%360+360)))
+                  r = np.sqrt(ra_diff ** 2 + dec_diff ** 2)
+                  # Make an exposure delta for this span
+                  exposure_delt = np.where(
+                      (r < self.LEXI_FOV * 0.5), self.vignette(r) * self.t_step, 0
+                  )
+                  exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
+                print(
+                    f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
+                    end="\r",
+                )
+
+            # TODO: see above re filename and matching
+            if save_maps:
+                # Save the exposure map array to a pickle file
+                np.save(
+                    f"exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy",
+                    exposure_maps,
+                )
+
+        return exposure_maps
+
 
     def get_sky_background(self):
         """
@@ -223,18 +317,9 @@ class LEXI:
         dec_range and dec_res.
         """
         # Get exposure maps
-        exposure_maps = exposure_map(
-                spc_df = self.get_spc_prams(),
-                t_range = self.t_range,
-                t_integrate = self.t_integrate,
-                t_step = self.t_step,
-                lexi_fov = self.LEXI_FOV,
-                ra_range = self.ra_range,
-                dec_range = self.dec_range,
-                ra_res = self.ra_res,
-                dec_res = self.dec_res,
+        exposure_maps = self.get_exposure_maps(
                 save_maps = False # TODO: check if save_df param was for only final dfs, or for these too
-                )
+        )
 
         # Get ROSAT background
         # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
