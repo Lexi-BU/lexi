@@ -108,7 +108,7 @@ class LEXI:
             "save_df", False
         )  # If True, save the dataframe to a file
         self.filename = input_params.get(
-            "filename", "../data/LEXI_pointing_ephem_highres"
+            "filename", "data/LEXI_pointing_ephem_highres"
         )  # filename to save df to
         self.filetype = input_params.get(
             "filetype", "pkl"
@@ -188,9 +188,7 @@ class LEXI:
 
         self.save_exposure_maps = input_params.get("save_exposure_maps", False)
         self.save_sky_backgrounds = input_params.get("save_sky_backgrounds", False)
-        self.save_lexi_images = input_params.get(
-            "save_lexi_images", False
-        )
+        self.save_lexi_images = input_params.get("save_lexi_images", False)
 
     def get_spc_prams(self):
         """
@@ -359,7 +357,7 @@ class LEXI:
             # Read the exposure map from a pickle file
             # TODO: Must match filename to the save_maps step; and the filename should include ALL the params
             exposure = np.load(
-                f"../data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
+                f"data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
             )
             print("Exposure map loaded from file \n")
         except FileNotFoundError:
@@ -448,7 +446,7 @@ class LEXI:
                         figure_format="png",
                         figure_font_size=12,
                         save=True,
-                        save_path="../figures/exposure_maps",
+                        save_path="figures/exposure_maps",
                         save_name=f"exposure_map_{i}",
                         dpi=300,
                         dark_mode=False,
@@ -556,7 +554,7 @@ class LEXI:
                     figure_format="png",
                     figure_font_size=12,
                     save=True,
-                    save_path="../figures/sky_background",
+                    save_path="figures/sky_background",
                     save_name="sky_background_{i}",
                     dpi=300,
                     dark_mode=False,
@@ -664,7 +662,6 @@ class LEXI:
                 except ValueError:
                     pass  # photon was out of bounds on one or both axes
 
-
         # Do background correction if requested
         if self.background_correction_on:
             sky_backgrounds = self.get_sky_backgrounds()
@@ -683,7 +680,9 @@ class LEXI:
                     norm=None,
                     norm_type="linear",
                     aspect="auto",
-                    figure_title="Background Corrected LEXI Image" if self.background_correction_on else "LEXI Image (no background correction)",
+                    figure_title="Background Corrected LEXI Image"
+                    if self.background_correction_on
+                    else "LEXI Image (no background correction)",
                     show_colorbar=True,
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
@@ -693,7 +692,7 @@ class LEXI:
                     figure_format="png",
                     figure_font_size=12,
                     save=True,
-                    save_path="../figures/lexi_images",
+                    save_path="figures/lexi_images",
                     save_name="lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
