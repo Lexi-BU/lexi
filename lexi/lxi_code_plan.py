@@ -35,18 +35,14 @@ class LEXI:
         # Toggle background correction
         self.background_correction_on = input_params.get("background_correction_on", True)
 
-        # ZLC: should document what time formats are appropriate
-        # ZLC: should check this is not None and is [a, b]; maybe change them to pd.Timestamps right here
-        # and raise error if cannot
-        #    --time: [start time, end time]
-        #    This will be a list of two elements, the first element is the start time and the second
-        #    element is the end time. Each element of the list can be either of the following types:
+        # Time range to consider. [start time, end time]
+        # Times can be expressed in the following formats:
         #    1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
         #    2. A datetime object
-        #    3. A float in the format of a UNIX timestamp (e.g. 1640995200.0) **ZLC no, this needs more inspection/a unit
+        #    3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
         self.t_range = input_params.get("t_range")
-
-
+        # (the 'unit' arg is only used if input is of type int/float, so no type checking is needed here)
+        self.t_range = (pd.Timestamp(self.t_range[0], unit='s'), pd.Timestamp(self.t_range[1], unit='s'))
         # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
         # time resolution; then, for each look-direction datum,
         # this many seconds are added to each in-FOV cell in the exposure map.
@@ -90,7 +86,7 @@ class LEXI:
         # Make datetime index from epoch_utc
         df.index = pd.DatetimeIndex(df.epoch_utc)
         # Slice, resample, interpolate
-        dfslice = df[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])]
+        dfslice = df[self.t_range[0]:self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit='s'))
         dfinterp = dfresamp.interpolate(method=self.interp_method)
         return dfinterp
@@ -177,7 +173,7 @@ class LEXI:
         dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
 
         # Slice to relevant time range; make groups of rows spanning t_integration
-        integ_groups = photons[pd.Timestamp(self.t_range[0]):pd.Timestamp(self.t_range[1])].resample(pd.Timedelta(self.t_integrate, unit='s'))
+        integ_groups = photons[self.t_range[0]:self.t_range[1]].resample(pd.Timedelta(self.t_integrate, unit='s'))
 
         # Make as many empty lexi histograms as there are integration groups
         histograms = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))

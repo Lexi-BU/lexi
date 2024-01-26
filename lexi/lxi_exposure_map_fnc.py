@@ -234,7 +234,7 @@ def exposure_map(
         dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
 
         # Slice to relevant time range; make groups of rows spanning t_integration
-        integ_groups = spc_df[pd.Timestamp(t_range[0]):pd.Timestamp(t_range[1])].resample(pd.Timedelta(t_integrate, unit='s'))
+        integ_groups = spc_df[t_range[0]:t_range[1]].resample(pd.Timedelta(t_integrate, unit='s'))
 
         # Make as many empty exposure maps as there are integration groups
         exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
