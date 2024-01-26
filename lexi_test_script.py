@@ -15,10 +15,9 @@ lexi = LEXI({
     "dec_res": 3,
     #"background_correction_on": False, # Dates do not align
 
-    # TODO make sure these are whatever Ramiz actually named them
     "save_exposure_maps": True,
     "save_sky_backgrounds": True,
-    "save_lexi_histograms": True,
+    "save_lexi_images": True,
 })
 
 # Get space params
@@ -26,17 +25,6 @@ spaceparams = lexi.get_spc_params()
 # Get exposure maps
 expmaps = lexi.get_exposure_maps()
 # Get sky backgrounds
-skybgs = lexi.get_sky_background()
+skybgs = lexi.get_sky_backgrounds()
 # Get background corrected images
-hists = lexi.get_background_corrected_image()
-
-
-for (i,hist) in enumerate(hists):
-    lexi.array_to_image(
-            hist,
-            display=False,
-            save=True,
-            save_name=f"test_array_to_image_{i}",
-            figure_format="pdf",
-            figure_title="Test Array",
-    )
+hists = lexi.get_lexi_images()
