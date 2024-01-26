@@ -34,7 +34,6 @@ packet_format_sci = ">II4H"
 # double precision format for time stamp from pit
 packet_format_pit = ">d"
 
-
 sync_lxi = b"\xfe\x6b\x28\x40"
 
 sync_pit = b"\x54\x53"
@@ -342,7 +341,6 @@ def lin_correction(
 ):
     """
     Function to apply nonlinearity correction to MCP position x/y data
-    # TODO: Add correct M_inv matrix and the offsets
     """
     x_lin = (x * M_inv[0, 0] + y * M_inv[0, 1]) - b[0]
     y_lin = x * M_inv[1, 0] + y * M_inv[1, 1]
@@ -629,39 +627,6 @@ def save_data_to_cdf(df=None, file_name=None, file_version="0.0.1"):
     cdf_file : str
         Path to the CDF file.
     """
-
-    # NOTE: This part is for future when we want to convert multiple CSV files to a single CDF file
-    # if csv_folder is not None:
-    #     if csv_file is not None:
-    #         csv_file_list = [csv_folder + "/" + csv_file]
-    #     else:
-    #         # Find all the CSV files in the folder
-    #         csv_file_list = np.sort(glob.glob(csv_folder + "*.csv"))
-    # elif csv_folder is None and csv_file is not None:
-    #     csv_file_list = [csv_file]
-
-    # NOTE: This loop was implemented so that CDF creation would work for the GSFC file. However,
-    # given that the PIT files have time stamps correctly ordered in thier indices, this is no
-    # longer necessary and thus has been commented out.
-    # for csv_file in csv_file_list:
-    #     if df is None:
-    #         df, _ = lxrf.read_csv_sci(csv_file)
-    #         csv_file_secs = int(csv_file.split("_")[-4])
-    #         csv_file_subsecs = int(csv_file.split("_")[-3])
-    #         # Create a datetime array for the CSV file with datetime objects as type
-    #         csv_file_datetime = np.full(len(df.index), np.nan)
-    #         for xx, time_ind in enumerate(df.index):
-    #             csv_file_datetime[xx] = csv_file_secs + csv_file_subsecs / 1e3 + time_ind
-    #         df.index = csv_file_datetime
-    #     else:
-    #         df = df
-    #         csv_file_secs = int(csv_file.split("_")[-4])
-    #         csv_file_subsecs = int(csv_file.split("_")[-3])
-    #         # Create a datetime array for the CSV file with datetime objects as type
-    #         csv_file_datetime = np.full(len(df.index), dtype=object, fill_value=np.nan)
-    #         for xx, time_ind in enumerate(df.index):
-    #             csv_file_datetime[xx] = csv_file_secs + csv_file_subsecs / 1e3 + time_ind
-    #         df.index = csv_file_datetime
 
     # Get the folder name and the file name from the file_name using Path
     folder_name = Path(file_name).parent

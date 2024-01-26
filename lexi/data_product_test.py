@@ -21,7 +21,7 @@ t_end = "2024-05-23 22:32:20"
 # Get the file name
 file_val_list = np.sort(glob.glob(folder_val + "*.dat"))
 
-for file_val in file_val_list[:1]:
+for file_val in file_val_list[7:-1]:
     file_name, df_sci, df_sci_l1b, df_sci_l1c, df_eph = lrbd.read_binary_file(
         file_val=file_val, t_start=t_start, t_end=t_end, multiple_files=multiple_files
     )
