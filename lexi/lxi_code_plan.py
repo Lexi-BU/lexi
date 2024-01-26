@@ -1,6 +1,7 @@
 # Define class called LEXI with a list of different functions that can be called
 import numpy as np
 import pandas as pd
+from spacepy import pycdf
 from .lxi_exposure_map_fnc import exposure_map
 
 
@@ -202,8 +203,8 @@ class LEXI:
         # TODO: Get actual timeseries data
         # With ra/dec resolution of 3, and no bg correction, this will draw a smiley face;
         # bg correction lops off the left side of the smile
-        photons = pd.DataFrame({"ra":[355,355,335,333,330,333,335],
-                                "dec":[-15,-5,-15,-14,-10, -6, -5]},
+        photons = pd.DataFrame({"ra_J2000_deg":[355,355,335,333,330,333,335],
+                                "dec_J2000_deg":[-15,-5,-15,-14,-10, -6, -5]},
                                 index=[pd.Timestamp("Jul 08 2024 15:01:00.000000000"),
                                        pd.Timestamp("Jul 08 2024 15:02:00.000000000"),
                                        pd.Timestamp("Jul 08 2024 15:03:00.000000000"),
@@ -212,6 +213,16 @@ class LEXI:
                                        pd.Timestamp("Jul 08 2024 15:06:00.000000000"),
                                        pd.Timestamp("Jul 08 2024 15:07:00.000000000"),
                                        ])
+
+        # For now try reading CDF just from here
+        photons_cdf = pycdf.CDF("data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf")
+        photons_data = photons_cdf.copy()
+        photons_cdf.close()
+        photons = pd.DataFrame({key:photons_data[key] for key in photons_data.keys()})
+        # Make datetime index from epoch_utc
+        photons.index = pd.DatetimeIndex(photons.Epoch)
+        print(f"Extrema: RA min {photons.ra_J2000_deg.min()}, RA max {photons.ra_J2000_deg.max()}, "
+              f"DEC min {photons.dec_J2000_deg.min()}, DEC max {photons.dec_J2000_deg.max()}")
 
         # Set up coordinate grid for lexi histograms
         ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
@@ -226,10 +237,12 @@ class LEXI:
         for (hist_idx, (_,group)) in enumerate(integ_groups):
             # Loop through each photon strike and add it to the map
             for row in group.itertuples():
-                ra_idx = np.nanargmin(np.where(ra_grid%360 >= row.ra%360, 1, np.nan))
-                dec_idx = np.nanargmin(np.where(dec_grid%360 >= row.dec%360, 1, np.nan))
-                if ra_idx != np.NaN and dec_idx != np.NaN:
+                try:
+                    ra_idx = np.nanargmin(np.where(ra_grid%360 >= row.ra_J2000_deg%360, 1, np.nan))
+                    dec_idx = np.nanargmin(np.where(dec_grid%360 >= row.dec_J2000_deg%360, 1, np.nan))
                     histograms[hist_idx][ra_idx][dec_idx] += 1
+                except ValueError:
+                    pass # photon was out of bounds on one or both axes
 
         # Early exit if no bg correction
         if not self.background_correction_on:
