@@ -14,46 +14,47 @@ plt.rc("text", usetex=True)
 plt.rc("font", family="serif")
 
 folder_val = "/home/vetinari/Desktop/git/Lexi-Bu/lexi/data/from_PIT/20230816/"
-multiple_files = True
+multiple_files = False
 t_start = "2024-05-23 22:26:20"
 t_end = "2024-05-23 22:32:20"
 
 # Get the file name
 file_val_list = np.sort(glob.glob(folder_val + "*.dat"))
 
-for file_val in file_val_list[0:1]:
-    file_name, df = lrbd.read_binary_file(
-        file_val=folder_val, t_start=t_start, t_end=t_end, multiple_files=multiple_files
+for file_val in file_val_list[7:-1]:
+    file_name, df_sci, df_sci_l1b, df_sci_l1c, df_eph = lrbd.read_binary_file(
+        file_val=file_val, t_start=t_start, t_end=t_end, multiple_files=multiple_files
     )
-
-    # Plot the x_mcp_lin and x_mcp_nln data as histograms with logarithmic x and y axes (x_range = [1e-3,
-    # 5e0])
-    fig = plt.figure(figsize=(6, 4))
-    ax = fig.add_subplot(111)
-    ax.hist(df["x_mcp_lin"], bins=100, range=[1e-3, 5e0], log=True, label="Linear")
-    ax.hist(
-        df["x_mcp_nln"],
-        bins=100,
-        range=[1e-3, 5e0],
-        log=True,
-        label="Non-linear",
-        alpha=0.3,
+    # Make a time series plot of RA, dec
+    fig, ax = plt.subplots(2, 1, figsize=(8, 8))
+    ax[0].scatter(
+        df_sci_l1c.index,
+        df_sci_l1c["ra_J2000_deg"],
+        label="RA",
+        s=0.1,
+        c="r",
+        marker=".",
+        alpha=0.5,
     )
-    ax.set_xlabel("x [mm]")
-    ax.set_ylabel("Counts")
-    ax.legend(loc="upper right")
-    ax.grid(True)
-    ax.set_title("Histogram of x data")
-    ax.set_xlim([1e-3, 5e0])
-    # ax.set_ylim([1e0, 1e5])
+    ax[0].set_xlabel("Time")
+    ax[0].set_ylabel("RA [deg]")
+    ax[0].set_ylim(0, 360)
+    ax[0].grid()
 
-    ax.set_xscale("log")
-    ax.set_yscale("log")
+    ax[1].scatter(
+        df_sci_l1c.index,
+        df_sci_l1c["dec_J2000_deg"],
+        label="dec",
+        s=0.1,
+        c="b",
+        marker=".",
+        alpha=0.5,
+    )
+    ax[1].set_xlabel("Time")
+    ax[1].set_ylabel("Dec [deg]")
+    ax[1].set_ylim(-90, 90)
+    ax[1].grid()
 
-    file_date = file_val.split("/")[-1].split("_")[-2]
+    file_date = file_name.split("/")[-1].split("_")[2]
     # Save the figure
-    fig.savefig(
-        f"../figures/lexi_data_product_test_{file_date}.png",
-        dpi=300,
-        bbox_inches="tight",
-    )
+    fig.savefig(f"../figures/RA_dec_{file_date}.png", dpi=300, bbox_inches="tight")
