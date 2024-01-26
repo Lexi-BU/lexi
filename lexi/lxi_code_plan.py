@@ -66,7 +66,7 @@ class LEXI:
             ra_res/dec_res are specified, nbins will be used and ra_res/dec_res will be ignored.
         save_exposure_maps: bool
             If True, save the exposure maps to a file of given filename and filetype.
-        save_sky_background: bool
+        save_sky_backgrounds: bool
             If True, save the sky background to a file of given filename and filetype.
         save_lexi_images: bool
             If True, save the background corrected image to a file of given filename and filetype.
@@ -83,7 +83,7 @@ class LEXI:
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
             t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
             dec_range and dec_res.
-        get_sky_background:
+        get_sky_backgrounds:
             Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
             t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
@@ -187,7 +187,7 @@ class LEXI:
             self.dec_res = (self.dec_range[1] - self.dec_range[0]) / dec_nbins
 
         self.save_exposure_maps = input_params.get("save_exposure_maps", False)
-        self.save_sky_background = input_params.get("save_sky_background", False)
+        self.save_sky_backgrounds = input_params.get("save_sky_backgrounds", False)
         self.save_lexi_images = input_params.get(
             "save_lexi_images", False
         )
@@ -456,7 +456,7 @@ class LEXI:
 
         return exposure_maps
 
-    def get_sky_background(self):
+    def get_sky_backgrounds(self):
         """
         Returns an array of ROSAT sky background images, corrected for LEXI exposure time.
         Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
@@ -534,7 +534,7 @@ class LEXI:
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
         # If requested, save the sky background as an image
-        if self.save_sky_background:
+        if self.save_sky_backgrounds:
             for i, sky_background in enumerate(sky_backgrounds):
                 self.array_to_image(
                     sky_background,
@@ -667,7 +667,7 @@ class LEXI:
 
         # Do background correction if requested
         if self.background_correction_on:
-            sky_backgrounds = self.get_sky_background()
+            sky_backgrounds = self.get_sky_backgrounds()
             histograms = np.maximum(histograms - sky_backgrounds, 0)
 
         # If requested, save the histograms as images
