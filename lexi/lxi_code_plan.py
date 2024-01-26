@@ -68,7 +68,7 @@ class LEXI:
             If True, save the exposure maps to a file of given filename and filetype.
         save_sky_background: bool
             If True, save the sky background to a file of given filename and filetype.
-        save_background_corrected_image: bool
+        save_lexi_images: bool
             If True, save the background corrected image to a file of given filename and filetype.
 
     Methods:
@@ -88,13 +88,13 @@ class LEXI:
             Shape: num-images * ra-pixels * dec-pixels, where num-images depends on t_range and
             t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
             dec_range and dec_res.
-        get_background_corrected_image:
+        get_lexi_images:
             Returns an array of LEXI science histograms.
             Shape: num-images * ra-pixels * dec-pixels,
             where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
             ra_res, and dec-pixels depends on dec_range and dec_res.
         array_to_image:
-            Convert a 2D array from get_exposure_maps or get_background_corrected_image to an image.
+            Convert a 2D array from get_exposure_maps or get_lexi_images to an image.
     """
 
     def __init__(self, input_params):
@@ -188,8 +188,8 @@ class LEXI:
 
         self.save_exposure_maps = input_params.get("save_exposure_maps", False)
         self.save_sky_background = input_params.get("save_sky_background", False)
-        self.save_background_corrected_image = input_params.get(
-            "save_background_corrected_image", False
+        self.save_lexi_images = input_params.get(
+            "save_lexi_images", False
         )
 
     def get_spc_prams(self):
@@ -563,7 +563,7 @@ class LEXI:
                 )
         return sky_backgrounds
 
-    def get_background_corrected_image(self):
+    def get_lexi_images(self):
         """
         Returns an array of LEXI science histograms. Shape: num-images.ra-pixels.dec-pixels,
         where num-images depends on t_range and t_integrate, ra-pixels depends on ra_range and
@@ -664,19 +664,17 @@ class LEXI:
                 except ValueError:
                     pass  # photon was out of bounds on one or both axes
 
-        # Early exit if no bg correction
-        if not self.background_correction_on:
-            return histograms
 
-        # Else make background corrected images
-        sky_backgrounds = self.get_sky_background()
-        bgcorr_histograms = np.maximum(histograms - sky_backgrounds, 0)
+        # Do background correction if requested
+        if self.background_correction_on:
+            sky_backgrounds = self.get_sky_background()
+            histograms = np.maximum(histograms - sky_backgrounds, 0)
 
-        # If requested, save the background corrected image as an image
-        if self.save_background_corrected_image:
-            for i, bgcorr_histogram in enumerate(bgcorr_histograms):
+        # If requested, save the histograms as images
+        if self.save_lexi_images:
+            for i, histogram in enumerate(histograms):
                 self.array_to_image(
-                    bgcorr_histogram,
+                    histogram,
                     x_range=self.ra_range,
                     y_range=self.dec_range,
                     v_min=0,
@@ -685,7 +683,7 @@ class LEXI:
                     norm=None,
                     norm_type="linear",
                     aspect="auto",
-                    figure_title="Background Corrected Image",
+                    figure_title="Background Corrected LEXI Image" if self.background_correction_on else "LEXI Image (no background correction)",
                     show_colorbar=True,
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
@@ -695,13 +693,13 @@ class LEXI:
                     figure_format="png",
                     figure_font_size=12,
                     save=True,
-                    save_path="../figures/background_corrected_image",
-                    save_name="background_corrected_image_{i}",
+                    save_path="../figures/lexi_images",
+                    save_name="lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
 
-        return bgcorr_histograms
+        return histograms
 
     # TODO make FITS files
 
