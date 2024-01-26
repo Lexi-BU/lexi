@@ -197,25 +197,22 @@ def read_create_df(input_dict=None, filename=None):
 # TODO: All parameters should just be required; then pass defaults from the LEXI class.
 # Maybe do that after we decide what is a method of the LEXI class and what is "private".
 def exposure_map(
-        spc_df,    # spacecraft orientation dataframe with timestamps,
-                   # look-directions (gamma) and roll-angles (phi).
-                   # Roll angles are not used in this function.
-        t_range, # [start time, end time] (unit/format?)
-        t_integrate, # integration interval for final LEXI histograms (in seconds)
-        t_step=0.01, # exposure map step time in seconds: For each look-direction in
-                     # [insert name of dataframe arg here],
-                     # this many seconds are added to each in-FOV cell in the exposure map.
-                     # This must correspond to the resampling/interpolation interval
-                     # given to [insert name of function here].
-        lexi_fov=9.1, # LEXI FOV in degrees
-        ra_range=[325.0, 365.0], # [start RA, end RA]
-        dec_range=[-21.0, 6.0], # [start DEC, end DEC]
-        ra_res=0.1, # RA resolution in degrees. Ideal value is 0.1 deg
-        dec_res=0.1, # DEC resolution in degrees. Ideal value is 0.1 deg
+        spc_df,
+        t_range,
+        t_integrate,
+        t_step=0.01,
+        lexi_fov=9.1,
+        ra_range=[325.0, 365.0],
+        dec_range=[-21.0, 6.0],
+        ra_res=0.1,
+        dec_res=0.1,
         save_maps=False):
     """
-    (TODO: Docstring)
-    Returns an array of exposure maps.
+    Returns an array of exposure maps, made according to the ephemeris data and the
+    specified time/integration/resolution parameters.
+    Shape: num-images.ra-pixels.dec-pixels, where num-images depends on t_range and
+    t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
+    dec_range and dec_res.
     """
     try:
         # Read the exposure map from a pickle file
