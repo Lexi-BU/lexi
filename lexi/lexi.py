@@ -10,9 +10,6 @@ import matplotlib.pyplot as plt
 import warnings
 
 
-# TODO: Rewrite all docstrings
-
-
 class LEXI:
     """
     A LEXI class for generating LEXI images based in either user input or default parameters.
@@ -345,7 +342,7 @@ class LEXI:
 
         return f
 
-    def get_exposure_maps(self, save_maps=False):
+    def get_exposure_maps(self, save_maps=True):
         """
         Returns an array of exposure maps, made according to the ephemeris data and the
         specified time/integration/resolution parameters.
@@ -355,9 +352,12 @@ class LEXI:
         """
         try:
             # Read the exposure map from a pickle file
-            # TODO: Must match filename to the save_maps step; and the filename should include ALL the params
-            exposure = np.load(
-                f"data/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}.npy"
+            # TODO: Must match filename to the save_maps step; and the filename should include ALL
+            # the params
+            # Define the folder where the exposure maps are saved
+            save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
+            exposure_maps = np.load(
+                f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
             )
             print("Exposure map loaded from file \n")
         except FileNotFoundError:
@@ -418,39 +418,44 @@ class LEXI:
 
             # TODO: see above re filename and matching
             if save_maps:
+                # Define the folder to save the exposure maps to
+                save_folder = (
+                    Path(__file__).resolve().parent.parent / "data/exposure_maps"
+                )
+                # If the folder doesn't exist, then create it
+                Path(save_folder).mkdir(parents=True, exist_ok=True)
                 # Save the exposure map array to a pickle file
                 np.save(
-                    f"exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy",
+                    f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy",
                     exposure_maps,
                 )
 
-            if self.save_exposure_maps:
-                for i, exposure in enumerate(exposure_maps):
-                    self.array_to_image(
-                        exposure,
-                        x_range=self.ra_range,
-                        y_range=self.dec_range,
-                        v_min=0,
-                        v_max=1,
-                        cmap="viridis",
-                        norm=None,
-                        norm_type="linear",
-                        aspect="auto",
-                        figure_title=f"Exposure Map {i}",
-                        show_colorbar=True,
-                        cbar_label="Seconds",
-                        cbar_orientation="vertical",
-                        show_axes=True,
-                        display=False,
-                        figure_size=(10, 10),
-                        figure_format="png",
-                        figure_font_size=12,
-                        save=True,
-                        save_path="figures/exposure_maps",
-                        save_name=f"exposure_map_{i}",
-                        dpi=300,
-                        dark_mode=False,
-                    )
+        if self.save_exposure_maps:
+            print("Saving exposure maps as images")
+            for i, exposure in enumerate(exposure_maps):
+                self.array_to_image(
+                    exposure,
+                    x_range=self.ra_range,
+                    y_range=self.dec_range,
+                    cmap="jet",
+                    norm=None,
+                    norm_type="log",
+                    aspect="auto",
+                    figure_title=f"Exposure Map {i}",
+                    show_colorbar=True,
+                    cbar_label="Seconds",
+                    cbar_orientation="vertical",
+                    show_axes=True,
+                    display=False,
+                    figure_size=(10, 10),
+                    figure_format="png",
+                    figure_font_size=12,
+                    save=True,
+                    save_path="figures/exposure_maps",
+                    save_name=f"exposure_map_{i}",
+                    dpi=300,
+                    dark_mode=False,
+                )
 
         return exposure_maps
 
@@ -506,7 +511,7 @@ class LEXI:
         # Get ROSAT background
         # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
         # For now, this is Cadin's sample xray data:
-        rosat_df = pd.read_csv("sample_xray_background.csv", header=None)
+        rosat_df = pd.read_csv("data/sample_xray_background.csv", header=None)
         # Slice to RA/DEC range, interpolate to RA/DEC res
         # For now just interpolate Cadin data:
 
@@ -538,8 +543,6 @@ class LEXI:
                     sky_background,
                     x_range=self.ra_range,
                     y_range=self.dec_range,
-                    v_min=0,
-                    v_max=1,
                     cmap="viridis",
                     norm=None,
                     norm_type="linear",
@@ -555,7 +558,7 @@ class LEXI:
                     figure_font_size=12,
                     save=True,
                     save_path="figures/sky_background",
-                    save_name="sky_background_{i}",
+                    save_name=f"sky_background_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
@@ -674,11 +677,9 @@ class LEXI:
                     histogram,
                     x_range=self.ra_range,
                     y_range=self.dec_range,
-                    v_min=0,
-                    v_max=1,
                     cmap="viridis",
                     norm=None,
-                    norm_type="linear",
+                    norm_type="log",
                     aspect="auto",
                     figure_title="Background Corrected LEXI Image"
                     if self.background_correction_on
@@ -710,8 +711,8 @@ class LEXI:
         v_min: float = None,
         v_max: float = None,
         cmap: str = "viridis",
-        norm: mpl.colors.Normalize = None,
-        norm_type: str = "linear",
+        norm: mpl.colors.LogNorm = mpl.colors.LogNorm(),
+        norm_type: str = "log",
         aspect: str = "auto",
         figure_title: str = None,
         show_colorbar: bool = True,
@@ -925,19 +926,18 @@ class LEXI:
         if save:
             if save_path is None:
                 save_path = Path(__file__).resolve().parent.parent / "figures"
-            if not save_path.exists():
-                save_path.mkdir(parents=True, exist_ok=True)
+            Path(save_path).mkdir(parents=True, exist_ok=True)
             if save_name is None:
                 save_name = "array_to_image"
 
             save_name = save_name + "." + figure_format
             plt.savefig(
-                save_path / save_name,
+                f"{save_path}/{save_name}",
                 format=figure_format,
                 dpi=dpi,
                 bbox_inches="tight",
             )
-            print(f"Saved figure to {save_path / save_name}")
+            print(f"Saved figure to {save_path}/{save_name}")
 
         if display:
             plt.show()

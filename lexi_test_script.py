@@ -1,5 +1,5 @@
 # Import LEXI
-from lexi.lxi_code_plan import LEXI
+from lexi.lexi import LEXI
 
 # Set up a LEXI instance
 lexi = LEXI(
@@ -18,17 +18,17 @@ lexi = LEXI(
         "ra_res": 3,
         "dec_res": 3,
         # "background_correction_on": False, # Dates do not align
-        "save_exposure_maps": False,
-        "save_sky_backgrounds": False,
-        "save_lexi_images": False,
+        "save_exposure_maps": True,
+        "save_sky_backgrounds": True,
+        "save_lexi_images": True,
     }
 )
 
 # Get space params
 # spaceparams = lexi.get_spc_prams()
 # Get exposure maps
-expmaps = lexi.get_exposure_maps()
+# expmaps = lexi.get_exposure_maps()
 # Get sky backgrounds
 # skybgs = lexi.get_sky_backgrounds()
 # Get background corrected images
-# hists = lexi.get_lexi_images()
+hists = lexi.get_lexi_images()
