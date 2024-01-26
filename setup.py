@@ -12,3 +12,5 @@ setup(
     keywords="data analysis",
     packages=find_packages(),
     install_requires=["spacepy"],
+    python_requires=">=3.10",
+)
