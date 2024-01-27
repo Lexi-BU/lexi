@@ -41,6 +41,8 @@ class LEXI:
                 3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
                 This time range defines the time range of the ephemeris data and the time range of
                 the LEXI data.
+            Note that endpoints are inclusive (the end time is a closed interval); this is because
+            the time range slicing is done with pandas, and label slicing in pandas is inclusive.
         t_step: float
             Time step in seconds for time resolution of the look direction datum.
         t_integrate: float
@@ -381,7 +383,7 @@ class LEXI:
 
             # Slice to relevant time range; make groups of rows spanning t_integration
             integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
-                pd.Timedelta(self.t_integrate, unit="s")
+                pd.Timedelta(self.t_integrate, unit="s"), origin="start"
             )
 
             # Make as many empty exposure maps as there are integration groups
@@ -627,7 +629,8 @@ class LEXI:
 
         # For now try reading CDF just from here
         photons_cdf = pycdf.CDF(
-            "data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
+            #"data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
+            "data/PIT_shifted_jul08.cdf"
         )
         photons_data = photons_cdf.copy()
         photons_cdf.close()
@@ -645,7 +648,7 @@ class LEXI:
 
         # Slice to relevant time range; make groups of rows spanning t_integration
         integ_groups = photons[self.t_range[0] : self.t_range[1]].resample(
-            pd.Timedelta(self.t_integrate, unit="s")
+            pd.Timedelta(self.t_integrate, unit="s"), origin="start"
         )
 
         # Make as many empty lexi histograms as there are integration groups
@@ -694,7 +697,7 @@ class LEXI:
                     figure_font_size=12,
                     save=True,
                     save_path="figures/lexi_images",
-                    save_name="lexi_image_{i}",
+                    save_name=f"lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
