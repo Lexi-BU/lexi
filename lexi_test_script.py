@@ -9,7 +9,7 @@ lexi = LEXI(
             "2024-07-08T21:47:48",
         ],
         # "t_integrate": 90,  # 10 minutes - spans whole range
-        "t_step": 3,  # 1, #30 # NOTE: If we set t_step to 3 or 30, the exposure maps keep getting saved. There is a bug in the code specifically for this case.
+        "t_step": 3,  # 1, #30
         # "ra_range": [325.0, 365.0],
         # "dec_range": [-21.0, 6.0],
         "ra_range": [0, 360],
