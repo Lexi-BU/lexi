@@ -155,7 +155,12 @@ class LEXI:
         # this many seconds are added to each in-FOV cell in the exposure map.
         self.t_step = input_params.get("t_step", 0.5)
         # integration time in seconds for lexi histograms and exposure maps
-        self.t_integrate = input_params.get("t_integrate", 60 * 10)
+        # If the integration time is not given, then set it to the time difference between the start
+        # and stop times in the t_range parameter
+        if input_params.get("t_integrate") is None:
+            self.t_integrate = (self.t_range[1] - self.t_range[0]).total_seconds()
+        else:
+            self.t_integrate = input_params.get("t_integrate", 60 * 10)
 
         # RA range to plot, in degrees. [start RA, end RA]
         self.ra_range = input_params.get("ra_range", [0.0, 360.0])
@@ -353,15 +358,14 @@ class LEXI:
         dec_range and dec_res.
         """
         try:
-            # Read the exposure map from a pickle file
-            # TODO: Must match filename to the save_maps step; and the filename should include ALL
-            # the params
+            # Read the exposure map from a pickle file, if it exists
             # Define the folder where the exposure maps are saved
             save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
-            exposure_maps = np.load(
-                f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
+            exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
+            exposure_maps = np.load(exposure_maps_file_name)
+            print(
+                f"Exposure map loaded from file \033[92m {exposure_maps_file_name} \033[0m\n"
             )
-            print("Exposure map loaded from file \n")
         except FileNotFoundError:
             print("Exposure map not found, computing now. This may take a while \n")
 
@@ -417,8 +421,8 @@ class LEXI:
                     f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                     end="\r",
                 )
-
-            # TODO: see above re filename and matching
+            print("\n")
+            print(f"The value of save_maps is {save_maps}\n")
             if save_maps:
                 # Define the folder to save the exposure maps to
                 save_folder = (
@@ -426,12 +430,13 @@ class LEXI:
                 )
                 # If the folder doesn't exist, then create it
                 Path(save_folder).mkdir(parents=True, exist_ok=True)
+                print(f"Saving exposure map to file: {save_folder}")
+                exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
                 # Save the exposure map array to a pickle file
-                np.save(
-                    f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy",
-                    exposure_maps,
+                np.save(exposure_maps_file_name, exposure_maps)
+                print(
+                    f"Exposure map saved to file: \033[92m {exposure_maps_file_name} \033[0m \n"
                 )
-
         if self.save_exposure_maps:
             print("Saving exposure maps as images")
             for i, exposure in enumerate(exposure_maps):
@@ -506,9 +511,7 @@ class LEXI:
             dec_range and dec_res.
         """
         # Get exposure maps
-        exposure_maps = self.get_exposure_maps(
-            save_maps=False  # TODO: check if save_df param was for only final dfs, or for these too
-        )
+        exposure_maps = self.get_exposure_maps(save_maps=True)
 
         # Get ROSAT background
         # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
@@ -629,7 +632,7 @@ class LEXI:
 
         # For now try reading CDF just from here
         photons_cdf = pycdf.CDF(
-            #"data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
+            # "data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
             "data/PIT_shifted_jul08.cdf"
         )
         photons_data = photons_cdf.copy()
