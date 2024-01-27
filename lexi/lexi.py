@@ -629,7 +629,8 @@ class LEXI:
 
         # For now try reading CDF just from here
         photons_cdf = pycdf.CDF(
-            "data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
+            #"data/from_PIT/20230816/processed_data/sci/level_1c/cdf/1.0.0/lexi_payload_1716500621_21694_level_1c_1.0.0.cdf"
+            "data/PIT_shifted_jul08.cdf"
         )
         photons_data = photons_cdf.copy()
         photons_cdf.close()
@@ -696,7 +697,7 @@ class LEXI:
                     figure_font_size=12,
                     save=True,
                     save_path="figures/lexi_images",
-                    save_name="lexi_image_{i}",
+                    save_name=f"lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
