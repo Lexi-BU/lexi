@@ -153,12 +153,13 @@ class LEXI:
         # exposure map step time in seconds: Ephemeris data will be resampled and interpolated to this
         # time resolution; then, for each look-direction datum,
         # this many seconds are added to each in-FOV cell in the exposure map.
-        self.t_step = input_params.get("t_step", 0.5)
+        self.t_step = input_params.get("t_step", 5)
         # integration time in seconds for lexi histograms and exposure maps
         # If the integration time is not given, then set it to the time difference between the start
         # and stop times in the t_range parameter
         if input_params.get("t_integrate") is None:
             self.t_integrate = (self.t_range[1] - self.t_range[0]).total_seconds()
+            # print(f"t_integrate not specified; setting to {self.t_integrate} seconds")
         else:
             self.t_integrate = input_params.get("t_integrate", 60 * 10)
 
@@ -170,8 +171,8 @@ class LEXI:
 
         # RA resolution to plot at, in degrees. Ideal value is 0.1 deg.
         self.ra_res = input_params.get("ra_res", 0.1)
-        # DEC resolution to plot at, in degrees. Ideal value is 0.1 deg.
 
+        # DEC resolution to plot at, in degrees. Ideal value is 0.1 deg.
         self.dec_res = input_params.get("dec_res", 0.1)
 
         # Alternative to ra_res/dec_res: nbins defines the number of bins in the RA and DEC
@@ -361,7 +362,9 @@ class LEXI:
             # Read the exposure map from a pickle file, if it exists
             # Define the folder where the exposure maps are saved
             save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
-            exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
+            t_start = self.t_range[0].strftime("%Y%m%d_%H%M%S")
+            t_stop = self.t_range[1].strftime("%Y%m%d_%H%M%S")
+            exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{t_start}_tf_{t_stop}_tint_{self.t_integrate}.npy"
             exposure_maps = np.load(exposure_maps_file_name)
             print(
                 f"Exposure map loaded from file \033[92m {exposure_maps_file_name} \033[0m\n"
@@ -389,7 +392,10 @@ class LEXI:
             integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
                 pd.Timedelta(self.t_integrate, unit="s"), origin="start"
             )
-
+            print(
+                f"Number of integration groups: {len(integ_groups)}\n"
+                f"Number of pointing steps: {len(spc_df)}"
+            )
             # Make as many empty exposure maps as there are integration groups
             exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
 
@@ -421,8 +427,6 @@ class LEXI:
                     f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                     end="\r",
                 )
-            print("\n")
-            print(f"The value of save_maps is {save_maps}\n")
             if save_maps:
                 # Define the folder to save the exposure maps to
                 save_folder = (
@@ -430,8 +434,9 @@ class LEXI:
                 )
                 # If the folder doesn't exist, then create it
                 Path(save_folder).mkdir(parents=True, exist_ok=True)
-                print(f"Saving exposure map to file: {save_folder}")
-                exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{self.t_range[0]}_tf_{self.t_range[1]}.npy"
+                t_start = self.t_range[0].strftime("%Y%m%d_%H%M%S")
+                t_stop = self.t_range[1].strftime("%Y%m%d_%H%M%S")
+                exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{t_start}_tf_{t_stop}_tint_{self.t_integrate}.npy"
                 # Save the exposure map array to a pickle file
                 np.save(exposure_maps_file_name, exposure_maps)
                 print(
@@ -463,7 +468,9 @@ class LEXI:
                     dpi=300,
                     dark_mode=False,
                 )
-
+        # If the first element of exposure_maps shape is 1, then remove the first dimension
+        if np.shape(exposure_maps)[0] == 1:
+            exposure_maps = exposure_maps[0]
         return exposure_maps
 
     def get_sky_backgrounds(self):
@@ -513,6 +520,10 @@ class LEXI:
         # Get exposure maps
         exposure_maps = self.get_exposure_maps(save_maps=True)
 
+        # If exposure_maps is a 2D array, then add a dimension to it
+        if len(np.shape(exposure_maps)) == 2:
+            exposure_maps = np.array([exposure_maps])
+
         # Get ROSAT background
         # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
         # For now, this is Cadin's sample xray data:
@@ -541,6 +552,8 @@ class LEXI:
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
+        # print the dimensions of the sky_backgrounds array
+        print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)[0]}")
         # If requested, save the sky background as an image
         if self.save_sky_backgrounds:
             for i, sky_background in enumerate(sky_backgrounds):
@@ -567,6 +580,11 @@ class LEXI:
                     dpi=300,
                     dark_mode=False,
                 )
+        print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)}")
+        # If the first element of sky_backgrounds shape is 1, then remove the first dimension
+        if np.shape(sky_backgrounds)[0] == 1:
+            sky_backgrounds = sky_backgrounds[0]
+            print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)}")
         return sky_backgrounds
 
     def get_lexi_images(self):
@@ -674,6 +692,9 @@ class LEXI:
         # Do background correction if requested
         if self.background_correction_on:
             sky_backgrounds = self.get_sky_backgrounds()
+            # If sky_backgrounds is a 2D array, then add a dimension to it
+            if len(np.shape(sky_backgrounds)) == 2:
+                sky_backgrounds = np.array([sky_backgrounds])
             histograms = np.maximum(histograms - sky_backgrounds, 0)
 
         # If requested, save the histograms as images
@@ -704,7 +725,11 @@ class LEXI:
                     dpi=300,
                     dark_mode=False,
                 )
-
+        print(f"Dimensions of histograms array: {np.shape(histograms)}")
+        # If the first element of histograms shape is 1, then remove the first dimension
+        if np.shape(histograms)[0] == 1:
+            histograms = histograms[0]
+            print(f"Dimensions of histograms array: {np.shape(histograms)}")
         return histograms
 
     # TODO make FITS files
@@ -839,17 +864,23 @@ class LEXI:
                 v_max = 1.1 * np.nanmax(input_array)
                 norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
             elif norm_type == "log":
-                v_min = np.nanmin(input_array)
-                if v_min <= 0:
-                    v_min = 1e-10
-                v_max = np.nanmax(input_array)
+                if np.nanmin(input_array) <= 0:
+                    v_min = 1e-5
+                else:
+                    v_min = np.nanmin(input_array)
+                if np.nanmax(input_array) <= 0:
+                    v_max = 1e-1
+                else:
+                    v_max = np.nanmax(input_array)
                 norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
         elif v_min is not None and v_max is not None:
             if norm_type == "linear":
                 norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
             elif norm_type == "log":
                 if v_min <= 0:
-                    v_min = 1e-10
+                    v_min = 1e-5
+                if v_max <= 0:
+                    v_max = 1e-1
                 norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
         else:
             raise ValueError(
@@ -878,7 +909,6 @@ class LEXI:
 
         # Set the tick label size
         ax.tick_params(labelsize=0.8 * figure_font_size)
-
         if show_colorbar:
             if cbar_label is None:
                 cbar_label = "Value"
@@ -947,5 +977,8 @@ class LEXI:
 
         if display:
             plt.show()
+
+        # Close the figure
+        plt.close()
 
         return fig, ax
