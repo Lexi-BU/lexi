@@ -697,7 +697,7 @@ class LEXI:
                     figure_font_size=12,
                     save=True,
                     save_path="figures/lexi_images",
-                    save_name="lexi_image_{i}",
+                    save_name=f"lexi_image_{i}",
                     dpi=300,
                     dark_mode=False,
                 )
