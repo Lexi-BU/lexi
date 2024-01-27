@@ -392,10 +392,6 @@ class LEXI:
             integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
                 pd.Timedelta(self.t_integrate, unit="s"), origin="start"
             )
-            print(
-                f"Number of integration groups: {len(integ_groups)}\n"
-                f"Number of pointing steps: {len(spc_df)}"
-            )
             # Make as many empty exposure maps as there are integration groups
             exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
 
@@ -552,8 +548,6 @@ class LEXI:
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
         sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
 
-        # print the dimensions of the sky_backgrounds array
-        print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)[0]}")
         # If requested, save the sky background as an image
         if self.save_sky_backgrounds:
             for i, sky_background in enumerate(sky_backgrounds):
@@ -580,11 +574,9 @@ class LEXI:
                     dpi=300,
                     dark_mode=False,
                 )
-        print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)}")
         # If the first element of sky_backgrounds shape is 1, then remove the first dimension
         if np.shape(sky_backgrounds)[0] == 1:
             sky_backgrounds = sky_backgrounds[0]
-            print(f"Dimensions of sky_backgrounds array: {np.shape(sky_backgrounds)}")
         return sky_backgrounds
 
     def get_lexi_images(self):
@@ -725,11 +717,9 @@ class LEXI:
                     dpi=300,
                     dark_mode=False,
                 )
-        print(f"Dimensions of histograms array: {np.shape(histograms)}")
         # If the first element of histograms shape is 1, then remove the first dimension
         if np.shape(histograms)[0] == 1:
             histograms = histograms[0]
-            print(f"Dimensions of histograms array: {np.shape(histograms)}")
         return histograms
 
     # TODO make FITS files
