@@ -223,9 +223,15 @@ class LEXI:
         # TODO: REMOVE ME once we start using real ephemeris data
         df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
         df.index = pd.DatetimeIndex(df.epoch_utc)
+        if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
+            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
+                          f"End regions will be forward/backfilled.")
+            # Add the just the two endpoints to the index
+            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
         return dfinterp
         # (end of chunk that must be removed once we start using real ephemeris data)
 
@@ -322,10 +328,17 @@ class LEXI:
         # Remove any rows that have NaN values
         df = df.dropna()
 
+        # If the ephemeris data do not span the t_range, send warning
+        if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
+            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
+                          f"End regions will be forward/backfilled.")
+            # Add the just the two endpoints to the index
+            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+
         # Slice, resample, interpolate
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
 
         return dfinterp
 
