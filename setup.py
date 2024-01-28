@@ -22,6 +22,9 @@ setup(
     license="MIT",
     keywords="data analysis",
     packages=find_packages(),
+    package_data={
+        "": ["*.toml"],
+    },
     install_requires=install_requires,
     python_requires=">=3.10",
 )
