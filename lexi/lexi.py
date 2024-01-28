@@ -902,19 +902,29 @@ class LEXI:
             edgecolor = "k"
 
         if v_min is None and v_max is None:
+            array_min = np.nanmin(input_array)
+            array_max = np.nanmax(input_array)
+            if array_min == array_max:
+                # In theory, could be a real instance of a perfectly flat map;
+                # probably, just an integration window with no photons.
+                print(f"Encountered map where array min {array_min} == array max {array_max}. "
+                      f"Plotting a range of +- 1.")
+                array_min -= 1
+                array_max += 1
+
             if norm_type == "linear":
-                v_min = 0.9 * np.nanmin(input_array)
-                v_max = 1.1 * np.nanmax(input_array)
+                v_min = 0.9 * array_min
+                v_max = 1.1 * array_max
                 norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
             elif norm_type == "log":
-                if np.nanmin(input_array) <= 0:
+                if array_min <= 0:
                     v_min = 1e-5
                 else:
-                    v_min = np.nanmin(input_array)
-                if np.nanmax(input_array) <= 0:
+                    v_min = array_min
+                if array_max <= 0:
                     v_max = 1e-1
                 else:
-                    v_max = np.nanmax(input_array)
+                    v_max = array_max
                 norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
         elif v_min is not None and v_max is not None:
             if norm_type == "linear":
