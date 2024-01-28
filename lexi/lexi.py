@@ -223,9 +223,15 @@ class LEXI:
         # TODO: REMOVE ME once we start using real ephemeris data
         df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
         df.index = pd.DatetimeIndex(df.epoch_utc)
+        if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
+            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
+                          f"End regions will be forward/backfilled.")
+            # Add the just the two endpoints to the index
+            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
         return dfinterp
         # (end of chunk that must be removed once we start using real ephemeris data)
 
@@ -322,10 +328,17 @@ class LEXI:
         # Remove any rows that have NaN values
         df = df.dropna()
 
+        # If the ephemeris data do not span the t_range, send warning
+        if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
+            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
+                          f"End regions will be forward/backfilled.")
+            # Add the just the two endpoints to the index
+            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+
         # Slice, resample, interpolate
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method)
+        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
 
         return dfinterp
 
@@ -656,11 +669,13 @@ class LEXI:
             index=[
                 pd.Timestamp("Jul 08 2024 15:01:00.000000000"),
                 pd.Timestamp("Jul 08 2024 15:02:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:03:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:04:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:05:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:06:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:07:00.000000000"),
+                # Note the hole here: No Jul 09 data.
+                # Testing with integration period of <= 24h
+                pd.Timestamp("Jul 10 2024 15:03:00.000000000"),
+                pd.Timestamp("Jul 10 2024 15:04:00.000000000"),
+                pd.Timestamp("Jul 10 2024 15:05:00.000000000"),
+                pd.Timestamp("Jul 11 2024 15:06:00.000000000"),
+                pd.Timestamp("Jul 11 2024 15:07:00.000000000"),
             ],
         )
 
@@ -683,6 +698,16 @@ class LEXI:
         ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
         dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
 
+
+        # Insert one row per integration window with NaN data.
+        # This ensures that even if there are periods in the data longer than t_integrate
+        # in which "nothing happens", this function will still return the appropriate
+        # number of lexi images, some of which empty.
+        # (Besides it being more correct to return also the empty lexi images, this is
+        # required in order for the images to align with the correct sky backgrounds when combined.)
+        integration_filler_idcs = pd.date_range(self.t_range[0], self.t_range[1], freq=pd.Timedelta(self.t_integrate, unit="s"))
+        photons = photons.reindex(index=np.union1d(integration_filler_idcs, photons.index), method=None)
+
         # Slice to relevant time range; make groups of rows spanning t_integration
         integ_groups = photons[self.t_range[0] : self.t_range[1]].resample(
             pd.Timedelta(self.t_integrate, unit="s"), origin="start"
@@ -703,7 +728,9 @@ class LEXI:
                     )
                     histograms[hist_idx][ra_idx][dec_idx] += 1
                 except ValueError:
-                    pass  # photon was out of bounds on one or both axes
+                    # photon was out of bounds on one or both axes,
+                    # or the row was an integration filler
+                    pass
 
         # Do background correction if requested
         if self.background_correction_on:
@@ -875,19 +902,29 @@ class LEXI:
             edgecolor = "k"
 
         if v_min is None and v_max is None:
+            array_min = np.nanmin(input_array)
+            array_max = np.nanmax(input_array)
+            if array_min == array_max:
+                # In theory, could be a real instance of a perfectly flat map;
+                # probably, just an integration window with no photons.
+                print(f"Encountered map where array min {array_min} == array max {array_max}. "
+                      f"Plotting a range of +- 1.")
+                array_min -= 1
+                array_max += 1
+
             if norm_type == "linear":
-                v_min = 0.9 * np.nanmin(input_array)
-                v_max = 1.1 * np.nanmax(input_array)
+                v_min = 0.9 * array_min
+                v_max = 1.1 * array_max
                 norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
             elif norm_type == "log":
-                if np.nanmin(input_array) <= 0:
+                if array_min <= 0:
                     v_min = 1e-5
                 else:
-                    v_min = np.nanmin(input_array)
-                if np.nanmax(input_array) <= 0:
+                    v_min = array_min
+                if array_max <= 0:
                     v_max = 1e-1
                 else:
-                    v_max = np.nanmax(input_array)
+                    v_max = array_max
                 norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
         elif v_min is not None and v_max is not None:
             if norm_type == "linear":
