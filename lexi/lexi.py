@@ -476,7 +476,7 @@ class LEXI:
                     cbar_label="Seconds",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=False,
+                    display=True,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,
@@ -484,7 +484,7 @@ class LEXI:
                     save_path="figures/exposure_maps",
                     save_name=f"exposure_map_{i}",
                     dpi=300,
-                    dark_mode=False,
+                    dark_mode=True,
                 )
         # If the first element of exposure_maps shape is 1, then remove the first dimension
         if np.shape(exposure_maps)[0] == 1:
@@ -588,7 +588,7 @@ class LEXI:
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=False,
+                    display=True,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,
@@ -596,7 +596,7 @@ class LEXI:
                     save_path="figures/sky_background",
                     save_name=f"sky_background_{i}",
                     dpi=300,
-                    dark_mode=False,
+                    dark_mode=True,
                 )
         # If the first element of sky_backgrounds shape is 1, then remove the first dimension
         if np.shape(sky_backgrounds)[0] == 1:
@@ -712,6 +712,8 @@ class LEXI:
             if len(np.shape(sky_backgrounds)) == 2:
                 sky_backgrounds = np.array([sky_backgrounds])
             histograms = np.maximum(histograms - sky_backgrounds, 0)
+        else:
+            _, ra_arr, dec_arr = self.get_sky_backgrounds()
 
         # If requested, save the histograms as images
         if self.save_lexi_images:
@@ -731,7 +733,7 @@ class LEXI:
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=False,
+                    display=True,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,
@@ -739,7 +741,7 @@ class LEXI:
                     save_path="figures/lexi_images",
                     save_name=f"lexi_image_{i}",
                     dpi=300,
-                    dark_mode=False,
+                    dark_mode=True,
                 )
         # If the first element of histograms shape is 1, then remove the first dimension
         if np.shape(histograms)[0] == 1:
@@ -764,7 +766,7 @@ class LEXI:
         cbar_label: str = None,
         cbar_orientation: str = "vertical",
         show_axes: bool = True,
-        display: bool = False,
+        display: bool = True,
         figure_size: tuple = (10, 10),
         figure_format: str = "png",
         figure_font_size: float = 12,
@@ -772,7 +774,7 @@ class LEXI:
         save_path: str = None,
         save_name: str = None,
         dpi: int = 300,
-        dark_mode: bool = False,
+        dark_mode: bool = True,
     ):
         """
         Convert a 2D array to an image.
