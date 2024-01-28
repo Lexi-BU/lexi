@@ -669,11 +669,13 @@ class LEXI:
             index=[
                 pd.Timestamp("Jul 08 2024 15:01:00.000000000"),
                 pd.Timestamp("Jul 08 2024 15:02:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:03:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:04:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:05:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:06:00.000000000"),
-                pd.Timestamp("Jul 08 2024 15:07:00.000000000"),
+                # Note the hole here: No Jul 09 data.
+                # Testing with integration period of <= 24h
+                pd.Timestamp("Jul 10 2024 15:03:00.000000000"),
+                pd.Timestamp("Jul 10 2024 15:04:00.000000000"),
+                pd.Timestamp("Jul 10 2024 15:05:00.000000000"),
+                pd.Timestamp("Jul 11 2024 15:06:00.000000000"),
+                pd.Timestamp("Jul 11 2024 15:07:00.000000000"),
             ],
         )
 
@@ -696,6 +698,16 @@ class LEXI:
         ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
         dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
 
+
+        # Insert one row per integration window with NaN data.
+        # This ensures that even if there are periods in the data longer than t_integrate
+        # in which "nothing happens", this function will still return the appropriate
+        # number of lexi images, some of which empty.
+        # (Besides it being more correct to return also the empty lexi images, this is
+        # required in order for the images to align with the correct sky backgrounds when combined.)
+        integration_filler_idcs = pd.date_range(self.t_range[0], self.t_range[1], freq=pd.Timedelta(self.t_integrate, unit="s"))
+        photons = photons.reindex(index=np.union1d(integration_filler_idcs, photons.index), method=None)
+
         # Slice to relevant time range; make groups of rows spanning t_integration
         integ_groups = photons[self.t_range[0] : self.t_range[1]].resample(
             pd.Timedelta(self.t_integrate, unit="s"), origin="start"
@@ -716,7 +728,9 @@ class LEXI:
                     )
                     histograms[hist_idx][ra_idx][dec_idx] += 1
                 except ValueError:
-                    pass  # photon was out of bounds on one or both axes
+                    # photon was out of bounds on one or both axes,
+                    # or the row was an integration filler
+                    pass
 
         # Do background correction if requested
         if self.background_correction_on:
