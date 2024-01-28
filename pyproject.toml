@@ -19,6 +19,7 @@ wand = "^0.6.13"
 discorpy = "^1.6.0"
 opencv-python = "^4.9.0.80"
 scikit-learn = "^1.4.0"
+toml = "^0.10.2"
 
 
 [tool.poetry.group.dev.dependencies]
