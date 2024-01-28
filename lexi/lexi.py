@@ -358,13 +358,41 @@ class LEXI:
         t_integrate, ra-pixels depends on ra_range and ra_res, and dec-pixels depends on
         dec_range and dec_res.
         """
+        # Get spacecraft ephemeris data
+        spc_df = self.get_spc_prams()
+
+        # TODO: REMOVE ME once we start using real ephemeris data
+        # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
+        # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
+        # Therefore...
+        spc_df["ra"] = spc_df.mp_ra
+        spc_df["dec"] = spc_df.mp_dec
+        # (end of chunk that must be removed once we start using real ephemeris data)
+
+        # Set up coordinate grid
+        ra_arr = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
+        dec_arr = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
+        ra_grid = np.tile(ra_arr, (len(dec_arr), 1)).transpose()
+        dec_grid = np.tile(dec_arr, (len(ra_arr), 1))
+
         try:
             # Read the exposure map from a pickle file, if it exists
             # Define the folder where the exposure maps are saved
             save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
             t_start = self.t_range[0].strftime("%Y%m%d_%H%M%S")
             t_stop = self.t_range[1].strftime("%Y%m%d_%H%M%S")
-            exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{t_start}_tf_{t_stop}_tint_{self.t_integrate}.npy"
+            ra_start = self.ra_range[0]
+            ra_stop = self.ra_range[1]
+            dec_start = self.dec_range[0]
+            dec_stop = self.dec_range[1]
+            ra_res = self.ra_res
+            dec_res = self.dec_res
+            t_integrate = int(self.t_integrate)
+            exposure_maps_file_name = (
+                f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
+                f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
+                f"{dec_res}_Tint_{t_integrate}.npy"
+            )
             exposure_maps = np.load(exposure_maps_file_name)
             print(
                 f"Exposure map loaded from file \033[92m {exposure_maps_file_name} \033[0m\n"
@@ -372,28 +400,12 @@ class LEXI:
         except FileNotFoundError:
             print("Exposure map not found, computing now. This may take a while \n")
 
-            spc_df = self.get_spc_prams()
-
-            # TODO: REMOVE ME once we start using real ephemeris data
-            # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
-            # in the final lexi ephemeris files on CDAweb, this will be called just "ra" and "dec".
-            # Therefore...
-            spc_df["ra"] = spc_df.mp_ra
-            spc_df["dec"] = spc_df.mp_dec
-            # (end of chunk that must be removed once we start using real ephemeris data)
-
-            # Set up coordinate grid
-            ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
-            dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
-            ra_grid_arr = np.tile(ra_grid, (len(dec_grid), 1)).transpose()
-            dec_grid_arr = np.tile(dec_grid, (len(ra_grid), 1))
-
             # Slice to relevant time range; make groups of rows spanning t_integration
             integ_groups = spc_df[self.t_range[0] : self.t_range[1]].resample(
                 pd.Timedelta(self.t_integrate, unit="s"), origin="start"
             )
             # Make as many empty exposure maps as there are integration groups
-            exposure_maps = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
+            exposure_maps = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
             # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
             # Loop through each pointing step and add the exposure to the map
@@ -402,14 +414,14 @@ class LEXI:
                     # Get distance in degrees to the pointing step
                     # Wrap-proofing: First make everything [0,360), then +-360 on second operand
                     ra_diff = np.minimum(
-                        abs((ra_grid_arr % 360) - (row.ra % 360)),
-                        abs((ra_grid_arr % 360) - (row.ra % 360 - 360)),
-                        abs((ra_grid_arr % 360) - (row.ra % 360 + 360)),
+                        abs((ra_grid % 360) - (row.ra % 360)),
+                        abs((ra_grid % 360) - (row.ra % 360 - 360)),
+                        abs((ra_grid % 360) - (row.ra % 360 + 360)),
                     )
                     dec_diff = np.minimum(
-                        abs((dec_grid_arr % 360) - (row.dec % 360)),
-                        abs((dec_grid_arr % 360) - (row.dec % 360 - 360)),
-                        abs((dec_grid_arr % 360) - (row.dec % 360 + 360)),
+                        abs((dec_grid % 360) - (row.dec % 360)),
+                        abs((dec_grid % 360) - (row.dec % 360 - 360)),
+                        abs((dec_grid % 360) - (row.dec % 360 + 360)),
                     )
                     r = np.sqrt(ra_diff**2 + dec_diff**2)
                     # Make an exposure delta for this span
@@ -428,11 +440,21 @@ class LEXI:
                 save_folder = (
                     Path(__file__).resolve().parent.parent / "data/exposure_maps"
                 )
-                # If the folder doesn't exist, then create it
                 Path(save_folder).mkdir(parents=True, exist_ok=True)
                 t_start = self.t_range[0].strftime("%Y%m%d_%H%M%S")
                 t_stop = self.t_range[1].strftime("%Y%m%d_%H%M%S")
-                exposure_maps_file_name = f"{save_folder}/exposure_map_rares_{self.ra_res}_decres_{self.dec_res}_tstep_{self.t_step}_t0_{t_start}_tf_{t_stop}_tint_{self.t_integrate}.npy"
+                ra_start = self.ra_range[0]
+                ra_stop = self.ra_range[1]
+                dec_start = self.dec_range[0]
+                dec_stop = self.dec_range[1]
+                ra_res = self.ra_res
+                dec_res = self.dec_res
+                t_integrate = int(self.t_integrate)
+                exposure_maps_file_name = (
+                    f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
+                    f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
+                    f"{dec_res}_Tint_{t_integrate}.npy"
+                )
                 # Save the exposure map array to a pickle file
                 np.save(exposure_maps_file_name, exposure_maps)
                 print(
@@ -467,7 +489,7 @@ class LEXI:
         # If the first element of exposure_maps shape is 1, then remove the first dimension
         if np.shape(exposure_maps)[0] == 1:
             exposure_maps = exposure_maps[0]
-        return exposure_maps
+        return exposure_maps, ra_arr, dec_arr
 
     def get_sky_backgrounds(self):
         """
@@ -514,7 +536,7 @@ class LEXI:
             dec_range and dec_res.
         """
         # Get exposure maps
-        exposure_maps = self.get_exposure_maps(save_maps=True)
+        exposure_maps, ra_arr, dec_arr = self.get_exposure_maps(save_maps=True)
 
         # If exposure_maps is a 2D array, then add a dimension to it
         if len(np.shape(exposure_maps)) == 2:
@@ -546,7 +568,9 @@ class LEXI:
         )
 
         # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
-        sky_backgrounds = [e * rosat_resampled for e in exposure_maps]
+        sky_backgrounds = [
+            exposure_map * rosat_resampled for exposure_map in exposure_maps
+        ]
 
         # If requested, save the sky background as an image
         if self.save_sky_backgrounds:
@@ -577,7 +601,7 @@ class LEXI:
         # If the first element of sky_backgrounds shape is 1, then remove the first dimension
         if np.shape(sky_backgrounds)[0] == 1:
             sky_backgrounds = sky_backgrounds[0]
-        return sky_backgrounds
+        return sky_backgrounds, ra_arr, dec_arr
 
     def get_lexi_images(self):
         """
@@ -683,7 +707,7 @@ class LEXI:
 
         # Do background correction if requested
         if self.background_correction_on:
-            sky_backgrounds = self.get_sky_backgrounds()
+            sky_backgrounds, ra_arr, dec_arr = self.get_sky_backgrounds()
             # If sky_backgrounds is a 2D array, then add a dimension to it
             if len(np.shape(sky_backgrounds)) == 2:
                 sky_backgrounds = np.array([sky_backgrounds])
@@ -720,7 +744,7 @@ class LEXI:
         # If the first element of histograms shape is 1, then remove the first dimension
         if np.shape(histograms)[0] == 1:
             histograms = histograms[0]
-        return histograms
+        return histograms, ra_arr, dec_arr
 
     # TODO make FITS files
 
@@ -897,6 +921,10 @@ class LEXI:
             aspect=aspect,
         )
 
+        # Turn on the grid
+        ax.grid(True, color="k", alpha=0.5, linestyle="-")
+        # Turn on minor grid
+        ax.minorticks_on()
         # Set the tick label size
         ax.tick_params(labelsize=0.8 * figure_font_size)
         if show_colorbar:
