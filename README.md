@@ -14,31 +14,39 @@ install Lexi and create your virtual environment.
 
 - cd into `Documents/lexi`
 
-    `cd Documents/lexi`
-
 ### Using python3
     You can create a virtual environment called `lexi_venv` using `python3` by running the 
     following command:
 
-        `python3 -m venv lexi_venv`
+        ```bash
+        python3 -m venv lexi_venv
+        ```
 
     You can activate the virtual environment by running the following command:
         
         on Linux/MacOS:
         
-            `source lexi_venv/bin/activate`
+            ```bash
+            source lexi_venv/bin/activate
+            ```
 
         on Windows:
-            `.\lexi_venv\Scripts\activate.bat`
+            ```bash
+            .\lexi_venv\Scripts\activate.bat
+            ```
 
     You can deactivate the virtual environment by running the following command:
         
-        `deactivate`
+        ```bash
+        deactivate
+        ```
 
 ### Using poetry
     - You can create a virtual environment and install LEXI inside it using `poetry` by running the
     following command:
-        - `poetry install`
+        ```bash
+            poetry install
+        ```
     This will create a virtual environment and install all the dependencies listed in the `pyproject.toml` file.
     - You can activate the virtual environment by running the following command:
         - `poetry shell`
