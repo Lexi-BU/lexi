@@ -6,7 +6,7 @@ This documents guides you through the installation of Lexi.
 Though it is not necessary, we strongly recommend that you install Lexi in a virtual environment.
 This will prevent any conflicts with other Python packages you may have installed.
 
-# Creating a virtual environment
+## Creating a virtual environment
 There are several ways to create a virtual environment. We recommend using `python3` or `poetry`.
 
 For this exercise, we will assume that you have a directory called `Documents/lexi` where you will
