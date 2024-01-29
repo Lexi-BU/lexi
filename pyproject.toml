@@ -5,21 +5,20 @@ description = "Main repository for all data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
 maintainers = [
     "Brian Walsh <bwalsh@bu.edu>",
-    "Jane Smith <janesmith@example.org>",
+    "Zoe Chitty <zlch@bu.edu>",
 ]
 license = "GNU GPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.9"
+toml = "^0.10.2"
 spacepy = "^0.4.1"
 pandas = "^2.2.0"
-toml = "^0.10.2"
 
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.0"
-notebook = "^7.0.7"
 
 [build-system]
 requires = ["poetry-core"]
