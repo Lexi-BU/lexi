@@ -19,7 +19,7 @@ install Lexi and create your virtual environment.
 ### Using python3
     - You can create a virtual environment called `lexi_venv` using `python3` by running the 
     following command:
-        - `python3 -m venv lexi_venv`
+        `python3 -m venv lexi_venv`
     - You can activate the virtual environment by running the following command:
         - on Linux/MacOS:
             - `source lexi_venv/bin/activate`
