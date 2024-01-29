@@ -13,7 +13,8 @@ For this exercise, we will assume that you have a directory called `Documents/le
 install Lexi and create your virtual environment.
 
 - cd into `Documents/lexi`
-    - `cd Documents/lexi`
+
+    `cd Documents/lexi`
 
 ### Using python3
     - You can create a virtual environment called `lexi_venv` using `python3` by running the 
