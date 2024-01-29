@@ -222,16 +222,28 @@ class LEXI:
         """
         # TODO: REMOVE ME once we start using real ephemeris data
         df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
-        df.index = pd.DatetimeIndex(df.epoch_utc)
+        # Convert the epoch_utc column to a datetime object
+        df["epoch_utc"] = pd.to_datetime(df["epoch_utc"])
+        # Set the index to be the epoch_utc column and remove the epoch_utc column
+        df = df.set_index("epoch_utc", inplace=False)
+
         if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
-            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
-                          f"End regions will be forward/backfilled.")
+            warnings.warn(
+                "Ephemeris data do not cover the full time range requested."
+                "End regions will be forward/backfilled."
+            )
             # Add the just the two endpoints to the index
-            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+            df = df.reindex(
+                index=np.union1d(
+                    pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index
+                )
+            )
 
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
+        dfinterp = dfresamp.interpolate(
+            method=self.interp_method, limit_direction="both"
+        )
         return dfinterp
         # (end of chunk that must be removed once we start using real ephemeris data)
 
@@ -330,15 +342,23 @@ class LEXI:
 
         # If the ephemeris data do not span the t_range, send warning
         if df.index[0] > self.t_range[0] or df.index[-1] < self.t_range[1]:
-            warnings.warn(f"Ephemeris data do not cover the full time range requested. "
-                          f"End regions will be forward/backfilled.")
+            warnings.warn(
+                "Ephemeris data do not cover the full time range requested."
+                "End regions will be forward/backfilled."
+            )
             # Add the just the two endpoints to the index
-            df = df.reindex(index=np.union1d(pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index))
+            df = df.reindex(
+                index=np.union1d(
+                    pd.date_range(self.t_range[0], self.t_range[1], periods=2), df.index
+                )
+            )
 
         # Slice, resample, interpolate
         dfslice = df[self.t_range[0] : self.t_range[1]]
         dfresamp = dfslice.resample(pd.Timedelta(self.t_step, unit="s"))
-        dfinterp = dfresamp.interpolate(method=self.interp_method, limit_direction='both')
+        dfinterp = dfresamp.interpolate(
+            method=self.interp_method, limit_direction="both"
+        )
 
         return dfinterp
 
@@ -687,8 +707,15 @@ class LEXI:
         photons_data = photons_cdf.copy()
         photons_cdf.close()
         photons = pd.DataFrame({key: photons_data[key] for key in photons_data.keys()})
-        # Make datetime index from epoch_utc
-        photons.index = pd.DatetimeIndex(photons.Epoch)
+        # Set the index to the Epoch column and remove the Epoch column
+        photons = photons.set_index("Epoch", inplace=False)
+        # Check if the photons dataframe has duplicate indices
+        # NOTE: Refer to the GitHub issue for more information on why we are doing this:
+        # https://github.com/Lexi-BU/lexi/issues/38
+
+        if photons.index.duplicated().any():
+            # Remove the duplicate indices
+            photons = photons[~photons.index.duplicated(keep="first")]
         print(
             f"Extrema: RA min {photons.ra_J2000_deg.min()}, RA max {photons.ra_J2000_deg.max()}, "
             f"DEC min {photons.dec_J2000_deg.min()}, DEC max {photons.dec_J2000_deg.max()}"
@@ -698,15 +725,20 @@ class LEXI:
         ra_grid = np.arange(self.ra_range[0], self.ra_range[1], self.ra_res)
         dec_grid = np.arange(self.dec_range[0], self.dec_range[1], self.dec_res)
 
-
         # Insert one row per integration window with NaN data.
         # This ensures that even if there are periods in the data longer than t_integrate
         # in which "nothing happens", this function will still return the appropriate
         # number of lexi images, some of which empty.
         # (Besides it being more correct to return also the empty lexi images, this is
         # required in order for the images to align with the correct sky backgrounds when combined.)
-        integration_filler_idcs = pd.date_range(self.t_range[0], self.t_range[1], freq=pd.Timedelta(self.t_integrate, unit="s"))
-        photons = photons.reindex(index=np.union1d(integration_filler_idcs, photons.index), method=None)
+        integration_filler_idcs = pd.date_range(
+            self.t_range[0],
+            self.t_range[1],
+            freq=pd.Timedelta(self.t_integrate, unit="s"),
+        )
+        photons = photons.reindex(
+            index=np.union1d(integration_filler_idcs, photons.index), method=None
+        )
 
         # Slice to relevant time range; make groups of rows spanning t_integration
         integ_groups = photons[self.t_range[0] : self.t_range[1]].resample(
@@ -861,12 +893,13 @@ class LEXI:
             Axes object.
         """
         # Try to use latex rendering
-        try:
-            plt.rc("text", usetex=True)
-            plt.rc("font", family="serif")
-            plt.rc("font", size=figure_font_size)
-        except Exception:
-            pass
+        plt.rc("text", usetex=False)
+        # try:
+        #     plt.rc("text", usetex=True)
+        #     plt.rc("font", family="serif")
+        #     plt.rc("font", size=figure_font_size)
+        # except Exception:
+        #     pass
 
         # Check whether input_array is a 2D array
         if len(input_array.shape) != 2:
@@ -907,8 +940,10 @@ class LEXI:
             if array_min == array_max:
                 # In theory, could be a real instance of a perfectly flat map;
                 # probably, just an integration window with no photons.
-                print(f"Encountered map where array min {array_min} == array max {array_max}. "
-                      f"Plotting a range of +- 1.")
+                print(
+                    f"Encountered map where array min {array_min} == array max {array_max}. "
+                    "Plotting a range of +- 1."
+                )
                 array_min -= 1
                 array_max += 1
 
