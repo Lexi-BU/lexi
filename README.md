@@ -42,39 +42,55 @@ install Lexi and create your virtual environment.
         ```
 
 ### Using poetry
-    - You can create a virtual environment and install LEXI inside it using `poetry` by running the
+    You can create a virtual environment and install LEXI inside it using `poetry` by running the
     following command:
         ```bash
             poetry install
         ```
     This will create a virtual environment and install all the dependencies listed in the `pyproject.toml` file.
     - You can activate the virtual environment by running the following command:
-        - `poetry shell`
-    - You can deactivate the virtual environment by running the following command:
-        - `exit`
+        ```bash
+            poetry shell
+        ```
+    You can deactivate the virtual environment by running the following command:
+        ```bash
+            exit
+        ```
 
 ## Installing Lexi
 
 ### Installing from source
-    - After you have created and activated your virtual environment, you can install Lexi  
+    After you have created and activated your virtual environment, you can install Lexi  
     directly from GitHub by running the following command:
-        - `pip install git+https://github.com/Lexi-BU/lexi`
+        ```bash
+            pip install git+https://github.com/Lexi-BU/lexi
+        ```
 ### Installing from a local copy
-    - Copy the `lexi/dist` directory into `Documents/lexi`.
-    - NOTE: Since we do not have proper sky background data and the ephemeris data, we have to use 
+    Copy the `lexi/dist` directory into `Documents/lexi`.
+
+    NOTE: Since we do not have proper sky background data and the ephemeris data, we have to use 
     data locally available. You thus must have the following files in the `Documents/lexi` directory:
         - `data/PIT_shifted_jul08.cdf`
         - `data/sample_lexi_pointing_ephem_edited.csv`
         - `data/sample_xray_background.csv`
-    - The `lexi/dist` directory contains a file called `lexi-0.0.1.tar.gz`, or some other version 
+    
+    The `lexi/dist` directory contains a file called `lexi-0.0.1.tar.gz`, or some other version 
     of the same file.
-    - Activate your virtual environment uusing the instructions above.
-    - Install Lexi by running the following command:
-        - `pip install dist/lexi-0.0.1.tar.gz`
+
+    Activate your virtual environment uusing the instructions above.
+
+    Install Lexi by running the following command:
+        ```bash
+            pip install dist/lexi-0.0.1.tar.gz
+        ```
 
 ## Verifying the installation
-    - You can verify that Lexi was installed by running the following command:
-        - `pip show lexi` which should produce output similar to the following:
+    You can verify that Lexi was installed by running the following command:
+        ```bash
+            pip show lexi
+            ```
+             which should produce output similar to the following:
+
             ```
             Name: lexi
             Version: 0.0.1
@@ -87,8 +103,13 @@ install Lexi and create your virtual environment.
             Requires: pandas, spacepy, toml
             Required-by: 
             ```
-    - You can also verify that Lexi was installed by running the following command:
-        - `pip list` which should produce output similar to the following:
+
+    You can also verify that Lexi was installed by running the following command:
+        ```bash
+            pip list
+            ```
+            which should produce output similar to the following:
+
             ```
             Package         Version
             --------------- -------
@@ -98,11 +119,15 @@ install Lexi and create your virtual environment.
             pip             21.3.1
             .....................
             ```
-    - You can open a Python shell and import Lexi by running the following command:
-        - `python`
-        - `import lexi`
-        - `lexi.__version__` which should produce output similar to the following:
+
+    You can open a Python shell and import Lexi by running the following command:
+        ```bash
+            python
+            import lexi
+            lexi.__version__
+        ``` 
+        which should produce output similar to the following:
             ```
             '0.0.1'
             ```
-    - If that worked, congratulations! You have successfully installed Lexi.
+    If that worked, congratulations! You have successfully installed Lexi.
