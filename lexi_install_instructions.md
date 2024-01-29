@@ -94,7 +94,7 @@ You can verify that Lexi was installed by running the following command:
 
 which should produce output similar to the following:
 
-```
+```bash
     Name: lexi
     Version: 0.0.1
     Summary: Main repository for all data analysis related to LEXI

@@ -111,12 +111,13 @@ which should produce output similar to the following:
 ```
 
 You can also verify that Lexi was installed by running the following command:
+
 ```bash
     pip list
-    ```
-    which should produce output similar to the following:
+```
+which should produce output similar to the following:
 
-    ```
+```bash
     Package         Version
     --------------- -------
     .....................
