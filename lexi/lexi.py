@@ -440,21 +440,25 @@ class LEXI:
             # Make as many empty exposure maps as there are integration groups
             exposure_maps = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
-            # TODO: Can we figure out a way to do this not in a loop??? Cannot be vectorized...
             # Loop through each pointing step and add the exposure to the map
+            # Wrap-proofing: First make everything [0,360)...
+            ra_grid_mod = ra_grid % 360
+            dec_grid_mod = dec_grid % 360
             for map_idx, (_, group) in enumerate(integ_groups):
                 for row in group.itertuples():
                     # Get distance in degrees to the pointing step
                     # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+                    row_ra_mod = row.ra % 360
+                    row_dec_mod = row.dec % 360
                     ra_diff = np.minimum(
-                        abs((ra_grid % 360) - (row.ra % 360)),
-                        abs((ra_grid % 360) - (row.ra % 360 - 360)),
-                        abs((ra_grid % 360) - (row.ra % 360 + 360)),
+                        abs(ra_grid_mod - row_ra_mod),
+                        abs(ra_grid_mod - (row_ra_mod - 360)),
+                        abs(ra_grid_mod - (row_ra_mod + 360)),
                     )
                     dec_diff = np.minimum(
-                        abs((dec_grid % 360) - (row.dec % 360)),
-                        abs((dec_grid % 360) - (row.dec % 360 - 360)),
-                        abs((dec_grid % 360) - (row.dec % 360 + 360)),
+                        abs(dec_grid_mod - row_dec_mod),
+                        abs(dec_grid_mod - (row_dec_mod - 360)),
+                        abs(dec_grid_mod - (row_dec_mod + 360)),
                     )
                     r = np.sqrt(ra_diff**2 + dec_diff**2)
                     # Make an exposure delta for this span
