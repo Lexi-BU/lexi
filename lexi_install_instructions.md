@@ -1,6 +1,8 @@
 This documents guides you through the installation of Lexi.
 
 Though it is not necessary, we strongly recommend that you install Lexi in a virtual environment.
+# NOTE add details about virtual environment
+
 This will prevent any conflicts with other Python packages you may have installed.
 
 ## Creating a virtual environment
@@ -77,7 +79,7 @@ data locally available. You thus must have the following files in the `Documents
 
 The `lexi/dist` directory contains a file called `lexi-0.0.1.tar.gz`, or some other version of the same file.
 
-Activate your virtual environment uusing the instructions above.
+Activate your virtual environment using the instructions above.
 
 Install Lexi by running the following command:
 
