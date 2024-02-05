@@ -1,138 +1,181 @@
 import numpy as np
 import pandas as pd
+import pytz
 import urllib.request
 from pathlib import Path
-from spacepy import pycdf
+from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-
 import warnings
 
 
-def validate_input(
-        *,
-        t_range,
-        t_step,
-        ra_range,
-        dec_range,
-        ra_res,
-        dec_res,
-        interp_method,
-        background_correction_on,
-        save_df,
-        filename,
-        filetype,
-        save_exposure_maps,
-        save_sky_backgrounds,
-        save_lexi_images,
-):
-    # Validate t_range
-    if not isinstance(t_range, list):
-        raise ValueError("t_range must be a list")
-    if len(t_range) != 2:
-        raise ValueError("t_range must have two elements")
-    if not all(isinstance(x, str) for x in t_range):
-        raise ValueError("t_range elements must be strings")
+def validate_input(key, value):
+    if key == "t_range":
+        if not isinstance(value, list):
+            raise ValueError("t_range must be a list")
+        if len(value) != 2:
+            raise ValueError("t_range must have two elements")
+        # Check that all elements are either strings, or datetime objects or Timestamps
+        if not all(isinstance(x, (str, pd.Timestamp)) for x in value):
+            raise ValueError("t_range elements must be strings or datetime objects")
 
-    # Validate t_step
-    if not isinstance(t_step, int):
-        raise ValueError("t_step must be an integer")
-    if t_step <= 0:
-        raise ValueError("t_step must be greater than 0")
+    if key == "time_zone":
+        if not isinstance(value, str):
+            raise ValueError("time_zone must be a string")
+        if len(value) == 0:
+            raise ValueError("time_zone must not be an empty string")
+        # Check that the timezone is valid
+        if value not in pytz.all_timezones:
+            # Print a warning that the provided timezone is not valid and set it to UTC
+            warnings.warn(
+                f"\n \033[1;91m Timezone '{value}' is not valid. Setting timezone to UTC \033[0m \n"
+            )
+            return False
 
-    # Validate ra_range
-    if not isinstance(ra_range, list):
-        raise ValueError("ra_range must be a list")
-    if len(ra_range) != 2:
-        raise ValueError("ra_range must have two elements")
-    if not all(isinstance(x, (int, float)) for x in ra_range):
-        raise ValueError("ra_range elements must be integers or floats")
+    if key == "t_step":
+        if not isinstance(value, (int, float)) or value < 0:
+            warnings.warn(
+                "\n \033[1;91m t_step must be a positive integer or float. Setting t_step to default value of 5 seconds \033[0m \n"
+            )
+            return False
 
-    # Validate dec_range
-    if not isinstance(dec_range, list):
-        raise ValueError("dec_range must be a list")
-    if len(dec_range) != 2:
-        raise ValueError("dec_range must have two elements")
-    if not all(isinstance(x, (int, float)) for x in dec_range):
-        raise ValueError("dec_range elements must be integers or floats")
+    if key == "ra_range":
+        if not isinstance(value, list):
+            raise ValueError("ra_range must be a list")
+        if len(value) != 2:
+            raise ValueError("ra_range must have two elements")
+        if not all(isinstance(x, (int, float)) for x in value):
+            raise ValueError("ra_range elements must be integers or floats")
+        if value[0] < 0 or value[0] >= 360:
+            raise ValueError("ra_range start must be in the range [0, 360)")
+        if value[1] <= 0 or value[1] > 360:
+            raise ValueError("ra_range stop must be in the range (0, 360]")
 
-    # Validate ra_res
-    if not isinstance(ra_res, (int, float)):
-        raise ValueError("ra_res must be an integer or float")
-    if ra_res <= 0:
-        raise ValueError("ra_res must be greater than 0")
+    if key == "dec_range":
+        if not isinstance(value, list):
+            raise ValueError("dec_range must be a list")
+        if len(value) != 2:
+            raise ValueError("dec_range must have two elements")
+        if not all(isinstance(x, (int, float)) for x in value):
+            raise ValueError("dec_range elements must be integers or floats")
+        if value[0] < -90 or value[0] >= 90:
+            raise ValueError("dec_range start must be in the range [-90, 90)")
+        if value[1] <= -90 or value[1] > 90:
+            raise ValueError("dec_range stop must be in the range (-90, 90]")
 
-    # Validate dec_res
-    if not isinstance(dec_res, (int, float)):
-        raise ValueError("dec_res must be an integer or float")
-    if dec_res <= 0:
-        raise ValueError("dec_res must be greater than 0")
+    if key == "ra_res":
+        if not isinstance(value, (int, float)):
+            raise ValueError("ra_res must be an integer or float")
+        if value <= 0:
+            raise ValueError("ra_res must be greater than 0")
 
-    # Validate interp_method
-    if not isinstance(interp_method, str):
-        raise ValueError("interp_method must be a string")
-    if interp_method not in ["linear", "nearest", "zero", "slinear", "quadratic", "cubic"]:
-        raise ValueError("interp_method must be one of 'linear', 'nearest', 'zero', 'slinear', 'quadratic', or 'cubic'")
+    if key == "dec_res":
+        if not isinstance(value, (int, float)):
+            raise ValueError("dec_res must be an integer or float")
+        if value <= 0:
+            raise ValueError("dec_res must be greater than 0")
 
-    # Validate background_correction_on
-    if not isinstance(background_correction_on, bool):
-        raise ValueError("background_correction_on must be a boolean")
+    if key == "interp_method":
+        if not isinstance(value, str):
+            raise ValueError("interp_method must be a string")
+        if value not in [
+            "linear",
+            "nearest",
+            "zero",
+            "slinear",
+            "quadratic",
+            "cubic",
+        ]:
+            warnings.warn(
+                f"\n \033[1;91m Interpolation method '{value}' is not a valid interpolation method. Setting interpolation method to 'linear' \033[0m \n"
+            )
+            return False
 
-    # Validate save_df
-    if not isinstance(save_df, bool):
-        raise ValueError("save_df must be a boolean")
-    
-    # Validate filename 
-    if not isinstance(filename, str):
-        raise ValueError("filename must be a string")
-    if len(filename) == 0:
-        raise ValueError("filename must not be an empty string")
+    if key == "background_correction_on":
+        if not isinstance(value, bool):
+            raise ValueError("background_correction_on must be a boolean")
 
-    # Validate filetype
-    if not isinstance(filetype, str):
-        raise ValueError("filetype must be a string")
-    if len(filetype) == 0:
-        raise ValueError("filetype must not be an empty string")
-    if filetype not in ["pkl", "csv"]:
-        raise ValueError("filetype must be one of 'pkl' or 'csv'")
-    
-    # Validate save_exposure_maps
-    if not isinstance(save_exposure_maps, bool):
-        raise ValueError("save_exposure_maps must be a boolean")
-    
-    # Validate save_sky_backgrounds
-    if not isinstance(save_sky_backgrounds, bool):
-        raise ValueError("save_sky_backgrounds must be a boolean")
+    if key == "save_df":
+        if not isinstance(value, bool):
+            raise ValueError("save_df must be a boolean")
 
-    # Validate save_lexi_images
-    if not isinstance(save_lexi_images, bool):
-        raise ValueError("save_lexi_images must be a boolean")
+    if key == "filename":
+        if not isinstance(value, str):
+            raise ValueError("filename must be a string")
+        if len(value) == 0:
+            raise ValueError("filename must not be an empty string")
+
+    if key == "filetype":
+        if not isinstance(value, str):
+            raise ValueError("filetype must be a string")
+        if len(value) == 0:
+            raise ValueError("filetype must not be an empty string")
+        if value not in ["pkl", "p", "csv"]:
+            raise ValueError("filetype must be one of 'pkl', 'p' or 'csv")
+
+    if key == "save_exposure_maps":
+        if not isinstance(value, bool):
+            raise ValueError("save_exposure_maps must be a boolean")
+
+    if key == "save_sky_backgrounds":
+        if not isinstance(value, bool):
+            raise ValueError("save_sky_backgrounds must be a boolean")
+
+    if key == "save_lexi_images":
+        if not isinstance(value, bool):
+            raise ValueError("save_lexi_images must be a boolean")
 
     return True
 
 
 def get_spc_prams(
-        t_range,
-        t_step,
-        ra_range,
-        dec_range,
-        ra_res,
-        dec_res,
-        interp_method,
-        background_correction_on,
-        save_df,
-        filename,
-        filetype,
-        save_exposure_maps,
-        save_sky_backgrounds,
-        save_lexi_images,
+    t_range=None,
+    time_zone="UTC",
+    t_step=5,
+    interp_method=None,
+    verbose=True,
 ):
+    # Validate t_range
+    t_range_validated = validate_input("t_range", t_range)
+    if t_range_validated:
+        # If t_range elements are strings, convert them to datetime objects
+        if isinstance(t_range[0], str):
+            t_range[0] = pd.to_datetime(t_range[0])
+        if isinstance(t_range[1], str):
+            t_range[1] = pd.to_datetime(t_range[1])
+        # Validate time_zone, if it is not valid, set it to UTC
+        if time_zone is not None:
+            time_zone_validated = validate_input("time_zone", time_zone)
+            if time_zone_validated:
+                # Set the timezone to the t_range
+                t_range[0] = t_range[0].tz_localize(time_zone)
+                t_range[1] = t_range[1].tz_localize(time_zone)
+                if verbose:
+                    print(f"Timezone set to {time_zone} \n")
+            else:
+                t_range[0] = t_range[0].tz_localize("UTC")
+                t_range[1] = t_range[1].tz_localize("UTC")
+                if verbose:
+                    print("Timezone set to UTC \n")
+
+    # Validate t_step
+    t_step_validated = validate_input("t_step", t_step)
+    if not t_step_validated:
+        t_step = 5
+
+    # Validate interp_method
+    interp_method_validated = validate_input("interp_method", interp_method)
+    if not interp_method_validated:
+        interp_method = "linear"
+
     # TODO: REMOVE ME once we start using real ephemeris data
-    df = pd.read_csv("data/sample_lexi_pointing_ephem_edited.csv")
+    df = pd.read_csv("../data/sample_lexi_pointing_ephem_edited.csv")
     # Convert the epoch_utc column to a datetime object
     df["epoch_utc"] = pd.to_datetime(df["epoch_utc"])
     # Set the index to be the epoch_utc column and remove the epoch_utc column
     df = df.set_index("epoch_utc", inplace=False)
+    # Set the timezone to UTC
+    df = df.tz_localize("UTC")
 
     if df.index[0] > t_range[0] or df.index[-1] < t_range[1]:
         warnings.warn(
@@ -141,17 +184,14 @@ def get_spc_prams(
         )
         # Add the just the two endpoints to the index
         df = df.reindex(
-            index=np.union1d(
-                pd.date_range(t_range[0], t_range[1], periods=2), df.index
-            )
+            index=np.union1d(pd.date_range(t_range[0], t_range[1], periods=2), df.index)
         )
 
     dfslice = df[t_range[0] : t_range[1]]
     dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
-    dfinterp = dfresamp.interpolate(
-        method=interp_method, limit_direction="both"
-    )
+    dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
+
     # (end of chunk that must be removed once we start using real ephemeris data)
 
     # Get the year, month, and day of the start and stop times
@@ -166,6 +206,13 @@ def get_spc_prams(
     stop_month = stop_time.month
     stop_day = stop_time.day
 
+    # Link to the CDAweb website, from which ephemeris data are pulled
+    # CDA_LINK = "https://cdaweb.gsfc.nasa.gov/pub/data/lexi/ephemeris/"
+    # TODO: Change this to the correct link once we start using real ephemeris data
+    CDA_LINK = (
+        "https://cdaweb.gsfc.nasa.gov/pub/data/ulysses/plasma/swics_cdaweb/scs_m1/2001/"
+    )
+
     # Given that ephemeris files are named in the the format of lexi_ephm_YYYYMMDD_v01.cdf, get a
     # list of all the files that are within the time range of interest
     file_list = []
@@ -176,7 +223,9 @@ def get_spc_prams(
                 date_string = str(year) + str(month).zfill(2) + str(day).zfill(2)
 
                 # Create a string for the filename
-                filename = "lexi_ephm_" + date_string + "_v01.cdf"
+                # filename = "lexi_ephm_" + date_string + "_v01.cdf"
+                # TODO: Change this to the correct filename format once we start using real ephemeris data
+                filename = "uy_m1_scs_" + date_string + "_v02.cdf"
 
                 # Create a string for the full link to the file
                 link = CDA_LINK + filename
@@ -199,11 +248,7 @@ def get_spc_prams(
                     and (day < start_day)
                 ):
                     continue
-                elif (
-                    (year == stop_year)
-                    and (month == stop_month)
-                    and (day > stop_day)
-                ):
+                elif (year == stop_year) and (month == stop_month) and (day > stop_day):
                     continue
                 else:
                     file_list.append(filename)
@@ -214,13 +259,30 @@ def get_spc_prams(
     Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     # Download the files in the file list to the data/ephemeris directory
+    if not verbose:
+        print("Downloading ephemeris files\n")
     for file in file_list:
+        # If the file already exists, then skip to the next file
+        if (data_dir / file).exists():
+            if verbose:
+                print(f"File already exists ==> \033[92m {file}\033[0m \n")
+            continue
+        # If the file doesn't exist, then download it
         urllib.request.urlretrieve(CDA_LINK + file, data_dir / file)
+        if verbose:
+            print(f"Downloaded ==> \033[92m {file}\033[0m \n")
 
     # Read the files into a single dataframe
     df_list = []
+    if not verbose:
+        print("Reading ephemeris files\n")
     for file in file_list:
-        eph_data = pycdf.CDF(file)
+        if verbose:
+            print(f"Reading ephemeris file ==> \033[92m {file}\033[0m \n")
+        # Get the file path
+        file = data_dir / file
+        eph_data = CDF(file)
+
         # Save the data to a dataframe
         df = pd.DataFrame()
         df["epoch_utc"] = eph_data["Epoch"]
@@ -255,34 +317,208 @@ def get_spc_prams(
         )
         # Add the just the two endpoints to the index
         df = df.reindex(
-            index=np.union1d(
-                pd.date_range(t_range[0], t_range[1], periods=2), df.index
-            )
+            index=np.union1d(pd.date_range(t_range[0], t_range[1], periods=2), df.index)
         )
 
     # Slice, resample, interpolate
     dfslice = df[t_range[0] : t_range[1]]
     dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
-    dfinterp = dfresamp.interpolate(
-        method=interp_method, limit_direction="both"
-    )
+    # Validate interp_method
+    interp_method_validated = validate_input("interp_method", interp_method)
+    if interp_method_validated:
+        dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
 
     return dfinterp
 
 
-df = get_spc_prams(
-    t_range=["2024-07-08T21:43:41", "2024-07-08T21:47:48"],
+def vignette(d):
+    """
+    Function to calculate the vignetting factor for a given distance from boresight
+
+    Parameters
+    ----------
+    d : float
+        Distance from boresight in degrees
+
+    Returns
+    -------
+    f : float
+        Vignetting factor
+    """
+
+    # Set the vignetting factor
+    # f = 1.0 - 0.5 * (d / (LEXI_FOV * 0.5)) ** 2
+    f = 1
+
+    return f
+
+
+def get_exposure_maps(
+    t_range=None,
+    time_zone="UTC",
+    interp_method=None,
     t_step=5,
-    ra_range=[290, 360],
-    dec_range=[290, 360],
-    ra_res=4,
-    dec_res=3,
-    interp_method="linear",
-    background_correction_on=False,
-    save_df=True,
-    filename="test_data/LEXI_pointing_ephem_highres",
-    filetype="pkl",
-    save_exposure_maps=True,
-    save_sky_backgrounds=True,
-    save_lexi_images=True,
-)
+    ra_range=[0, 360],
+    dec_range=[-90, 90],
+    ra_res=0.1,
+    dec_res=0.1,
+    t_integrate=None,
+    save_maps=False,
+    save_exposure_maps=False,
+    verbose=True,
+):
+
+    # Validate ra_range
+    ra_range_validated = validate_input("ra_range", ra_range)
+
+    # Validate dec_range
+    dec_range_validated = validate_input("dec_range", dec_range)
+
+    # Validate ra_res
+    (_,) = validate_input("ra_res", ra_res)
+
+    # Validate dec_res
+    (_,) = validate_input("dec_res", dec_res)
+
+    # Validate t_integrate
+    (_,) = validate_input("t_integrate", t_integrate)
+
+    # Get spacecraft ephemeris data
+    spc_df = get_spc_prams(
+        t_range=t_range,
+        time_zone=time_zone,
+        interp_method=interp_method,
+        verbose=verbose,
+    )
+
+    # TODO: REMOVE ME once we start using real ephemeris data
+    # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
+    # in the final lexi ephemeris files on CDAweb, this will be called just "RA" and "DEC".
+    # Therefore...
+    spc_df["RA"] = spc_df.mp_ra
+    spc_df["DEC"] = spc_df.mp_dec
+    # (end of chunk that must be removed once we start using real ephemeris data)
+
+    # Set up coordinate grid
+    if ra_range_validated:
+        ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
+
+    if dec_range_validated:
+        dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
+
+    ra_grid = np.tile(ra_arr, (len(dec_arr), 1)).transpose()
+    dec_grid = np.tile(dec_arr, (len(ra_arr), 1))
+
+    try:
+        # Read the exposure map from a pickle file, if it exists
+        # Define the folder where the exposure maps are saved
+        save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
+        t_start = t_range[0].strftime("%Y%m%d_%H%M%S")
+        t_stop = t_range[1].strftime("%Y%m%d_%H%M%S")
+        ra_start = ra_range[0]
+        ra_stop = ra_range[1]
+        dec_start = dec_range[0]
+        dec_stop = dec_range[1]
+        ra_res = ra_res
+        dec_res = dec_res
+        t_integrate = int(t_integrate)
+        exposure_maps_file_name = (
+            f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
+            f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
+            f"{dec_res}_Tint_{t_integrate}.npy"
+        )
+        exposure_maps = np.load(exposure_maps_file_name)
+        print(
+            f"Exposure map loaded from file \033[92m {exposure_maps_file_name} \033[0m\n"
+        )
+    except FileNotFoundError:
+        print("Exposure map not found, computing now. This may take a while \n")
+
+        # Slice to relevant time range; make groups of rows spanning t_integration
+        integ_groups = spc_df[t_range[0] : t_range[1]].resample(
+            pd.Timedelta(t_integrate, unit="s"), origin="start"
+        )
+        # Make as many empty exposure maps as there are integration groups
+        exposure_maps = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
+
+        # Loop through each pointing step and add the exposure to the map
+        # Wrap-proofing: First make everything [0,360)...
+        ra_grid_mod = ra_grid % 360
+        dec_grid_mod = dec_grid % 360
+        for map_idx, (_, group) in enumerate(integ_groups):
+            for row in group.itertuples():
+                # Get distance in degrees to the pointing step
+                # Wrap-proofing: First make everything [0,360), then +-360 on second operand
+                row_ra_mod = row.ra % 360
+                row_dec_mod = row.dec % 360
+                ra_diff = np.minimum(
+                    abs(ra_grid_mod - row_ra_mod),
+                    abs(ra_grid_mod - (row_ra_mod - 360)),
+                    abs(ra_grid_mod - (row_ra_mod + 360)),
+                )
+                dec_diff = np.minimum(
+                    abs(dec_grid_mod - row_dec_mod),
+                    abs(dec_grid_mod - (row_dec_mod - 360)),
+                    abs(dec_grid_mod - (row_dec_mod + 360)),
+                )
+                r = np.sqrt(ra_diff**2 + dec_diff**2)
+                # Make an exposure delta for this span
+                exposure_delt = np.where((r < LEXI_FOV * 0.5), vignette(r) * t_step, 0)
+                exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
+            print(
+                f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
+                end="\r",
+            )
+        if save_maps:
+            # Define the folder to save the exposure maps to
+            save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
+            Path(save_folder).mkdir(parents=True, exist_ok=True)
+            t_start = t_range[0].strftime("%Y%m%d_%H%M%S")
+            t_stop = t_range[1].strftime("%Y%m%d_%H%M%S")
+            ra_start = ra_range[0]
+            ra_stop = ra_range[1]
+            dec_start = dec_range[0]
+            dec_stop = dec_range[1]
+            ra_res = ra_res
+            dec_res = dec_res
+            t_integrate = int(t_integrate)
+            exposure_maps_file_name = (
+                f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
+                f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
+                f"{dec_res}_Tint_{t_integrate}.npy"
+            )
+            # Save the exposure map array to a pickle file
+            np.save(exposure_maps_file_name, exposure_maps)
+            print(
+                f"Exposure map saved to file: \033[92m {exposure_maps_file_name} \033[0m \n"
+            )
+    if save_exposure_maps:
+        print("Saving exposure maps as images")
+        for i, exposure in enumerate(exposure_maps):
+            array_to_image(
+                exposure,
+                x_range=ra_range,
+                y_range=dec_range,
+                cmap="jet",
+                norm=None,
+                norm_type="log",
+                aspect="auto",
+                figure_title=f"Exposure Map {i}",
+                show_colorbar=True,
+                cbar_label="Seconds",
+                cbar_orientation="vertical",
+                show_axes=True,
+                display=True,
+                figure_size=(10, 10),
+                figure_format="png",
+                figure_font_size=12,
+                save=True,
+                save_path="figures/exposure_maps",
+                save_name=f"exposure_map_{i}",
+                dpi=300,
+                dark_mode=True,
+            )
+    # If the first element of exposure_maps shape is 1, then remove the first dimension
+    if np.shape(exposure_maps)[0] == 1:
+        exposure_maps = exposure_maps[0]
+    return exposure_maps, ra_arr, dec_arr
