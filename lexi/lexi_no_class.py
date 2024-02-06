@@ -1,3 +1,4 @@
+import numbers
 import numpy as np
 import pandas as pd
 import pytz
@@ -7,6 +8,11 @@ from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
+
+
+# Define a list of global variables
+# Define the field of view of LEXI in degrees
+LEXI_FOV = 9.1
 
 
 def validate_input(key, value):
@@ -28,52 +34,95 @@ def validate_input(key, value):
         if value not in pytz.all_timezones:
             # Print a warning that the provided timezone is not valid and set it to UTC
             warnings.warn(
-                f"\n \033[1;91m Timezone '{value}' is not valid. Setting timezone to UTC \033[0m \n"
+                f"\n \033[1;92m Timezone '{value}' \033[1;91mis not valid. Setting timezone to UTC \033[0m \n"
             )
             return False
 
     if key == "t_step":
         if not isinstance(value, (int, float)) or value < 0:
             warnings.warn(
-                "\n \033[1;91m t_step must be a positive integer or float. Setting t_step to default value of 5 seconds \033[0m \n"
+                "\n \033[1;92m t_step \033[1;91m must be a positive integer or float.\033[0m \n"
             )
             return False
 
     if key == "ra_range":
-        if not isinstance(value, list):
-            raise ValueError("ra_range must be a list")
+        # Check if the ra_range is a list, tuple, or numpy array
+        if not isinstance(value, (list, tuple, np.ndarray)):
+            raise ValueError("ra_range must be a list, tuple, or numpy array")
         if len(value) != 2:
             raise ValueError("ra_range must have two elements")
-        if not all(isinstance(x, (int, float)) for x in value):
-            raise ValueError("ra_range elements must be integers or floats")
+        # Check if all elements are numbers
+        if not all(isinstance(x, numbers.Number) for x in value):
+            warnings.warn(
+                "\n \033[1;91m ra_range elements must be numbers. Setting ra_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
         if value[0] < 0 or value[0] >= 360:
-            raise ValueError("ra_range start must be in the range [0, 360)")
+            warnings.warn(
+                "\n \033[1;92m ra_range start \033[1;91m must be in the range [0, 360). Setting ra_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
         if value[1] <= 0 or value[1] > 360:
-            raise ValueError("ra_range stop must be in the range (0, 360]")
+            warnings.warn(
+                "\n \033[1;92m ra_range stop \033[1;92m must be in the range (0, 360]. Setting ra_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
 
     if key == "dec_range":
-        if not isinstance(value, list):
-            raise ValueError("dec_range must be a list")
+        # Check if the dec_range is a list, tuple, or numpy array
+        if not isinstance(value, (list, tuple, np.ndarray)):
+            raise ValueError("dec_range must be a list, tuple, or numpy array")
         if len(value) != 2:
             raise ValueError("dec_range must have two elements")
-        if not all(isinstance(x, (int, float)) for x in value):
-            raise ValueError("dec_range elements must be integers or floats")
-        if value[0] < -90 or value[0] >= 90:
-            raise ValueError("dec_range start must be in the range [-90, 90)")
+        # Check if all elements are numbers
+        if not all(isinstance(x, numbers.Number) for x in value):
+            warnings.warn(
+                "\n \033[1;91m dec_range elements must be numbers. Setting dec_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
+        if value[0] < -90 or value[0] > 90:
+            warnings.warn(
+                "\n \033[1;92m dec_range start \033[1;91m must be in the range [-90, 90]. Setting dec_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
         if value[1] <= -90 or value[1] > 90:
-            raise ValueError("dec_range stop must be in the range (-90, 90]")
+            warnings.warn(
+                "\n \033[1;92m dec_range stop \033[1;91m must be in the range (-90, 90]. Setting dec_range to default value of from the spacecraft ephemeris file. \033[0m \n"
+            )
+            return False
 
     if key == "ra_res":
-        if not isinstance(value, (int, float)):
-            raise ValueError("ra_res must be an integer or float")
+        if not isinstance(value, numbers.Number):
+            warnings.warn(
+                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.1 \033[0m \n"
+            )
+            return False
         if value <= 0:
-            raise ValueError("ra_res must be greater than 0")
+            warnings.warn(
+                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.1 \033[0m \n"
+            )
+            return False
 
     if key == "dec_res":
-        if not isinstance(value, (int, float)):
-            raise ValueError("dec_res must be an integer or float")
+        if not isinstance(value, numbers.Number):
+            warnings.warn(
+                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.1 \033[0m \n"
+            )
+            return False
         if value <= 0:
-            raise ValueError("dec_res must be greater than 0")
+            warnings.warn(
+                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.1 \033[0m \n"
+            )
+            return False
+
+    if key == "t_integrate":
+        if not isinstance(value, numbers.Number):
+            warnings.warn(
+                "\n \033[1;92m t_integrate \033[1;91m must be a positive number. Setting t_integrate to default value \033[0m \n"
+            )
+            return False
+        if value <= 0:
+            return False
 
     if key == "interp_method":
         if not isinstance(value, str):
@@ -87,7 +136,7 @@ def validate_input(key, value):
             "cubic",
         ]:
             warnings.warn(
-                f"\n \033[1;91m Interpolation method '{value}' is not a valid interpolation method. Setting interpolation method to 'linear' \033[0m \n"
+                f"\n \033[1;92m Interpolation method '{value}' \033[1;91m is not a valid interpolation method. Setting interpolation method to \033[1;92m 'linear' \033[0m \n"
             )
             return False
 
@@ -151,12 +200,12 @@ def get_spc_prams(
                 t_range[0] = t_range[0].tz_localize(time_zone)
                 t_range[1] = t_range[1].tz_localize(time_zone)
                 if verbose:
-                    print(f"Timezone set to {time_zone} \n")
+                    print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
             else:
                 t_range[0] = t_range[0].tz_localize("UTC")
                 t_range[1] = t_range[1].tz_localize("UTC")
                 if verbose:
-                    print("Timezone set to UTC \n")
+                    print("Timezone set to \033[1;92m UTC \033[0m \n")
 
     # Validate t_step
     t_step_validated = validate_input("t_step", t_step)
@@ -363,10 +412,19 @@ def get_exposure_maps(
     ra_res=0.1,
     dec_res=0.1,
     t_integrate=None,
-    save_maps=False,
-    save_exposure_maps=False,
+    save_exposure_map_file=False,
+    save_exposure_map_image=False,
     verbose=True,
 ):
+
+    # Validate t_step
+    t_step_validated = validate_input("t_step", t_step)
+    if not t_step_validated:
+        t_step = 5
+        if verbose:
+            print(
+                f"\033[1;91m Time step \033[1;92m (t_step) \033[1;91m not provided. Setting time step to \033[1;92m {t_step} seconds \033[0m\n"
+            )
 
     # Validate ra_range
     ra_range_validated = validate_input("ra_range", ra_range)
@@ -375,13 +433,14 @@ def get_exposure_maps(
     dec_range_validated = validate_input("dec_range", dec_range)
 
     # Validate ra_res
-    (_,) = validate_input("ra_res", ra_res)
+    ra_res_validated = validate_input("ra_res", ra_res)
+    if not ra_res_validated:
+        ra_res = 0.1
 
     # Validate dec_res
-    (_,) = validate_input("dec_res", dec_res)
-
-    # Validate t_integrate
-    (_,) = validate_input("t_integrate", t_integrate)
+    dec_res_validated = validate_input("dec_res", dec_res)
+    if not dec_res_validated:
+        dec_res = 0.1
 
     # Get spacecraft ephemeris data
     spc_df = get_spc_prams(
@@ -390,6 +449,23 @@ def get_exposure_maps(
         interp_method=interp_method,
         verbose=verbose,
     )
+
+    # Validate t_integrate
+    if t_integrate is None:
+        # If t_integrate is not provided, set it to the timedelta of the provided t_range
+        t_integrate = (t_range[1] - t_range[0]).seconds
+        if verbose:
+            print(
+                f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
+            )
+    else:
+        t_integrate_validated = validate_input("t_integrate", t_integrate)
+        if not t_integrate_validated:
+            t_integrate = (t_range[1] - t_range[0]).seconds
+            if verbose:
+                print(
+                    f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
+                )
 
     # TODO: REMOVE ME once we start using real ephemeris data
     # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
@@ -402,8 +478,18 @@ def get_exposure_maps(
     # Set up coordinate grid
     if ra_range_validated:
         ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
+    else:
+        ra_range = np.array([np.nanmin(spc_df["RA"]), np.nanmax(spc_df["RA"])])
+        ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
+        if verbose:
+            print(
+                f"\033[1;91m RA range \033[1;92m (ra_range) \033[1;91m not provided. Setting RA range to the range of the spacecraft ephemeris data: \033[1;92m {ra_range} \033[0m\n"
+            )
 
     if dec_range_validated:
+        dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
+    else:
+        dec_range = np.array([np.nanmin(spc_df["DEC"]), np.nanmax(spc_df["DEC"])])
         dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
 
     ra_grid = np.tile(ra_arr, (len(dec_arr), 1)).transpose()
@@ -449,8 +535,8 @@ def get_exposure_maps(
             for row in group.itertuples():
                 # Get distance in degrees to the pointing step
                 # Wrap-proofing: First make everything [0,360), then +-360 on second operand
-                row_ra_mod = row.ra % 360
-                row_dec_mod = row.dec % 360
+                row_ra_mod = row.RA % 360
+                row_dec_mod = row.DEC % 360
                 ra_diff = np.minimum(
                     abs(ra_grid_mod - row_ra_mod),
                     abs(ra_grid_mod - (row_ra_mod - 360)),
@@ -464,12 +550,13 @@ def get_exposure_maps(
                 r = np.sqrt(ra_diff**2 + dec_diff**2)
                 # Make an exposure delta for this span
                 exposure_delt = np.where((r < LEXI_FOV * 0.5), vignette(r) * t_step, 0)
-                exposure_maps[map_idx] += exposure_delt  # Add the delta to the full map
+                # Add the delta to the full map
+                exposure_maps[map_idx] += exposure_delt
             print(
                 f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                 end="\r",
             )
-        if save_maps:
+        if save_exposure_map_file:
             # Define the folder to save the exposure maps to
             save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
@@ -492,7 +579,7 @@ def get_exposure_maps(
             print(
                 f"Exposure map saved to file: \033[92m {exposure_maps_file_name} \033[0m \n"
             )
-    if save_exposure_maps:
+    if save_exposure_map_image:
         print("Saving exposure maps as images")
         for i, exposure in enumerate(exposure_maps):
             array_to_image(
