@@ -579,7 +579,7 @@ def get_exposure_maps(
             print(
                 f"Exposure map saved to file: \033[92m {exposure_maps_file_name} \033[0m \n"
             )
-    if save_exposure_map_image:
+    if save_exposure_map_image: 
         print("Saving exposure maps as images")
         for i, exposure in enumerate(exposure_maps):
             array_to_image(
@@ -609,3 +609,92 @@ def get_exposure_maps(
     if np.shape(exposure_maps)[0] == 1:
         exposure_maps = exposure_maps[0]
     return exposure_maps, ra_arr, dec_arr
+
+def get_sky_backgrounds(
+        t_range=None,
+        time_zone="UTC",
+        interp_method=None,
+        t_step=5,
+        t_integrate=600,
+        ra_range=[0, 360],
+        dec_range=[-90, 90],
+        ra_res=0.1,
+        dec_res=0.1,
+        save_sky_backgrounds=False,
+        verbose=True):
+    
+
+
+    # Get exposure maps
+    exposure_maps, ra_arr, dec_arr = get_exposure_maps(
+        t_range=t_range,
+        time_zone=time_zone,
+        interp_method=interp_method,
+        t_step=t_step,
+        ra_range=ra_range,
+        dec_range=dec_range,
+        ra_res=ra_res,
+        dec_res=dec_res,
+        t_integrate=t_integrate,
+        verbose=verbose)
+    # If exposure_maps is a 2D array, then add a dimension to it
+    if len(np.shape(exposure_maps)) == 2:
+        exposure_maps = np.array([exposure_maps])
+
+    # Get ROSAT background
+    # Ultimately someone is supposed to provide this file and we will have it saved somewhere static.
+    # For now, this is Cadin's sample xray data:
+    rosat_df = pd.read_csv("data/sample_xray_background.csv", header=None)
+    # Slice to RA/DEC range, interpolate to RA/DEC res
+    # For now just interpolate Cadin data:
+    # TODO: when using actual data, check that axes are correct (index/column to ra/dec)
+    rosat_df.index = np.linspace(ra_range[0], ra_range[1], 100)
+    rosat_df.columns = np.linspace(dec_range[0], dec_range[1], 100)
+    # Reindex to include desired RA/DEC indices (but don't throw out old indices yet; need for interpolation)
+    desired_ra_idx = np.arange(ra_range[0], ra_range[1], ra_res)
+    desired_dec_idx = np.arange(dec_range[0], dec_range[1], dec_res)
+    rosat_enlarged_idx = rosat_df.reindex(
+        index=np.union1d(rosat_df.index, desired_ra_idx),
+        columns=np.union1d(rosat_df.columns, desired_dec_idx),
+    )
+    # Interpolate and then throw out the old indices to get correct dimensions
+    rosat_interpolated = rosat_enlarged_idx.interpolate(
+        method=interp_method
+    ).interpolate(method=interp_method, axis=1)
+    rosat_resampled = rosat_interpolated.reindex(
+        index=desired_ra_idx, columns=desired_dec_idx
+    )
+    # Multiply each exposure map (seconds) with the ROSAT background (counts/sec)
+    sky_backgrounds = [
+        exposure_map * rosat_resampled for exposure_map in exposure_maps
+    ]
+    # If requested, save the sky background as an image
+    if save_sky_backgrounds: # NOT WORKING UNTIL ARRAY_TO_IMAGE IS FIXED
+        for i, sky_background in enumerate(sky_backgrounds):
+            array_to_image(
+                sky_background,
+                x_range=ra_range,
+                y_range=dec_range,
+                cmap="viridis",
+                norm=None,
+                norm_type="linear",
+                aspect="auto",
+                figure_title="Sky Background",
+                show_colorbar=True,
+                cbar_label="Counts/sec",
+                cbar_orientation="vertical",
+                show_axes=True,
+                display=True,
+                figure_size=(10, 10),
+                figure_format="png",
+                figure_font_size=12,
+                save=True,
+                save_path="figures/sky_background",
+                save_name=f"sky_background_{i}",
+                dpi=300,
+                dark_mode=True,
+            )
+    # If the first element of sky_backgrounds shape is 1, then remove the first dimension
+    if np.shape(sky_backgrounds)[0] == 1:
+        sky_backgrounds = sky_backgrounds[0]
+    return sky_backgrounds, ra_arr, dec_arr

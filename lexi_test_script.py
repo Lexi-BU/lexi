@@ -20,6 +20,7 @@ lexi = LEXI(
         "save_exposure_maps": True,
         "save_sky_backgrounds": True,
         "save_lexi_images": True,
+        "interp_method": "linear"
     }
 )
 
