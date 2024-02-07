@@ -1052,7 +1052,6 @@ def get_lexi_images(
 def array_to_image(
     input_data: dict = None,
     key: str = None,
-    input_array: np.ndarray = None,
     x_range: list = None,
     y_range: list = None,
     v_min: float = None,
@@ -1145,7 +1144,13 @@ def array_to_image(
     # Extract all the relevant data from the dict
     input_array = input_data[key]
     ra_arr = input_data["ra_arr"]
-    
+    dec_arr = input_data["dec_arr"]
+    t_range = input_data["t_range"]
+    t_integrate = input_data["t_integrate"]
+    ra_range = input_data["ra_range"]
+    dec_range = input_data["dec_range"]
+    ra_res = input_data["ra_res"]
+    dec_res = input_data["dec_res"]
 
     # Check whether input_array is a 2D array
     if len(input_array.shape) != 2:
@@ -1153,21 +1158,21 @@ def array_to_image(
 
     # Check whether x_range is a list
     if x_range is not None:
-        if not isinstance(x_range, list):
-            raise ValueError("x_range must be a list")
+        if not isinstance(x_range, (list, tuple, np.ndarray)):
+            raise ValueError("x_range must be a list, tuple, or numpy array")
         if len(x_range) != 2:
             raise ValueError("x_range must be a list of length 2")
     else:
-        x_range = [ra_range[0], ra_range[1]]
+        x_range = ra_range
 
     # Check whether y_range is a list
     if y_range is not None:
-        if not isinstance(y_range, list):
-            raise ValueError("y_range must be a list")
+        if not isinstance(y_range, (list, tuple, np.ndarray)):
+            raise ValueError("y_range must be a list, tuple, or numpy array")
         if len(y_range) != 2:
             raise ValueError("y_range must be a list of length 2")
     else:
-        y_range = [dec_range[0], dec_range[1]]
+        y_range = dec_range
 
     # Check whether input_dict is a dictionary
 
