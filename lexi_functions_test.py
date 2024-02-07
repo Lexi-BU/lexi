@@ -4,17 +4,16 @@ import numpy as np
 
 importlib.reload(lfs)
 
-
 input_params = {
-    # t_range=["2024-07-08T21:43:41", "2024-07-08T21:47:48"],
     "t_range": ["2024-07-08T21:43:41", "2024-07-08T21:47:41"],
     "time_zone": "UTC",
+    # "t_integrate": 120,
     # "t_step": "5",
     "ra_res": 1,
     "dec_res": 1,
     "ra_range": np.array([330, 360]),
     # ra_range=[290, 360],
-    "dec_range": np.array([-80, 80]),
+    "dec_range": np.array([60, 90]),
     # ra_res=4,
     # dec_res=3,
     "interp_method": "linear",
@@ -23,9 +22,12 @@ input_params = {
     # filename="test_data/LEXI_pointing_ephem_highres",
     # filetype="pkl",
     "save_exposure_map_file": True,
+    "save_exposure_map_image": True,
     "save_sky_backgrounds_file": True,
+    "save_sky_backgrounds_image": True,
     "background_correction_on": True,
-    "verbose": True,
+    "save_lexi_images_file": True,
+    "verbose": False,
 }
 
 # df = lnc.get_spc_prams(**input_params)
@@ -38,4 +40,4 @@ input_params = {
 # print(df.head())
 
 lexi_images_dict = lfs.get_lexi_images(**input_params)
-print(np.shape(lexi_images_dict["lexi_images"]))
+# print(np.shape(lexi_images_dict["lexi_images"]))

@@ -487,7 +487,7 @@ class LEXI:
                 ra_res = self.ra_res
                 dec_res = self.dec_res
                 t_integrate = int(self.t_integrate)
-                
+
                 exposure_maps_file_name = (
                     f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
                     f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
@@ -514,7 +514,7 @@ class LEXI:
                     cbar_label="Seconds",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=True,
+                    display=False,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,
@@ -626,7 +626,7 @@ class LEXI:
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=True,
+                    display=False,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,
@@ -710,6 +710,7 @@ class LEXI:
             "data/PIT_shifted_jul08.cdf"
         )
         photons_data = photons_cdf.copy()
+        print(photons_data["Epoch"])
         photons_cdf.close()
         photons = pd.DataFrame({key: photons_data[key] for key in photons_data.keys()})
         # Set the index to the Epoch column and remove the Epoch column
@@ -742,7 +743,7 @@ class LEXI:
             freq=pd.Timedelta(self.t_integrate, unit="s"),
         )
         photons = photons.reindex(
-            index=np.union1d(integration_filler_idcs, photons.index), method=None
+            index=np.union1d(integration_filler_idcs[:-1], photons.index), method=None
         )
 
         # Slice to relevant time range; make groups of rows spanning t_integration
@@ -750,6 +751,8 @@ class LEXI:
             pd.Timedelta(self.t_integrate, unit="s"), origin="start"
         )
 
+        for time, group in integ_groups:
+            print(group.index[0:])
         # Make as many empty lexi histograms as there are integration groups
         histograms = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
 
@@ -790,14 +793,16 @@ class LEXI:
                     norm=None,
                     norm_type="log",
                     aspect="auto",
-                    figure_title="Background Corrected LEXI Image"
-                    if self.background_correction_on
-                    else "LEXI Image (no background correction)",
+                    figure_title=(
+                        "Background Corrected LEXI Image"
+                        if self.background_correction_on
+                        else "LEXI Image (no background correction)"
+                    ),
                     show_colorbar=True,
                     cbar_label="Counts/sec",
                     cbar_orientation="vertical",
                     show_axes=True,
-                    display=True,
+                    display=False,
                     figure_size=(10, 10),
                     figure_format="png",
                     figure_font_size=12,

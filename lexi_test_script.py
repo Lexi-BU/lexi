@@ -6,9 +6,9 @@ lexi = LEXI(
     {
         "t_range": [
             "2024-07-08T21:43:41",
-            "2024-07-08T21:47:48",
+            "2024-07-08T21:47:41",
         ],
-        # "t_integrate": 90,  # 10 minutes - spans whole range
+        "t_integrate": 120,  # 10 minutes - spans whole range
         "t_step": 5,  # 1, #30
         # "ra_range": [325.0, 365.0],
         # "dec_range": [-21.0, 6.0],
@@ -27,8 +27,8 @@ lexi = LEXI(
 # Get space params
 # spaceparams = lexi.get_spc_prams()
 # Get exposure maps
-expmaps, ra_arr, dec_arr = lexi.get_exposure_maps()
+# expmaps, ra_arr, dec_arr = lexi.get_exposure_maps()
 # Get sky backgrounds
 # skybgs, ra_arr, dec_arr = lexi.get_sky_backgrounds()
 # Get background corrected images
-# hists, ra_arr, dec_arr = lexi.get_lexi_images()
+hists, ra_arr, dec_arr = lexi.get_lexi_images()

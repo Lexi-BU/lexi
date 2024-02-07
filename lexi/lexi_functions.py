@@ -17,14 +17,34 @@ LEXI_FOV = 9.1
 
 
 def validate_input(key, value):
-    if key == "t_range":
+    """
+    Function to validate the input parameters for LEXI functions
+
+    Parameters
+    ----------
+    key : str
+        The name of the input parameter
+    value : any
+        The value of the input parameter
+
+    Returns
+    -------
+    bool
+        True if the input parameter is valid, False otherwise
+
+    Raises
+    ------
+    ValueError
+        If the input parameter is not valid
+    """
+    if key == "time_range":
         if not isinstance(value, list):
-            raise ValueError("t_range must be a list")
+            raise ValueError("time_range must be a list")
         if len(value) != 2:
-            raise ValueError("t_range must have two elements")
+            raise ValueError("time_range must have two elements")
         # Check that all elements are either strings, or datetime objects or Timestamps
         if not all(isinstance(x, (str, pd.Timestamp)) for x in value):
-            raise ValueError("t_range elements must be strings or datetime objects")
+            raise ValueError("time_range elements must be strings or datetime objects")
 
     if key == "time_zone":
         if not isinstance(value, str):
@@ -35,7 +55,7 @@ def validate_input(key, value):
         if value not in pytz.all_timezones:
             # Print a warning that the provided timezone is not valid and set it to UTC
             warnings.warn(
-                f"\n \033[1;92m Timezone '{value}' \033[1;91mis not valid. Setting timezone to UTC \033[0m \n"
+                f"\n \033[1;92m Timezone '{value}' \033[1;91m is not valid. Setting timezone to UTC \033[0m \n"
             )
             return False
 
@@ -118,9 +138,9 @@ def validate_input(key, value):
 
     if key == "t_integrate":
         if not isinstance(value, numbers.Number):
-            warnings.warn(
-                "\n \033[1;92m t_integrate \033[1;91m must be a positive number. Setting t_integrate to default value \033[0m \n"
-            )
+            # warnings.warn(
+            #     "\n \033[1;92m t_integrate \033[1;91m must be a positive number. Setting t_integrate to default value \033[0m \n"
+            # )
             return False
         if value <= 0:
             return False
@@ -179,39 +199,70 @@ def validate_input(key, value):
 
 
 def get_spc_prams(
-    t_range=None,
+    time_range=None,
     time_zone="UTC",
     t_step=5,
     interp_method=None,
     verbose=True,
 ):
-    # Validate t_range
-    t_range_validated = validate_input("t_range", t_range)
+    """
+    Function to get spacecraft ephemeris data
 
-    if t_range_validated:
-        # If t_range elements are strings, convert them to datetime objects
-        if isinstance(t_range[0], str):
-            t_range[0] = pd.to_datetime(t_range[0])
-        if isinstance(t_range[1], str):
-            t_range[1] = pd.to_datetime(t_range[1])
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+            This time range defines the time range of the ephemeris data and the time range of
+            the LEXI data.
+        Note that endpoints are inclusive (the end time is a closed interval); this is because
+        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    t_step : int or float, optional
+        Time step in seconds for time resolution of the look direction datum.
+    interp_method : str, optional
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
+        'linear', 'index', 'values', 'pad'. See pandas.DataFrame.interpolate documentation for
+        more information. Default is 'index'.
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    dfinterp : pandas DataFrame
+        Interpolated spacecraft ephemeris data
+    """
+    # Validate time_range
+    time_range_validated = validate_input("time_range", time_range)
+
+    if time_range_validated:
+        # If time_range elements are strings, convert them to datetime objects
+        if isinstance(time_range[0], str):
+            time_range[0] = pd.to_datetime(time_range[0])
+        if isinstance(time_range[1], str):
+            time_range[1] = pd.to_datetime(time_range[1])
         # Validate time_zone, if it is not valid, set it to UTC
         if time_zone is not None:
             time_zone_validated = validate_input("time_zone", time_zone)
             if time_zone_validated:
-                # Check if t_range elements are timezone aware
-                if t_range[0].tzinfo is None:
-                    # Set the timezone to the t_range
-                    t_range[0] = t_range[0].tz_localize(time_zone)
-                    t_range[1] = t_range[1].tz_localize(time_zone)
-                elif t_range[0].tzinfo != time_zone:
-                    # Convert the timezone to the t_range
-                    t_range[0] = t_range[0].tz_convert(time_zone)
-                    t_range[1] = t_range[1].tz_convert(time_zone)
+                # Check if time_range elements are timezone aware
+                if time_range[0].tzinfo is None:
+                    # Set the timezone to the time_range
+                    time_range[0] = time_range[0].tz_localize(time_zone)
+                    time_range[1] = time_range[1].tz_localize(time_zone)
+                elif time_range[0].tzinfo != time_zone:
+                    # Convert the timezone to the time_range
+                    time_range[0] = time_range[0].tz_convert(time_zone)
+                    time_range[1] = time_range[1].tz_convert(time_zone)
                 if verbose:
                     print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
             else:
-                t_range[0] = t_range[0].tz_localize("UTC")
-                t_range[1] = t_range[1].tz_localize("UTC")
+                time_range[0] = time_range[0].tz_localize("UTC")
+                time_range[1] = time_range[1].tz_localize("UTC")
                 if verbose:
                     print("Timezone set to \033[1;92m UTC \033[0m \n")
 
@@ -234,17 +285,19 @@ def get_spc_prams(
     # Set the timezone to UTC
     df = df.tz_localize("UTC")
 
-    if df.index[0] > t_range[0] or df.index[-1] < t_range[1]:
+    if df.index[0] > time_range[0] or df.index[-1] < time_range[1]:
         warnings.warn(
             "Ephemeris data do not cover the full time range requested."
             "End regions will be forward/backfilled."
         )
         # Add the just the two endpoints to the index
         df = df.reindex(
-            index=np.union1d(pd.date_range(t_range[0], t_range[1], periods=2), df.index)
+            index=np.union1d(
+                pd.date_range(time_range[0], time_range[1], periods=2), df.index
+            )
         )
 
-    dfslice = df[t_range[0] : t_range[1]]
+    dfslice = df[time_range[0] : time_range[1]]
     dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
@@ -252,8 +305,8 @@ def get_spc_prams(
     # (end of chunk that must be removed once we start using real ephemeris data)
 
     # Get the year, month, and day of the start and stop times
-    start_time = t_range[0]
-    stop_time = t_range[1]
+    start_time = time_range[0]
+    stop_time = time_range[1]
 
     start_year = start_time.year
     start_month = start_time.month
@@ -366,19 +419,21 @@ def get_spc_prams(
     # Remove any rows that have NaN values
     df = df.dropna()
 
-    # If the ephemeris data do not span the t_range, send warning
-    if df.index[0] > t_range[0] or df.index[-1] < t_range[1]:
+    # If the ephemeris data do not span the time_range, send warning
+    if df.index[0] > time_range[0] or df.index[-1] < time_range[1]:
         warnings.warn(
             "Ephemeris data do not cover the full time range requested."
             "End regions will be forward/backfilled."
         )
         # Add the just the two endpoints to the index
         df = df.reindex(
-            index=np.union1d(pd.date_range(t_range[0], t_range[1], periods=2), df.index)
+            index=np.union1d(
+                pd.date_range(time_range[0], time_range[1], periods=2), df.index
+            )
         )
 
     # Slice, resample, interpolate
-    dfslice = df[t_range[0] : t_range[1]]
+    dfslice = df[time_range[0] : time_range[1]]
     dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
     # Validate interp_method
     interp_method_validated = validate_input("interp_method", interp_method)
@@ -411,7 +466,7 @@ def vignette(d):
 
 
 def get_exposure_maps(
-    t_range=None,
+    time_range=None,
     time_zone="UTC",
     interp_method=None,
     t_step=5,
@@ -424,6 +479,76 @@ def get_exposure_maps(
     save_exposure_map_image=False,
     verbose=True,
 ):
+    """
+    Function to get exposure maps
+
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+            This time range defines the time range of the ephemeris data and the time range of
+            the LEXI data.
+        Note that endpoints are inclusive (the end time is a closed interval); this is because
+        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    interp_method : str, optional
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
+        documentation for more information. Default is 'linear'.
+    t_step : int or float, optional
+        Time step in seconds for time resolution of the look direction datum.
+    ra_range : list, optional
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    dec_range : list, optional
+        Range of declination in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    ra_res : float, optional
+        Right ascension resolution in degrees. Default is 0.1 degrees.
+    dec_res : float, optional
+        Declination resolution in degrees. Default is 0.1 degrees.
+    t_integrate : int or float, optional
+        Integration time in seconds. If no integration time is provided, the time span of the
+        `time_range` is used.
+    save_exposure_map_file : bool, optional
+        If True, save the exposure maps to a binary file. Default is False.
+    save_exposure_map_image : bool, optional
+        If True, save the exposure maps to a PNG image. Default is False.
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    exposure_maps_dict : dict
+        Dictionary containing the following keys:
+            - exposure_maps : numpy array
+                Exposure maps
+            - ra_arr : numpy array
+                Right ascension array
+            - dec_arr : numpy array
+                Declination array
+            - time_range : list
+                Time range of the exposure maps
+            - t_integrate : int or float
+                Integration time in seconds of the exposure maps
+            - ra_range : list
+                Right ascension range of the exposure maps in degrees
+            - dec_range : list
+                Declination range of the exposure maps in degrees
+            - ra_res : float
+                Right ascension resolution of the exposure maps in degrees
+            - dec_res : float
+                Declination resolution of the exposure maps in degrees
+            - start_time_arr : numpy array
+                Start time of each exposure map
+            - stop_time_arr : numpy array
+                Stop time of each exposure map
+    """
 
     # Validate t_step
     t_step_validated = validate_input("t_step", t_step)
@@ -450,10 +575,9 @@ def get_exposure_maps(
     if not dec_res_validated:
         dec_res = 0.1
 
-    print(t_range)
     # Get spacecraft ephemeris data
     spc_df = get_spc_prams(
-        t_range=t_range,
+        time_range=time_range,
         time_zone=time_zone,
         interp_method=interp_method,
         verbose=verbose,
@@ -461,8 +585,8 @@ def get_exposure_maps(
 
     # Validate t_integrate
     if t_integrate is None:
-        # If t_integrate is not provided, set it to the timedelta of the provided t_range
-        t_integrate = (t_range[1] - t_range[0]).total_seconds()
+        # If t_integrate is not provided, set it to the timedelta of the provided time_range
+        t_integrate = (time_range[1] - time_range[0]).total_seconds()
         if verbose:
             print(
                 f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
@@ -470,7 +594,7 @@ def get_exposure_maps(
     else:
         t_integrate_validated = validate_input("t_integrate", t_integrate)
         if not t_integrate_validated:
-            t_integrate = (t_range[1] - t_range[0]).total_seconds()
+            t_integrate = (time_range[1] - time_range[0]).total_seconds()
             if verbose:
                 print(
                     f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
@@ -508,8 +632,8 @@ def get_exposure_maps(
         # Read the exposure map from a pickle file, if it exists
         # Define the folder where the exposure maps are saved
         save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
-        t_start = t_range[0].strftime("%Y%m%d_%H%M%S")
-        t_stop = t_range[1].strftime("%Y%m%d_%H%M%S")
+        t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
+        t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
         ra_start = ra_range[0]
         ra_stop = ra_range[1]
         dec_start = dec_range[0]
@@ -524,24 +648,32 @@ def get_exposure_maps(
         )
         # Read the exposure map from the pickle file
         exposure_maps_dict = pickle.load(open(exposure_maps_file_name, "rb"))
-        exposure_maps = exposure_maps_dict["exposure_maps"]
-        print(
-            f"Exposure map loaded from file \033[92m {exposure_maps_file_name} \033[0m\n"
-        )
+        if verbose:
+            exposure_maps_file_dir = Path(exposure_maps_file_name).parent
+            exposure_maps_file_name = Path(exposure_maps_file_name).name
+            print(
+                f"Exposure map loaded from file \033[1;94m {exposure_maps_file_dir}/\033[1;92m{exposure_maps_file_name} \033[0m\n"
+            )
     except FileNotFoundError:
         print("Exposure map not found, computing now. This may take a while \n")
 
         # Slice to relevant time range; make groups of rows spanning t_integration
-        integ_groups = spc_df[t_range[0] : t_range[1]].resample(
+        integ_groups = spc_df[time_range[0] : time_range[1]].resample(
             pd.Timedelta(t_integrate, unit="s"), origin="start"
         )
+        # Get the min and max times of each group
+        start_time_arr = []
+        stop_time_arr = []
+        for _, group in integ_groups:
+            start_time_arr.append(group.index.min())
+            stop_time_arr.append(group.index.max())
         # Make as many empty exposure maps as there are integration groups
         exposure_maps = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
         # Loop through each pointing step and add the exposure to the map
         # Wrap-proofing: First make everything [0,360)...
         ra_grid_mod = ra_grid % 360
-        dec_grid_mod = dec_grid % 180
+        dec_grid_mod = dec_grid % 90
         for map_idx, (_, group) in enumerate(integ_groups):
             for row in group.itertuples():
                 # Get distance in degrees to the pointing step
@@ -573,8 +705,8 @@ def get_exposure_maps(
             # Define the folder to save the exposure maps to
             save_folder = Path(__file__).resolve().parent.parent / "data/exposure_maps"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
-            t_start = t_range[0].strftime("%Y%m%d_%H%M%S")
-            t_stop = t_range[1].strftime("%Y%m%d_%H%M%S")
+            t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
+            t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
             ra_start = ra_range[0]
             ra_stop = ra_range[1]
             dec_start = dec_range[0]
@@ -587,60 +719,69 @@ def get_exposure_maps(
                 f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
                 f"{dec_res}_Tint_{t_integrate}.npy"
             )
-            # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, t_range, and t_integrate,
+            # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and t_integrate,
             # ra_range, and dec_range, ra_res, and dec_res
             exposure_maps_dict = {
                 "exposure_maps": exposure_maps,
                 "ra_arr": ra_arr,
                 "dec_arr": dec_arr,
-                "t_range": t_range,
+                "time_range": time_range,
                 "t_integrate": t_integrate,
                 "ra_range": ra_range,
                 "dec_range": dec_range,
                 "ra_res": ra_res,
                 "dec_res": dec_res,
+                "start_time_arr": start_time_arr,
+                "stop_time_arr": stop_time_arr,
             }
             # Save the exposure map array to a pickle file
             with open(exposure_maps_file_name, "wb") as f:
                 pickle.dump(exposure_maps_dict, f)
-            print(
-                f"Exposure map saved to file: \033[92m {exposure_maps_file_name} \033[0m \n"
-            )
+            if verbose:
+                exposure_maps_file_dir = Path(exposure_maps_file_name).parent
+                exposure_maps_file_name = Path(exposure_maps_file_name).name
+                print(
+                    f"Exposure map saved to file \033[1;94m {exposure_maps_file_dir}/\033[1;92m{exposure_maps_file_name} \033[0m\n"
+                )
+
+    # If requested, save the exposure maps as images
     if save_exposure_map_image:
-        print("Saving exposure maps as images")
-        for i, exposure in enumerate(exposure_maps):
+        if verbose:
+            print("Saving exposure maps as images")
+        for i, exposure in enumerate(exposure_maps_dict["exposure_maps"]):
             array_to_image(
-                exposure,
+                input_array=exposure,
+                key="exposure_maps",
                 x_range=ra_range,
                 y_range=dec_range,
+                start_time=exposure_maps_dict["start_time_arr"][i],
+                stop_time=exposure_maps_dict["stop_time_arr"][i],
                 cmap="jet",
+                cmin=0.1,
                 norm=None,
-                norm_type="log",
+                norm_type="linear",
                 aspect="auto",
-                figure_title=f"Exposure Map {i}",
+                figure_title="Exposure Map",
                 show_colorbar=True,
                 cbar_label="Seconds",
                 cbar_orientation="vertical",
                 show_axes=True,
-                display=True,
-                figure_size=(10, 10),
+                display=False,
+                figure_size=(5, 5),
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                save_path="figures/exposure_maps",
-                save_name=f"exposure_map_{i}",
+                # save_path="figures/exposure_maps",
+                save_name="default",
                 dpi=300,
                 dark_mode=True,
             )
-    # If the first element of exposure_maps shape is 1, then remove the first dimension
-    # if np.shape(exposure_maps)[0] == 1:
-    #     exposure_maps = exposure_maps[0]
-    print(f"Exposure maps keys: {exposure_maps_dict.keys()}")
+
     return exposure_maps_dict
 
 
 def get_sky_backgrounds(
-    t_range=None,
+    time_range=None,
     time_zone="UTC",
     interp_method=None,
     t_step=5,
@@ -655,10 +796,85 @@ def get_sky_backgrounds(
     save_sky_backgrounds_image=False,
     verbose=True,
 ):
+    """
+    Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
+    ROSAT data and exposure maps
+
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+            This time range defines the time range of the ephemeris data and the time range of
+            the LEXI data.
+        Note that endpoints are inclusive (the end time is a closed interval); this is because
+        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    interp_method : str, optional
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
+        documentation for more information. Default is 'linear'.
+    t_step : int or float, optional
+        Time step in seconds for time resolution of the look direction datum.
+    t_integrate : int or float, optional
+        Integration time in seconds. If no integration time is provided, the time span of the
+        `time_range` is used.
+    ra_range : list, optional
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    dec_range : list, optional
+        Range of declination in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    ra_res : float, optional
+        Right ascension resolution in degrees. Default is 0.1 degrees.
+    dec_res : float, optional
+        Declination resolution in degrees. Default is 0.1 degrees.
+    save_exposure_map_file : bool, optional
+        If True, save the exposure maps to a binary file. Default is False.
+    save_exposure_map_image : bool, optional
+        If True, save the exposure maps to a PNG image. Default is False.
+    save_sky_backgrounds_file : bool, optional
+        If True, save the sky backgrounds to a binary file. Default is False.
+    save_sky_backgrounds_image : bool, optional
+        If True, save the sky backgrounds to a PNG image. Default is False.
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    sky_backgrounds_dict : dict
+        Dictionary containing the following keys:
+            - sky_backgrounds : numpy array
+                Sky backgrounds
+            - ra_arr : numpy array
+                Right ascension array
+            - dec_arr : numpy array
+                Declination array
+            - time_range : list
+                Time range of the sky backgrounds
+            - t_integrate : int or float
+                Integration time in seconds of the sky backgrounds
+            - ra_range : list
+                Right ascension range of the sky backgrounds in degrees
+            - dec_range : list
+                Declination range of the sky backgrounds in degrees
+            - ra_res : float
+                Right ascension resolution of the sky backgrounds in degrees
+            - dec_res : float
+                Declination resolution of the sky backgrounds in degrees
+            - start_time_arr : numpy array
+                Start time of each sky background
+            - stop_time_arr : numpy array
+                Stop time of each sky background
+    """
 
     # Get exposure maps
     exposure_maps_dict = get_exposure_maps(
-        t_range=t_range,
+        time_range=time_range,
         time_zone=time_zone,
         interp_method=interp_method,
         t_step=t_step,
@@ -672,16 +888,13 @@ def get_sky_backgrounds(
         verbose=verbose,
     )
     exposure_maps = exposure_maps_dict["exposure_maps"]
-    # If exposure_maps is a 2D array, then add a dimension to it
-    if len(np.shape(exposure_maps)) == 2:
-        exposure_maps = np.array([exposure_maps])
 
     try:
         # Read the sky background from a pickle file, if it exists
         # Define the folder where the sky backgrounds are saved
         save_folder = Path(__file__).resolve().parent.parent / "data/sky_backgrounds"
-        t_start = exposure_maps_dict["t_range"][0].strftime("%Y%m%d_%H%M%S")
-        t_stop = exposure_maps_dict["t_range"][1].strftime("%Y%m%d_%H%M%S")
+        t_start = exposure_maps_dict["time_range"][0].strftime("%Y%m%d_%H%M%S")
+        t_stop = exposure_maps_dict["time_range"][1].strftime("%Y%m%d_%H%M%S")
         ra_start = exposure_maps_dict["ra_range"][0]
         ra_stop = exposure_maps_dict["ra_range"][1]
         dec_start = exposure_maps_dict["dec_range"][0]
@@ -689,6 +902,9 @@ def get_sky_backgrounds(
         ra_res = exposure_maps_dict["ra_res"]
         dec_res = exposure_maps_dict["dec_res"]
         t_integrate = int(exposure_maps_dict["t_integrate"])
+        start_time_arr = exposure_maps_dict["start_time_arr"]
+        stop_time_arr = exposure_maps_dict["stop_time_arr"]
+
         sky_backgrounds_file_name = (
             f"{save_folder}/lexi_sky_background_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
             f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
@@ -696,9 +912,12 @@ def get_sky_backgrounds(
         )
         # Read the sky background from the pickle file
         sky_backgrounds_dict = pickle.load(open(sky_backgrounds_file_name, "rb"))
-        print(
-            f"Sky background loaded from file \033[92m {sky_backgrounds_file_name} \033[0m\n"
-        )
+        if verbose:
+            sky_backgrounds_file_dir = Path(sky_backgrounds_file_name).parent
+            sky_backgrounds_file_name = Path(sky_backgrounds_file_name).name
+            print(
+                f"Sky background loaded from file \033[1;94m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
+            )
     except FileNotFoundError:
         print("Sky background not found, computing now. This may take a while \n")
 
@@ -733,18 +952,25 @@ def get_sky_backgrounds(
             exposure_map * rosat_resampled for exposure_map in exposure_maps
         ]
 
-        # Make a dictionary to store the sky backgrounds, ra_arr, and dec_arr, t_range, and
+        # Convert the sky_backgrounds to a numpy array
+        sky_backgrounds = np.array(
+            [np.array(sky_background) for sky_background in sky_backgrounds]
+        )
+
+        # Make a dictionary to store the sky backgrounds, ra_arr, and dec_arr, time_range, and
         # t_integrate, ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
         sky_backgrounds_dict = {
             "sky_backgrounds": sky_backgrounds,
             "ra_arr": exposure_maps_dict["ra_arr"],
             "dec_arr": exposure_maps_dict["dec_arr"],
-            "t_range": t_range,
+            "time_range": time_range,
             "t_integrate": t_integrate,
             "ra_range": ra_range,
             "dec_range": dec_range,
             "ra_res": ra_res,
             "dec_res": dec_res,
+            "start_time_arr": start_time_arr,
+            "stop_time_arr": stop_time_arr,
         }
         if save_sky_backgrounds_file:
             # Define the folder to save the sky backgrounds to
@@ -752,8 +978,8 @@ def get_sky_backgrounds(
                 Path(__file__).resolve().parent.parent / "data/sky_backgrounds"
             )
             Path(save_folder).mkdir(parents=True, exist_ok=True)
-            t_start = exposure_maps_dict["t_range"][0].strftime("%Y%m%d_%H%M%S")
-            t_stop = exposure_maps_dict["t_range"][1].strftime("%Y%m%d_%H%M%S")
+            t_start = exposure_maps_dict["time_range"][0].strftime("%Y%m%d_%H%M%S")
+            t_stop = exposure_maps_dict["time_range"][1].strftime("%Y%m%d_%H%M%S")
             ra_start = exposure_maps_dict["ra_range"][0]
             ra_stop = exposure_maps_dict["ra_range"][1]
             dec_start = exposure_maps_dict["dec_range"][0]
@@ -769,17 +995,23 @@ def get_sky_backgrounds(
             # Save the sky background array to a pickle file
             with open(sky_backgrounds_file_name, "wb") as f:
                 pickle.dump(sky_backgrounds_dict, f)
-            print(
-                f"Sky background saved to file: \033[92m {sky_backgrounds_file_name} \033[0m \n"
-            )
+            if verbose:
+                sky_backgrounds_file_dir = Path(sky_backgrounds_file_name).parent
+                sky_backgrounds_file_name = Path(sky_backgrounds_file_name).name
+                print(
+                    f"Sky background saved to file: \033[92m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
+                )
 
     # If requested, save the sky background as an image
-    if save_sky_backgrounds_image:  # NOT WORKING UNTIL ARRAY_TO_IMAGE IS FIXED
-        for i, sky_background in enumerate(sky_backgrounds):
+    if save_sky_backgrounds_image:
+        for i, sky_background in enumerate(sky_backgrounds_dict["sky_backgrounds"]):
             array_to_image(
-                sky_background,
+                input_array=sky_background,
+                key="sky_backgrounds",
                 x_range=ra_range,
                 y_range=dec_range,
+                start_time=sky_backgrounds_dict["start_time_arr"][i],
+                stop_time=sky_backgrounds_dict["stop_time_arr"][i],
                 cmap="viridis",
                 norm=None,
                 norm_type="linear",
@@ -789,25 +1021,24 @@ def get_sky_backgrounds(
                 cbar_label="Counts/sec",
                 cbar_orientation="vertical",
                 show_axes=True,
-                display=True,
-                figure_size=(10, 10),
+                display=False,
+                figure_size=(5, 5),
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                save_path="figures/sky_background",
-                save_name=f"sky_background_{i}",
+                # save_path="figures/sky_background",
+                save_name="default",
                 dpi=300,
                 dark_mode=True,
             )
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
     # if np.shape(sky_backgrounds)[0] == 1:
     #     sky_backgrounds = sky_backgrounds[0]
-    print(f"Sky backgrounds keys: {sky_backgrounds_dict.keys()}")
     return sky_backgrounds_dict
 
 
 def get_lexi_images(
-    t_range=None,
+    time_range=None,
     time_zone="UTC",
     interp_method=None,
     t_step=5,
@@ -816,91 +1047,163 @@ def get_lexi_images(
     dec_range=[-90, 90],
     ra_res=0.1,
     dec_res=0.1,
+    background_correction_on=True,
     save_exposure_map_file=False,
     save_exposure_map_image=False,
     save_sky_backgrounds_file=False,
     save_sky_backgrounds_image=False,
-    save_lexi_images_file=False,
-    save_lexi_images_image=False,
-    background_correction_on=False,
+    save_lexi_images=False,
     verbose=True,
 ):
+    """
+    Function to get LEXI images for a given time range and RA/DEC range and resolution using
+    ROSAT data and exposure maps
+
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+            This time range defines the time range of the ephemeris data and the time range of
+            the LEXI data.
+        Note that endpoints are inclusive (the end time is a closed interval); this is because
+        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    interp_method : str, optional
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
+        documentation for more information. Default is 'linear'.
+    t_step : int or float, optional
+        Time step in seconds for time resolution of the look direction datum.
+    t_integrate : int or float, optional
+        Integration time in seconds. If no integration time is provided, the time span of the
+        `time_range` is used.
+    ra_range : list, optional
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    dec_range : list, optional
+        Range of declination in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
+    ra_res : float, optional
+        Right ascension resolution in degrees. Default is 0.1 degrees.
+    dec_res : float, optional
+        Declination resolution in degrees. Default is 0.1 degrees.
+    background_correction_on : bool, optional
+        If True, apply the background correction to the LEXI images. Default is True.
+    save_exposure_map_file : bool, optional
+        If True, save the exposure maps to a binary file. Default is False.
+    save_exposure_map_image : bool, optional
+        If True, save the exposure maps to a PNG image. Default is False.
+    save_sky_backgrounds_file : bool, optional
+        If True, save the sky backgrounds to a binary file. Default is False.
+    save_sky_backgrounds_image : bool, optional
+        If True, save the sky backgrounds to a PNG image. Default is False.
+    save_lexi_images : bool, optional
+        If True, save the LEXI images to a PNG file. Default is False.
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    lexi_images_dict : dict
+        Dictionary containing the following keys:
+            - lexi_images : numpy array
+                LEXI images
+            - ra_arr : numpy array
+                Right ascension array
+            - dec_arr : numpy array
+                Declination array
+            - time_range : list
+                Time range of the LEXI images
+            - t_integrate : int or float
+                Integration time in seconds of the LEXI images
+            - ra_range : list
+                Right ascension range of the LEXI images in degrees
+            - dec_range : list
+                Declination range of the LEXI images in degrees
+            - ra_res : float
+                Right ascension resolution of the LEXI images in degrees
+            - dec_res : float
+                Declination resolution of the LEXI images in degrees
+    """
 
     # Validate each of the inputs
-    t_range_validated = validate_input("t_range", t_range)
-    if t_range_validated:
-        # Check if each element of t_range is a datetime object, if not then convert it to a datetime
+    time_range_validated = validate_input("time_range", time_range)
+    if time_range_validated:
+        # Check if each element of time_range is a datetime object, if not then convert it to a datetime
         # object
-        if isinstance(t_range[0], str):
-            t_range[0] = pd.to_datetime(t_range[0])
-        if isinstance(t_range[1], str):
-            t_range[1] = pd.to_datetime(t_range[1])
+        if isinstance(time_range[0], str):
+            time_range[0] = pd.to_datetime(time_range[0])
+        if isinstance(time_range[1], str):
+            time_range[1] = pd.to_datetime(time_range[1])
     time_zone_validated = validate_input("time_zone", time_zone)
     if time_zone_validated:
-        # Set the timezone to the t_range
-        t_range[0] = t_range[0].tz_localize(time_zone)
-        t_range[1] = t_range[1].tz_localize(time_zone)
+        # Set the timezone to the time_range
+        time_range[0] = time_range[0].tz_localize(time_zone)
+        time_range[1] = time_range[1].tz_localize(time_zone)
         if verbose:
             print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
     else:
-        t_range[0] = t_range[0].tz_localize("UTC")
-        t_range[1] = t_range[1].tz_localize("UTC")
+        time_range[0] = time_range[0].tz_localize("UTC")
+        time_range[1] = time_range[1].tz_localize("UTC")
         if verbose:
             print("Timezone set to \033[1;92m UTC \033[0m \n")
+
     interp_method_validated = validate_input("interp_method", interp_method)
-    t_step_validated = validate_input("t_step", t_step)
+    if not interp_method_validated:
+        interp_method = "linear"
+        if verbose:
+            print(
+                f"\033[1;91m Interpolation method \033[1;92m (interp_method) \033[1;91m not provided. Setting interpolation method to \033[1;92m {interp_method} \033[0m\n"
+            )
+
+    _ = validate_input("t_step", t_step)
     t_integrate_validated = validate_input("t_integrate", t_integrate)
     if not t_integrate_validated:
-        t_integrate = (t_range[1] - t_range[0]).total_seconds()
+        t_integrate = (time_range[1] - time_range[0]).total_seconds()
         if verbose:
             print(
                 f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
             )
     ra_range_validated = validate_input("ra_range", ra_range)
     dec_range_validated = validate_input("dec_range", dec_range)
-    ra_res_validated = validate_input("ra_res", ra_res)
-    dec_res_validated = validate_input("dec_res", dec_res)
-    save_exposure_map_file_validated = validate_input(
-        "save_exposure_map_file", save_exposure_map_file
-    )
-    save_exposure_map_image_validated = validate_input(
-        "save_exposure_map_image", save_exposure_map_image
-    )
-    save_sky_backgrounds_file_validated = validate_input(
-        "save_sky_backgrounds_file", save_sky_backgrounds_file
-    )
-    save_sky_backgrounds_image_validated = validate_input(
-        "save_sky_backgrounds_image", save_sky_backgrounds_image
-    )
-    save_lexi_images_file_validated = validate_input(
-        "save_lexi_images_file", save_lexi_images_file
-    )
-    save_lexi_images_image_validated = validate_input(
-        "save_lexi_images_image", save_lexi_images_image
-    )
-    background_correction_on_validated = validate_input(
-        "background_correction_on", background_correction_on
-    )
-    verbose_validated = validate_input("verbose", verbose)
+    _ = validate_input("ra_res", ra_res)
+    _ = validate_input("dec_res", dec_res)
+
 
     # TODO: Get the actual timeseries data from the spacecraft
+    # NOTE: This will require a function that will take the limits of the time range and return the
+    # data in the time range as a dataframe. Potentially, that will add a keyword to the main
+    # function called `data_dir` or something similar. This function will be implemented in the future.
     # For now, try reading in sample CDF file
     photons_cdf = CDF("../data/PIT_shifted_jul08.cdf")
+
     key_list = photons_cdf.cdf_info().zVariables
-    print(key_list)
+
     photons_data = {}
     for key in key_list:
         photons_data[key] = photons_cdf.varget(key)
+
     # Convert to dataframe
     photons = pd.DataFrame({key: photons_data[key] for key in photons_data.keys()})
     # Convert the time to a datetime objecta from UNIX time (in nanoseconds)
-    photons["Epoch"] = pd.to_datetime(photons["Epoch"])
+    photons["Epoch_unix"] = pd.to_datetime(
+        photons["Epoch_unix"], unit="s", origin="unix"
+    )
 
     # Set index to the time column
-    photons = photons.set_index("Epoch", inplace=False)
+    photons = photons.set_index("Epoch_unix", inplace=False)
+
+    # Convert the time from local time to UTC
+    photons.index = photons.index.tz_localize("UTC").tz_convert("US/Eastern")
 
     # Set the timezone to UTC
-    photons = photons.tz_localize("UTC")
+    photons.index = photons.index.tz_localize(None)
+    photons.index = photons.index.tz_localize("UTC")
 
     # Check if the photons dataframe has duplicate indices
     # NOTE: Refer to the GitHub issue for more information on why we are doing this:
@@ -909,10 +1212,6 @@ def get_lexi_images(
     if photons.index.duplicated().any():
         # Remove the duplicate indices
         photons = photons[~photons.index.duplicated(keep="first")]
-    print(
-        f"Extrema: RA min {photons.ra_J2000_deg.min()}, RA max {photons.ra_J2000_deg.max()}, "
-        f"DEC min {photons.dec_J2000_deg.min()}, DEC max {photons.dec_J2000_deg.max()}"
-    )
 
     # Set up coordinate grid for lexi histograms
     if ra_range_validated:
@@ -945,8 +1244,8 @@ def get_lexi_images(
     # (Besides it being more correct to return also the empty lexi images, this is
     # required in order for the images to align with the correct sky backgrounds when combined.)
     integration_filler_idcs = pd.date_range(
-        t_range[0],
-        t_range[1],
+        time_range[0],
+        time_range[1],
         freq=pd.Timedelta(t_integrate, unit="s"),
     )
     photons = photons.reindex(
@@ -954,12 +1253,17 @@ def get_lexi_images(
     )
 
     # Slice to relevant time range; make groups of rows spanning t_integration
-    integ_groups = photons[t_range[0] : t_range[1]].resample(
+    integ_groups = photons[time_range[0] : time_range[1]].resample(
         pd.Timedelta(t_integrate, unit="s"), origin="start"
     )
 
+    start_time_arr = []
+    stop_time_arr = []
+    for _, group in integ_groups:
+        start_time_arr.append(group.index.min())
+        stop_time_arr.append(group.index.max())
     # Make as many empty lexi histograms as there are integration groups
-    histograms = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
+    histograms = np.zeros((len(integ_groups) - 1, len(ra_arr), len(dec_arr)))
 
     for hist_idx, (_, group) in enumerate(integ_groups):
         # Loop through each photon strike and add it to the map
@@ -981,7 +1285,7 @@ def get_lexi_images(
     if background_correction_on:
         # Get sky backgrounds
         sky_backgrounds_dict = get_sky_backgrounds(
-            t_range=t_range,
+            time_range=time_range,
             time_zone=time_zone,
             interp_method=interp_method,
             t_step=t_step,
@@ -1000,16 +1304,38 @@ def get_lexi_images(
 
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
+    # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and t_integrate,
+    # ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
+    lexi_images_dict = {
+        "lexi_images": histograms,
+        "ra_arr": ra_arr,
+        "dec_arr": dec_arr,
+        "time_range": time_range,
+        "t_integrate": t_integrate,
+        "ra_range": ra_range,
+        "dec_range": dec_range,
+        "ra_res": ra_res,
+        "dec_res": dec_res,
+        "start_time_arr": start_time_arr,
+        "stop_time_arr": stop_time_arr,
+    }
+
     # If requested, save the histograms as images
-    if save_lexi_images_file:
-        for i, histogram in enumerate(histograms):
+    if save_lexi_images:
+        for i, histogram in enumerate(lexi_images_dict["lexi_images"]):
             array_to_image(
-                histogram,
+                input_array=histogram,
+                key=f"lexi_images/background_corrected_{background_correction_on}",
                 x_range=ra_range,
                 y_range=dec_range,
+                start_time=start_time_arr[i],
+                stop_time=stop_time_arr[i],
                 cmap="viridis",
+                cmin=1,
+                v_min=None,
+                v_max=None,
                 norm=None,
-                norm_type="log",
+                norm_type="linear",
                 aspect="auto",
                 figure_title=(
                     "Background Corrected LEXI Image"
@@ -1020,43 +1346,32 @@ def get_lexi_images(
                 cbar_label="Counts/sec",
                 cbar_orientation="vertical",
                 show_axes=True,
-                display=True,
-                figure_size=(10, 10),
+                display=False,
+                figure_size=(5, 5),
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                save_path="figures/lexi_images",
-                save_name=f"lexi_image_{i}",
+                # save_path="../figures/lexi_images",
+                save_name="default",
                 dpi=300,
                 dark_mode=True,
+                verbose=verbose,
             )
 
-    # Define a dictionary to store the histograms, ra_arr, and dec_arr, t_range, and t_integrate,
-    # ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
-    lexi_images_dict = {
-        "lexi_images": histograms,
-        "ra_arr": ra_arr,
-        "dec_arr": dec_arr,
-        "t_range": t_range,
-        "t_integrate": t_integrate,
-        "ra_range": ra_range,
-        "dec_range": dec_range,
-        "ra_res": ra_res,
-        "dec_res": dec_res,
-    }
-
-    print(f"Lexi images keys: {lexi_images_dict.keys()}")
     return lexi_images_dict
 
 
 def array_to_image(
-    input_data: dict = None,
+    input_array: np.ndarray = None,
     key: str = None,
     x_range: list = None,
     y_range: list = None,
+    start_time: pd.Timestamp = None,
+    stop_time: pd.Timestamp = None,
+    cmap: str = "viridis",
+    cmin: float = None,
     v_min: float = None,
     v_max: float = None,
-    cmap: str = "viridis",
     norm: mpl.colors.LogNorm = mpl.colors.LogNorm(),
     norm_type: str = "log",
     aspect: str = "auto",
@@ -1065,7 +1380,7 @@ def array_to_image(
     cbar_label: str = None,
     cbar_orientation: str = "vertical",
     show_axes: bool = True,
-    display: bool = True,
+    display: bool = False,
     figure_size: tuple = (10, 10),
     figure_format: str = "png",
     figure_font_size: float = 12,
@@ -1074,6 +1389,7 @@ def array_to_image(
     save_name: str = None,
     dpi: int = 300,
     dark_mode: bool = True,
+    verbose: bool = False,
 ):
     """
     Convert a 2D array to an image.
@@ -1133,7 +1449,7 @@ def array_to_image(
         Axes object.
     """
     # Try to use latex rendering
-    plt.rc("text", usetex=False)
+    plt.rc("text", usetex=True)
     # try:
     #     plt.rc("text", usetex=True)
     #     plt.rc("font", family="serif")
@@ -1141,20 +1457,13 @@ def array_to_image(
     # except Exception:
     #     pass
 
-    # Extract all the relevant data from the dict
-    input_array = input_data[key]
-    ra_arr = input_data["ra_arr"]
-    dec_arr = input_data["dec_arr"]
-    t_range = input_data["t_range"]
-    t_integrate = input_data["t_integrate"]
-    ra_range = input_data["ra_range"]
-    dec_range = input_data["dec_range"]
-    ra_res = input_data["ra_res"]
-    dec_res = input_data["dec_res"]
-
     # Check whether input_array is a 2D array
     if len(input_array.shape) != 2:
         raise ValueError("input_array must be a 2D array")
+
+    # Mask the input array if cmin is specified
+    if cmin is not None:
+        input_array = np.ma.masked_less(input_array, cmin)
 
     # Check whether x_range is a list
     if x_range is not None:
@@ -1163,7 +1472,7 @@ def array_to_image(
         if len(x_range) != 2:
             raise ValueError("x_range must be a list of length 2")
     else:
-        x_range = ra_range
+        x_range = x_range
 
     # Check whether y_range is a list
     if y_range is not None:
@@ -1172,18 +1481,18 @@ def array_to_image(
         if len(y_range) != 2:
             raise ValueError("y_range must be a list of length 2")
     else:
-        y_range = dec_range
-
-    # Check whether input_dict is a dictionary
+        y_range = y_range
 
     if dark_mode:
         plt.style.use("dark_background")
         facecolor = "k"
         edgecolor = "w"
+        textcolor = "w"
     else:
         plt.style.use("default")
         facecolor = "w"
         edgecolor = "k"
+        textcolor = "k"
 
     if v_min is None and v_max is None:
         array_min = np.nanmin(input_array)
@@ -1193,7 +1502,7 @@ def array_to_image(
             # probably, just an integration window with no photons.
             print(
                 f"Encountered map where array min {array_min} == array max {array_max}. "
-                "Plotting a range of +- 1."
+                "Plotting a range of \u00B1 1."
             )
             array_min -= 1
             array_max += 1
@@ -1252,6 +1561,27 @@ def array_to_image(
     ax.minorticks_on()
     # Set the tick label size
     ax.tick_params(labelsize=0.8 * figure_font_size)
+    # Add start and stop time as text to the plot
+    ax.text(
+        0.05,
+        0.93,
+        f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
+        horizontalalignment="left",
+        verticalalignment="bottom",
+        transform=ax.transAxes,
+        fontsize=0.8 * figure_font_size,
+        color=textcolor,
+    )
+    ax.text(
+        0.05,
+        0.92,
+        f"Stop Time: {stop_time.strftime('%Y-%m-%d %H:%M:%S')}",
+        horizontalalignment="left",
+        verticalalignment="top",
+        transform=ax.transAxes,
+        fontsize=0.8 * figure_font_size,
+        color=textcolor,
+    )
     if show_colorbar:
         if cbar_label is None:
             cbar_label = "Value"
@@ -1304,10 +1634,16 @@ def array_to_image(
 
     if save:
         if save_path is None:
-            save_path = Path(__file__).resolve().parent.parent / "figures"
+            save_path = Path(__file__).resolve().parent.parent / f"figures/{key}"
+            if verbose:
+                print("save_path not provided. Saving figure to default lcoation \n")
         Path(save_path).mkdir(parents=True, exist_ok=True)
-        if save_name is None:
-            save_name = "array_to_image"
+        if save_name is None or save_name == "default":
+            start_time_str = start_time.strftime("%Y%m%d_%H%M%S")
+            stop_time_str = stop_time.strftime("%Y%m%d_%H%M%S")
+            save_name = (
+                f"{key.split('/')[0]}_Tstart_{start_time_str}_Tstop_{stop_time_str}"
+            )
 
         save_name = save_name + "." + figure_format
         plt.savefig(
@@ -1316,7 +1652,10 @@ def array_to_image(
             dpi=dpi,
             bbox_inches="tight",
         )
-        print(f"Saved figure to {save_path}/{save_name}")
+        if verbose:
+            print(
+                f"Saved figure to \033[1;94m {save_path}/\033[1;92m{save_name} \033[0m \n"
+            )
 
     if display:
         plt.show()
