@@ -1,11 +1,11 @@
-import lexi_functions as lfs
+import lexi.lexi_functions as lfs
 import importlib
 import numpy as np
 
 importlib.reload(lfs)
 
 input_params = {
-    "t_range": ["2024-07-08T21:43:41", "2024-07-08T21:47:41"],
+    "time_range": ["2024-07-08T21:43:41", "2024-07-08T21:47:41"],
     "time_zone": "UTC",
     # "t_integrate": 120,
     # "t_step": "5",
@@ -26,7 +26,7 @@ input_params = {
     "save_sky_backgrounds_file": True,
     "save_sky_backgrounds_image": True,
     "background_correction_on": True,
-    "save_lexi_images_file": True,
+    "save_lexi_images": True,
     "verbose": False,
 }
 
