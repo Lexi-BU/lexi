@@ -487,6 +487,7 @@ class LEXI:
                 ra_res = self.ra_res
                 dec_res = self.dec_res
                 t_integrate = int(self.t_integrate)
+                
                 exposure_maps_file_name = (
                     f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
                     f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
