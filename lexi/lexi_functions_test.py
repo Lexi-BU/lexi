@@ -24,6 +24,7 @@ input_params = {
     # filetype="pkl",
     "save_exposure_map_file": True,
     "save_sky_backgrounds_file": True,
+    "background_correction_on": True,
     "verbose": True,
 }
 

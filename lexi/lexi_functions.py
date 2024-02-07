@@ -198,9 +198,15 @@ def get_spc_prams(
         if time_zone is not None:
             time_zone_validated = validate_input("time_zone", time_zone)
             if time_zone_validated:
-                # Set the timezone to the t_range
-                t_range[0] = t_range[0].tz_localize(time_zone)
-                t_range[1] = t_range[1].tz_localize(time_zone)
+                # Check if t_range elements are timezone aware
+                if t_range[0].tzinfo is None:
+                    # Set the timezone to the t_range
+                    t_range[0] = t_range[0].tz_localize(time_zone)
+                    t_range[1] = t_range[1].tz_localize(time_zone)
+                elif t_range[0].tzinfo != time_zone:
+                    # Convert the timezone to the t_range
+                    t_range[0] = t_range[0].tz_convert(time_zone)
+                    t_range[1] = t_range[1].tz_convert(time_zone)
                 if verbose:
                     print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
             else:
@@ -629,7 +635,7 @@ def get_exposure_maps(
     # If the first element of exposure_maps shape is 1, then remove the first dimension
     # if np.shape(exposure_maps)[0] == 1:
     #     exposure_maps = exposure_maps[0]
-
+    print(f"Exposure maps keys: {exposure_maps_dict.keys()}")
     return exposure_maps_dict
 
 
@@ -796,6 +802,7 @@ def get_sky_backgrounds(
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
     # if np.shape(sky_backgrounds)[0] == 1:
     #     sky_backgrounds = sky_backgrounds[0]
+    print(f"Sky backgrounds keys: {sky_backgrounds_dict.keys()}")
     return sky_backgrounds_dict
 
 
@@ -908,8 +915,28 @@ def get_lexi_images(
     )
 
     # Set up coordinate grid for lexi histograms
-    ra_grid = np.arange(ra_range[0], ra_range[1], ra_res)
-    dec_grid = np.arange(dec_range[0], dec_range[1], dec_res)
+    if ra_range_validated:
+        ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
+    else:
+        ra_range = np.array(
+            [np.nanmin(photons.ra_J2000_deg), np.nanmax(photons.ra_J2000_deg)]
+        )
+        ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
+        if verbose:
+            print(
+                f"\033[1;91m RA range \033[1;92m (ra_range) \033[1;91m not provided. Setting RA range to the range of the spacecraft ephemeris data: \033[1;92m {ra_range} \033[0m\n"
+            )
+    if dec_range_validated:
+        dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
+    else:
+        dec_range = np.array(
+            [np.nanmin(photons.dec_J2000_deg), np.nanmax(photons.dec_J2000_deg)]
+        )
+        dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
+        if verbose:
+            print(
+                f"\033[1;91m DEC range \033[1;92m (dec_range) \033[1;91m not provided. Setting DEC range to the range of the spacecraft ephemeris data: \033[1;92m {dec_range} \033[0m\n"
+            )
 
     # Insert one row per integration window with NaN data.
     # This ensures that even if there are periods in the data longer than t_integrate
@@ -932,17 +959,17 @@ def get_lexi_images(
     )
 
     # Make as many empty lexi histograms as there are integration groups
-    histograms = np.zeros((len(integ_groups), len(ra_grid), len(dec_grid)))
+    histograms = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
     for hist_idx, (_, group) in enumerate(integ_groups):
         # Loop through each photon strike and add it to the map
         for row in group.itertuples():
             try:
                 ra_idx = np.nanargmin(
-                    np.where(ra_grid % 360 >= row.ra_J2000_deg % 360, 1, np.nan)
+                    np.where(ra_arr % 360 >= row.ra_J2000_deg % 360, 1, np.nan)
                 )
                 dec_idx = np.nanargmin(
-                    np.where(dec_grid % 360 >= row.dec_J2000_deg % 360, 1, np.nan)
+                    np.where(dec_arr % 360 >= row.dec_J2000_deg % 360, 1, np.nan)
                 )
                 histograms[hist_idx][ra_idx][dec_idx] += 1
             except ValueError:
@@ -972,30 +999,6 @@ def get_lexi_images(
         sky_backgrounds = sky_backgrounds_dict["sky_backgrounds"]
 
         histograms = np.maximum(histograms - sky_backgrounds, 0)
-    else:
-        if ra_range_validated:
-            ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
-        else:
-            ra_range = np.array(
-                [np.nanmin(photons.ra_J2000_deg), np.nanmax(photons.ra_J2000_deg)]
-            )
-            ra_arr = np.arange(ra_range[0], ra_range[1], ra_res)
-            if verbose:
-                print(
-                    f"\033[1;91m RA range \033[1;92m (ra_range) \033[1;91m not provided. Setting RA range to the range of the spacecraft ephemeris data: \033[1;92m {ra_range} \033[0m\n"
-                )
-
-        if dec_range_validated:
-            dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
-        else:
-            dec_range = np.array(
-                [np.nanmin(photons.dec_J2000_deg), np.nanmax(photons.dec_J2000_deg)]
-            )
-            dec_arr = np.arange(dec_range[0], dec_range[1], dec_res)
-            if verbose:
-                print(
-                    f"\033[1;91m DEC range \033[1;92m (dec_range) \033[1;91m not provided. Setting DEC range to the range of the spacecraft ephemeris data: \033[1;92m {dec_range} \033[0m\n"
-                )
 
     # If requested, save the histograms as images
     if save_lexi_images_file:
@@ -1042,11 +1045,13 @@ def get_lexi_images(
         "dec_res": dec_res,
     }
 
+    print(f"Lexi images keys: {lexi_images_dict.keys()}")
     return lexi_images_dict
 
 
 def array_to_image(
     input_data: dict = None,
+    key: str = None,
     input_array: np.ndarray = None,
     x_range: list = None,
     y_range: list = None,
@@ -1136,6 +1141,11 @@ def array_to_image(
     #     plt.rc("font", size=figure_font_size)
     # except Exception:
     #     pass
+
+    # Extract all the relevant data from the dict
+    input_array = input_data[key]
+    ra_arr = input_data["ra_arr"]
+    
 
     # Check whether input_array is a 2D array
     if len(input_array.shape) != 2:
