@@ -1,8 +1,8 @@
-import lexi.lexi as lfs
+from lexi import lexi as lexi
 import importlib
 import numpy as np
 
-importlib.reload(lfs)
+importlib.reload(lexi)
 
 input_params = {
     "time_range": ["2024-07-08T21:43:41", "2024-07-08T21:47:41"],
@@ -27,7 +27,7 @@ input_params = {
     "save_sky_backgrounds_image": True,
     "background_correction_on": True,
     "save_lexi_images": True,
-    "verbose": False,
+    "verbose": True,
 }
 
 # df = lnc.get_spc_prams(**input_params)
@@ -39,5 +39,5 @@ input_params = {
 # print(np.shape(sky_backgrounds_dict["sky_backgrounds"]))
 # print(df.head())
 
-lexi_images_dict = lfs.get_lexi_images(**input_params)
+lexi_images_dict = lexi.get_lexi_images(**input_params)
 # print(np.shape(lexi_images_dict["lexi_images"]))
