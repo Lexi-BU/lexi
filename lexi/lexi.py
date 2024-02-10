@@ -310,8 +310,8 @@ def get_spc_prams(
 
     # While slicing the dataframe, we need to make sure that the start and stop times are rounded
     # to the nearest minute.
-    t_start = time_range[0].floor("T")
-    t_stop = time_range[1].ceil("T")
+    t_start = time_range[0].floor("min")
+    t_stop = time_range[1].ceil("min")
     dfslice = df[t_start:t_stop]
     dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
@@ -794,10 +794,10 @@ def get_exposure_maps(
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                # save_path="figures/exposure_maps",
                 save_name="default",
                 dpi=300,
-                dark_mode=True,
+                dark_mode=False,
+                verbose=verbose,
             )
 
     return exposure_maps_dict
@@ -1023,7 +1023,7 @@ def get_sky_backgrounds(
                 sky_backgrounds_file_dir = Path(sky_backgrounds_file_name).parent
                 sky_backgrounds_file_name = Path(sky_backgrounds_file_name).name
                 print(
-                    f"Sky background saved to file: \033[92m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
+                    f"Sky background saved to file: \033[1;94m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
                 )
 
     # If requested, save the sky background as an image
@@ -1037,6 +1037,7 @@ def get_sky_backgrounds(
                 start_time=sky_backgrounds_dict["start_time_arr"][i],
                 stop_time=sky_backgrounds_dict["stop_time_arr"][i],
                 cmap="viridis",
+                cmin=0.1,
                 norm=None,
                 norm_type="linear",
                 aspect="auto",
@@ -1050,10 +1051,10 @@ def get_sky_backgrounds(
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                # save_path="figures/sky_background",
                 save_name="default",
                 dpi=300,
-                dark_mode=True,
+                dark_mode=False,
+                verbose=verbose,
             )
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
     # if np.shape(sky_backgrounds)[0] == 1:
@@ -1420,7 +1421,7 @@ def array_to_image(
     save_path: str = None,
     save_name: str = None,
     dpi: int = 300,
-    dark_mode: bool = True,
+    dark_mode: bool = False,
     verbose: bool = False,
 ):
     """
@@ -1585,6 +1586,7 @@ def array_to_image(
         ],
         origin="lower",
         aspect=aspect,
+        interpolation=None,
     )
 
     # Turn on the grid
@@ -1686,7 +1688,7 @@ def array_to_image(
         )
         if verbose:
             print(
-                f"Saved figure to \033[1;94m {save_path}/\033[1;92m{save_name} \033[0m \n"
+                f"Saved figure to ==> \033[1;94m {save_path}/\033[1;92m{save_name} \033[0m \n"
             )
 
     if display:
