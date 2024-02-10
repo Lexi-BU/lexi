@@ -208,7 +208,7 @@ def get_spc_prams(
     time_range=None,
     time_zone="UTC",
     time_step=5,
-    interp_method=None,
+    interp_method="linear",
     verbose=True,
 ):
     """
@@ -233,7 +233,7 @@ def get_spc_prams(
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'index', 'values', 'pad'. See pandas.DataFrame.interpolate documentation for
-        more information. Default is 'index'.
+        more information. Default is 'linear'.
     verbose : bool, optional
         If True, print messages. Default is True
 
@@ -308,7 +308,11 @@ def get_spc_prams(
             )
         )
 
-    dfslice = df[time_range[0] : time_range[1]]
+    # While slicing the dataframe, we need to make sure that the start and stop times are rounded
+    # to the nearest minute.
+    t_start = time_range[0].floor("T")
+    t_stop = time_range[1].ceil("T")
+    dfslice = df[t_start:t_stop]
     dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
@@ -443,8 +447,11 @@ def get_spc_prams(
             )
         )
 
-    # Slice, resample, interpolate
-    dfslice = df[time_range[0] : time_range[1]]
+    # While slicing the dataframe, we need to make sure that the start and stop times are rounded
+    # to the nearest minute.
+    t_start = time_range[0].floor("T")
+    t_stop = time_range[1].ceil("T")
+    dfslice = df[t_start:t_stop]
     dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     # Validate interp_method
     interp_method_validated = validate_input("interp_method", interp_method)
@@ -479,7 +486,7 @@ def vignette(d):
 def get_exposure_maps(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
+    interp_method="linear",
     time_step=5,
     ra_range=[0, 360],
     dec_range=[-90, 90],
@@ -705,46 +712,51 @@ def get_exposure_maps(
                 )
                 r = np.sqrt(ra_diff**2 + dec_diff**2)
                 # Make an exposure delta for this span
-                exposure_delt = np.where((r < LEXI_FOV * 0.5), vignette(r) * time_step, 0)
+                exposure_delt = np.where(
+                    (r < LEXI_FOV * 0.5), vignette(r) * time_step, 0
+                )
                 # Add the delta to the full map
                 exposure_maps[map_idx] += exposure_delt
             print(
                 f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
                 end="\r",
             )
+        t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
+        t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
+        ra_start = ra_range[0]
+        ra_stop = ra_range[1]
+        dec_start = dec_range[0]
+        dec_stop = dec_range[1]
+        ra_res = ra_res
+        dec_res = dec_res
+        time_integrate = int(time_integrate)
+
+        # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
+        # ra_range, and dec_range, ra_res, and dec_res
+        exposure_maps_dict = {
+            "exposure_maps": exposure_maps,
+            "ra_arr": ra_arr,
+            "dec_arr": dec_arr,
+            "time_range": time_range,
+            "time_integrate": time_integrate,
+            "ra_range": ra_range,
+            "dec_range": dec_range,
+            "ra_res": ra_res,
+            "dec_res": dec_res,
+            "start_time_arr": start_time_arr,
+            "stop_time_arr": stop_time_arr,
+        }
         if save_exposure_map_file:
             # Define the folder to save the exposure maps to
             save_folder = Path.cwd() / "data/exposure_maps"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
-            t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
-            t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
-            ra_start = ra_range[0]
-            ra_stop = ra_range[1]
-            dec_start = dec_range[0]
-            dec_stop = dec_range[1]
-            ra_res = ra_res
-            dec_res = dec_res
-            time_integrate = int(time_integrate)
+
             exposure_maps_file_name = (
                 f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
                 f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
                 f"{dec_res}_Tint_{time_integrate}.npy"
             )
-            # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
-            # ra_range, and dec_range, ra_res, and dec_res
-            exposure_maps_dict = {
-                "exposure_maps": exposure_maps,
-                "ra_arr": ra_arr,
-                "dec_arr": dec_arr,
-                "time_range": time_range,
-                "time_integrate": time_integrate,
-                "ra_range": ra_range,
-                "dec_range": dec_range,
-                "ra_res": ra_res,
-                "dec_res": dec_res,
-                "start_time_arr": start_time_arr,
-                "stop_time_arr": stop_time_arr,
-            }
+
             # Save the exposure map array to a pickle file
             with open(exposure_maps_file_name, "wb") as f:
                 pickle.dump(exposure_maps_dict, f)
@@ -794,7 +806,7 @@ def get_exposure_maps(
 def get_sky_backgrounds(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
+    interp_method="linear",
     time_step=5,
     time_integrate=None,
     ra_range=[0, 360],
@@ -1052,7 +1064,7 @@ def get_sky_backgrounds(
 def get_lexi_images(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
+    interp_method="linear",
     time_step=5,
     time_integrate=None,
     ra_range=[0, 360],
@@ -1196,7 +1208,7 @@ def get_lexi_images(
     # Read the LEXI data
     photons_cdf = CDF(lexi_data)
 
-    key_list = photons_cdf.cdf_info().zVariables
+    key_list = photons_cdf.cdf_info()["zVariables"]
 
     photons_data = {}
     for key in key_list:
@@ -1274,10 +1286,17 @@ def get_lexi_images(
     start_time_arr = []
     stop_time_arr = []
     for _, group in integ_groups:
-        start_time_arr.append(group.index.min())
-        stop_time_arr.append(group.index.max())
+        start_time_val = group.index.min()
+        stop_time_val = group.index.max()
+        # If start and stop times are the same, then skip this group
+        if start_time_val == stop_time_val:
+            continue
+        else:
+            start_time_arr.append(group.index.min())
+            stop_time_arr.append(group.index.max())
+
     # Make as many empty lexi histograms as there are integration groups
-    histograms = np.zeros((len(integ_groups) - 1, len(ra_arr), len(dec_arr)))
+    histograms = np.zeros((len(start_time_arr), len(ra_arr), len(dec_arr)))
 
     for hist_idx, (_, group) in enumerate(integ_groups):
         # Loop through each photon strike and add it to the map
@@ -1287,10 +1306,10 @@ def get_lexi_images(
                     np.where(ra_arr % 360 >= row.ra_J2000_deg % 360, 1, np.nan)
                 )
                 dec_idx = np.nanargmin(
-                    np.where(dec_arr % 360 >= row.dec_J2000_deg % 360, 1, np.nan)
+                    np.where(dec_arr % 90 >= row.dec_J2000_deg % 90, 1, np.nan)
                 )
                 histograms[hist_idx][ra_idx][dec_idx] += 1
-            except ValueError:
+            except Exception:
                 # photon was out of bounds on one or both axes,
                 # or the row was an integration filler
                 pass
@@ -1315,7 +1334,6 @@ def get_lexi_images(
             verbose=verbose,
         )
         sky_backgrounds = sky_backgrounds_dict["sky_backgrounds"]
-
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
