@@ -717,10 +717,10 @@ def get_exposure_maps(
                 )
                 # Add the delta to the full map
                 exposure_maps[map_idx] += exposure_delt
-            print(
-                f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
-                end="\r",
-            )
+                print(
+                    f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
+                    end="\r",
+                )
         t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
         t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
         ra_start = ra_range[0]
@@ -1067,11 +1067,11 @@ def get_lexi_images(
     time_zone="UTC",
     interp_method="linear",
     time_step=5,
-    time_integrate=None,
     ra_range=[0, 360],
     dec_range=[-90, 90],
     ra_res=0.1,
     dec_res=0.1,
+    time_integrate=None,
     background_correction_on=True,
     save_exposure_map_file=False,
     save_exposure_map_image=False,
@@ -1209,7 +1209,7 @@ def get_lexi_images(
     # Read the LEXI data
     photons_cdf = CDF(lexi_data)
 
-    key_list = photons_cdf.cdf_info()["zVariables"]
+    key_list = photons_cdf.cdf_info().zVariables
 
     photons_data = {}
     for key in key_list:
