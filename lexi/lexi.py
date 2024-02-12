@@ -980,9 +980,219 @@ class LEXI:
                 "Either both v_min and v_max must be specified or neither can be specified"
             )
 
+<<<<<<< Updated upstream
         # Create the figure
         fig, ax = plt.subplots(
             figsize=figure_size, dpi=dpi, facecolor=facecolor, edgecolor=edgecolor
+=======
+    return lexi_images_dict
+
+
+def array_to_image(
+    input_array: np.ndarray = None,
+    key: str = None,
+    x_range: list = None,
+    y_range: list = None,
+    ra_range: list = None,
+    dec_range: list = None,
+    time_range: list = None,
+    time_zone: str = "UTC",
+    interp_method: str ="linear",
+    time_step: float= None,
+    ra_res: float = None,
+    dec_res: float = None,
+    time_integrate: float = None,
+    start_time: pd.Timestamp = None,
+    stop_time: pd.Timestamp = None,
+    cmap: str = "viridis",
+    cmin: float = None,
+    v_min: float = None,
+    v_max: float = None,
+    norm: mpl.colors.LogNorm = mpl.colors.LogNorm(),
+    norm_type: str = "log",
+    aspect: str = "auto",
+    figure_title: str = None,
+    show_colorbar: bool = True,
+    cbar_label: str = None,
+    cbar_orientation: str = "vertical",
+    show_axes: bool = True,
+    display: bool = False,
+    figure_size: tuple = (10, 10),
+    figure_format: str = "png",
+    figure_font_size: float = 12,
+    save: bool = False,
+    save_path: str = None,
+    save_name: str = None,
+    dpi: int = 300,
+    dark_mode: bool = False,
+    verbose: bool = False,
+):
+    """
+    Convert a 2D array to an image.
+
+    Parameters
+    ----------
+    input_array : np.ndarray
+        2D array to convert to an image.
+    x_range : list, optional
+        Range of the x-axis.  Default is None.
+    y_range : list, optional
+        Range of the y-axis.  Default is None.
+    ra_range: list
+        RA (Right Ascension) range to plot, in degrees. [start RA, end RA]. Default is None.
+    dec_range: list
+        DEC (Declination) range to plot, in degrees. [start DEC, end DEC]. Default is None.
+    time_range: list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+    time_zone: str
+        Time zone to use. Default is 'UTC'.
+    interp_method: str
+        Interpolation method to use. Default is 'linear'.
+    time_step: float
+        Time step in seconds for the ephemeris data. Default is None.
+    ra_res: float
+        RA resolution to plot at, in degrees. Default is None.
+    dec_res: float
+        DEC resolution to plot at, in degrees. Default is None.
+    time_integrate: float
+        Integration time in seconds for lexi histograms and exposure maps. This is the time that
+        we integrate over to create the lexi histograms and exposure maps. Default is None.
+    v_min : float, optional
+        Minimum value of the colorbar.  If None, then the minimum value of the input array is used.
+        Default is None.
+    v_max : float, optional
+        Maximum value of the colorbar.  If None, then the maximum value of the input array is used.
+        Default is None.
+    cmap : str, optional
+        Colormap to use.  Default is 'viridis'.
+    norm : mpl.colors.Normalize, optional
+        Normalization to use for the colorbar colors.  Default is None.
+    norm_type : str, optional
+        Normalization type to use.  Options are 'linear' or 'log'.  Default is 'linear'.
+    aspect : str, optional
+        Aspect ratio to use.  Default is 'auto'.
+    figure_title : str, optional
+        Title of the figure.  Default is None.
+    show_colorbar : bool, optional
+        If True, then show the colorbar.  Default is True.
+    cbar_label : str, optional
+        Label of the colorbar.  Default is None.
+    cbar_orientation : str, optional
+        Orientation of the colorbar.  Options are 'vertical' or 'horizontal'.  Default is 'vertical'.
+    show_axes : bool, optional
+        If True, then show the axes.  Default is True.
+    display : bool, optional
+        If True, then display the figure.  Default is False.
+    figure_size : tuple, optional
+        Size of the figure.  Default is (10, 10).
+    figure_format : str, optional
+        Format of the figure.  Default is 'png'.
+    figure_font_size : float, optional
+        Font size of the figure.  Default is 12.
+    save : bool, optional
+        If True, then save the figure.  Default is False.
+    save_path : str, optional
+        Path to save the figure to.  Default is None.
+    save_name : str, optional
+        Name of the figure to save.  Default is None.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object.
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Axes object.
+    """
+    # Try to use latex rendering
+    # plt.rc("text", usetex=False)
+    # try:
+    #     plt.rc("text", usetex=True)
+    #     plt.rc("font", family="serif")
+    #     plt.rc("font", size=figure_font_size)
+    # except Exception:
+    #     pass
+
+    # Check whether input_array is a 2D array
+    if len(input_array.shape) != 2:
+        raise ValueError("input_array must be a 2D array")
+
+    # Mask the input array if cmin is specified
+    if cmin is not None:
+        input_array = np.ma.masked_less(input_array, cmin)
+
+    # Check whether x_range is a list
+    if x_range is not None:
+        if not isinstance(x_range, (list, tuple, np.ndarray)):
+            raise ValueError("x_range must be a list, tuple, or numpy array")
+        if len(x_range) != 2:
+            raise ValueError("x_range must be a list of length 2")
+    else:
+        x_range = x_range
+
+    # Check whether y_range is a list
+    if y_range is not None:
+        if not isinstance(y_range, (list, tuple, np.ndarray)):
+            raise ValueError("y_range must be a list, tuple, or numpy array")
+        if len(y_range) != 2:
+            raise ValueError("y_range must be a list of length 2")
+    else:
+        y_range = y_range
+
+    if dark_mode:
+        plt.style.use("dark_background")
+        facecolor = "k"
+        edgecolor = "w"
+        textcolor = "w"
+    else:
+        plt.style.use("default")
+        facecolor = "w"
+        edgecolor = "k"
+        textcolor = "k"
+
+    if v_min is None and v_max is None:
+        array_min = np.nanmin(input_array)
+        array_max = np.nanmax(input_array)
+        if array_min == array_max:
+            # In theory, could be a real instance of a perfectly flat map;
+            # probably, just an integration window with no photons.
+            print(
+                f"Encountered map where array min {array_min} == array max {array_max}. "
+                "Plotting a range of \u00B1 1."
+            )
+            array_min -= 1
+            array_max += 1
+
+        if norm_type == "linear":
+            v_min = 0.9 * array_min
+            v_max = 1.1 * array_max
+            norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
+        elif norm_type == "log":
+            if array_min <= 0:
+                v_min = 1e-5
+            else:
+                v_min = array_min
+            if array_max <= 0:
+                v_max = 1e-1
+            else:
+                v_max = array_max
+            norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
+    elif v_min is not None and v_max is not None:
+        if norm_type == "linear":
+            norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
+        elif norm_type == "log":
+            if v_min <= 0:
+                v_min = 1e-5
+            if v_max <= 0:
+                v_max = 1e-1
+            norm = mpl.colors.LogNorm(vmin=v_min, vmax=v_max)
+    else:
+        raise ValueError(
+            "Either both v_min and v_max must be specified or neither can be specified"
+>>>>>>> Stashed changes
         )
 
         # Plot the image
@@ -1000,6 +1210,7 @@ class LEXI:
             aspect=aspect,
         )
 
+<<<<<<< Updated upstream
         # Turn on the grid
         ax.grid(True, color="k", alpha=0.5, linestyle="-")
         # Turn on minor grid
@@ -1033,6 +1244,47 @@ class LEXI:
                 orientation=cbar_orientation,
                 label=cbar_label,
                 pad=0.01,
+=======
+        # If the colorbar is horizontal, then set the location of the colorbar label and the tick
+        # labels to be above the colorbar
+        if cbar_orientation == "horizontal":
+            cax.xaxis.set_ticks_position("top")
+            cax.xaxis.set_label_position("top")
+            cax.xaxis.tick_top()
+        if cbar_orientation == "vertical":
+            cax.yaxis.set_ticks_position("right")
+            cax.yaxis.set_label_position("right")
+            cax.yaxis.tick_right()
+    if not show_axes:
+        ax.axis("off")
+    else:
+        ax.set_xlabel("RA [$^\\circ$]", labelpad=0, fontsize=figure_font_size)
+        ax.set_ylabel("DEC [$^\\circ$]", labelpad=0, fontsize=figure_font_size)
+        ax.set_title(figure_title, fontsize=1.2 * figure_font_size)
+
+    if save:
+        if save_path is None:
+            save_path = Path.cwd() / f"figures/{key}"
+            if verbose:
+                print("save_path not provided. Saving figure to default location \n")
+        Path(save_path).mkdir(parents=True, exist_ok=True)
+        if save_name is None or save_name == "default":
+            # save_folder = Path.cwd() / "figures/lexi_images"
+            start_time_str = start_time.strftime("%Y%m%d_%H%M%S")
+            stop_time_str = stop_time.strftime("%Y%m%d_%H%M%S")
+            ra_start_str = str(x_range[0])
+            ra_stop_str = str(x_range[1])
+            dec_start_str = str(y_range[0])
+            dec_stop_str = str(y_range[1])
+            ra_res_str = str(ra_res)
+            dec_res_str = str(dec_res)
+            time_integrate_str = str(time_integrate)
+
+            save_name = (
+                f"{key.split('/')[0]}_Tstart_{start_time_str}_Tstop_{stop_time_str}_RAstart_{ra_start_str}"
+                f"_RAstop_{ra_stop_str}_RAres_{ra_res_str}_DECstart_{dec_start_str}_DECstop_{dec_stop_str}_DECres_"
+                f"{dec_res_str}_Tint_{time_integrate_str}"
+>>>>>>> Stashed changes
             )
             # Set the colorbar tick label size
             cax.tick_params(labelsize=0.6 * figure_font_size)
