@@ -1482,7 +1482,7 @@ def array_to_image(
         Axes object.
     """
     # Try to use latex rendering
-    plt.rc("text", usetex=True)
+    # plt.rc("text", usetex=False)
     # try:
     #     plt.rc("text", usetex=True)
     #     plt.rc("font", family="serif")
