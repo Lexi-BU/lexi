@@ -65,10 +65,10 @@ def validate_input(key, value):
             )
             return False
 
-    if key == "t_step":
+    if key == "time_step":
         if not isinstance(value, (int, float)) or value < 0:
             warnings.warn(
-                "\n \033[1;92m t_step \033[1;91m must be a positive integer or float.\033[0m \n"
+                "\n \033[1;92m time_step \033[1;91m must be a positive integer or float.\033[0m \n"
             )
             return False
 
@@ -142,10 +142,10 @@ def validate_input(key, value):
             )
             return False
 
-    if key == "t_integrate":
+    if key == "time_integrate":
         if not isinstance(value, numbers.Number):
             # warnings.warn(
-            #     "\n \033[1;92m t_integrate \033[1;91m must be a positive number. Setting t_integrate to default value \033[0m \n"
+            #     "\n \033[1;92m time_integrate \033[1;91m must be a positive number. Setting time_integrate to default value \033[0m \n"
             # )
             return False
         if value <= 0:
@@ -207,8 +207,8 @@ def validate_input(key, value):
 def get_spc_prams(
     time_range=None,
     time_zone="UTC",
-    t_step=5,
-    interp_method=None,
+    time_step=5,
+    interp_method="linear",
     verbose=True,
 ):
     """
@@ -228,12 +228,12 @@ def get_spc_prams(
         the time range slicing is done with pandas, and label slicing in pandas is inclusive.
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
-    t_step : int or float, optional
+    time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'index', 'values', 'pad'. See pandas.DataFrame.interpolate documentation for
-        more information. Default is 'index'.
+        more information. Default is 'linear'.
     verbose : bool, optional
         If True, print messages. Default is True
 
@@ -272,10 +272,10 @@ def get_spc_prams(
                 if verbose:
                     print("Timezone set to \033[1;92m UTC \033[0m \n")
 
-    # Validate t_step
-    t_step_validated = validate_input("t_step", t_step)
-    if not t_step_validated:
-        t_step = 5
+    # Validate time_step
+    time_step_validated = validate_input("time_step", time_step)
+    if not time_step_validated:
+        time_step = 5
 
     # Validate interp_method
     interp_method_validated = validate_input("interp_method", interp_method)
@@ -308,8 +308,12 @@ def get_spc_prams(
             )
         )
 
-    dfslice = df[time_range[0] : time_range[1]]
-    dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
+    # While slicing the dataframe, we need to make sure that the start and stop times are rounded
+    # to the nearest minute.
+    t_start = time_range[0].floor("min")
+    t_stop = time_range[1].ceil("min")
+    dfslice = df[t_start:t_stop]
+    dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
 
@@ -443,9 +447,12 @@ def get_spc_prams(
             )
         )
 
-    # Slice, resample, interpolate
-    dfslice = df[time_range[0] : time_range[1]]
-    dfresamp = dfslice.resample(pd.Timedelta(t_step, unit="s"))
+    # While slicing the dataframe, we need to make sure that the start and stop times are rounded
+    # to the nearest minute.
+    t_start = time_range[0].floor("T")
+    t_stop = time_range[1].ceil("T")
+    dfslice = df[t_start:t_stop]
+    dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     # Validate interp_method
     interp_method_validated = validate_input("interp_method", interp_method)
     if interp_method_validated:
@@ -479,13 +486,13 @@ def vignette(d):
 def get_exposure_maps(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
-    t_step=5,
+    interp_method="linear",
+    time_step=5,
     ra_range=[0, 360],
     dec_range=[-90, 90],
     ra_res=0.1,
     dec_res=0.1,
-    t_integrate=None,
+    time_integrate=None,
     save_exposure_map_file=False,
     save_exposure_map_image=False,
     verbose=True,
@@ -511,7 +518,7 @@ def get_exposure_maps(
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
         documentation for more information. Default is 'linear'.
-    t_step : int or float, optional
+    time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
     ra_range : list, optional
         Range of right ascension in degrees. If no range is provided, the range of the spacecraft
@@ -523,7 +530,7 @@ def get_exposure_maps(
         Right ascension resolution in degrees. Default is 0.1 degrees.
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
-    t_integrate : int or float, optional
+    time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
     save_exposure_map_file : bool, optional
@@ -545,7 +552,7 @@ def get_exposure_maps(
                 Declination array
             - time_range : list
                 Time range of the exposure maps
-            - t_integrate : int or float
+            - time_integrate : int or float
                 Integration time in seconds of the exposure maps
             - ra_range : list
                 Right ascension range of the exposure maps in degrees
@@ -561,13 +568,13 @@ def get_exposure_maps(
                 Stop time of each exposure map
     """
 
-    # Validate t_step
-    t_step_validated = validate_input("t_step", t_step)
-    if not t_step_validated:
-        t_step = 5
+    # Validate time_step
+    time_step_validated = validate_input("time_step", time_step)
+    if not time_step_validated:
+        time_step = 5
         if verbose:
             print(
-                f"\033[1;91m Time step \033[1;92m (t_step) \033[1;91m not provided. Setting time step to \033[1;92m {t_step} seconds \033[0m\n"
+                f"\033[1;91m Time step \033[1;92m (time_step) \033[1;91m not provided. Setting time step to \033[1;92m {time_step} seconds \033[0m\n"
             )
 
     # Validate ra_range
@@ -594,21 +601,21 @@ def get_exposure_maps(
         verbose=verbose,
     )
 
-    # Validate t_integrate
-    if t_integrate is None:
-        # If t_integrate is not provided, set it to the timedelta of the provided time_range
-        t_integrate = (time_range[1] - time_range[0]).total_seconds()
+    # Validate time_integrate
+    if time_integrate is None:
+        # If time_integrate is not provided, set it to the timedelta of the provided time_range
+        time_integrate = (time_range[1] - time_range[0]).total_seconds()
         if verbose:
             print(
-                f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
+                f"\033[1;91m Integration time \033[1;92m (time_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {time_integrate} seconds \033[0m\n"
             )
     else:
-        t_integrate_validated = validate_input("t_integrate", t_integrate)
-        if not t_integrate_validated:
-            t_integrate = (time_range[1] - time_range[0]).total_seconds()
+        time_integrate_validated = validate_input("time_integrate", time_integrate)
+        if not time_integrate_validated:
+            time_integrate = (time_range[1] - time_range[0]).total_seconds()
             if verbose:
                 print(
-                    f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
+                    f"\033[1;91m Integration time \033[1;92m (time_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {time_integrate} seconds \033[0m\n"
                 )
 
     # TODO: REMOVE ME once we start using real ephemeris data
@@ -651,11 +658,11 @@ def get_exposure_maps(
         dec_stop = dec_range[1]
         ra_res = ra_res
         dec_res = dec_res
-        t_integrate = int(t_integrate)
+        time_integrate = int(time_integrate)
         exposure_maps_file_name = (
             f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
             f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
-            f"{dec_res}_Tint_{t_integrate}.npy"
+            f"{dec_res}_Tint_{time_integrate}.npy"
         )
         # Read the exposure map from the pickle file
         exposure_maps_dict = pickle.load(open(exposure_maps_file_name, "rb"))
@@ -668,9 +675,9 @@ def get_exposure_maps(
     except FileNotFoundError:
         print("Exposure map not found, computing now. This may take a while \n")
 
-        # Slice to relevant time range; make groups of rows spanning t_integration
+        # Slice to relevant time range; make groups of rows spanning time_integratetion
         integ_groups = spc_df[time_range[0] : time_range[1]].resample(
-            pd.Timedelta(t_integrate, unit="s"), origin="start"
+            pd.Timedelta(time_integrate, unit="s"), origin="start"
         )
         # Get the min and max times of each group
         start_time_arr = []
@@ -705,46 +712,51 @@ def get_exposure_maps(
                 )
                 r = np.sqrt(ra_diff**2 + dec_diff**2)
                 # Make an exposure delta for this span
-                exposure_delt = np.where((r < LEXI_FOV * 0.5), vignette(r) * t_step, 0)
+                exposure_delt = np.where(
+                    (r < LEXI_FOV * 0.5), vignette(r) * time_step, 0
+                )
                 # Add the delta to the full map
                 exposure_maps[map_idx] += exposure_delt
-            print(
-                f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
-                end="\r",
-            )
+                print(
+                    f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
+                    end="\r",
+                )
+        t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
+        t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
+        ra_start = ra_range[0]
+        ra_stop = ra_range[1]
+        dec_start = dec_range[0]
+        dec_stop = dec_range[1]
+        ra_res = ra_res
+        dec_res = dec_res
+        time_integrate = int(time_integrate)
+
+        # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
+        # ra_range, and dec_range, ra_res, and dec_res
+        exposure_maps_dict = {
+            "exposure_maps": exposure_maps,
+            "ra_arr": ra_arr,
+            "dec_arr": dec_arr,
+            "time_range": time_range,
+            "time_integrate": time_integrate,
+            "ra_range": ra_range,
+            "dec_range": dec_range,
+            "ra_res": ra_res,
+            "dec_res": dec_res,
+            "start_time_arr": start_time_arr,
+            "stop_time_arr": stop_time_arr,
+        }
         if save_exposure_map_file:
             # Define the folder to save the exposure maps to
             save_folder = Path.cwd() / "data/exposure_maps"
             Path(save_folder).mkdir(parents=True, exist_ok=True)
-            t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
-            t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
-            ra_start = ra_range[0]
-            ra_stop = ra_range[1]
-            dec_start = dec_range[0]
-            dec_stop = dec_range[1]
-            ra_res = ra_res
-            dec_res = dec_res
-            t_integrate = int(t_integrate)
+
             exposure_maps_file_name = (
                 f"{save_folder}/lexi_exposure_map_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
                 f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
-                f"{dec_res}_Tint_{t_integrate}.npy"
+                f"{dec_res}_Tint_{time_integrate}.npy"
             )
-            # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and t_integrate,
-            # ra_range, and dec_range, ra_res, and dec_res
-            exposure_maps_dict = {
-                "exposure_maps": exposure_maps,
-                "ra_arr": ra_arr,
-                "dec_arr": dec_arr,
-                "time_range": time_range,
-                "t_integrate": t_integrate,
-                "ra_range": ra_range,
-                "dec_range": dec_range,
-                "ra_res": ra_res,
-                "dec_res": dec_res,
-                "start_time_arr": start_time_arr,
-                "stop_time_arr": stop_time_arr,
-            }
+
             # Save the exposure map array to a pickle file
             with open(exposure_maps_file_name, "wb") as f:
                 pickle.dump(exposure_maps_dict, f)
@@ -782,10 +794,10 @@ def get_exposure_maps(
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                # save_path="figures/exposure_maps",
                 save_name="default",
                 dpi=300,
-                dark_mode=True,
+                dark_mode=False,
+                verbose=verbose,
             )
 
     return exposure_maps_dict
@@ -794,9 +806,9 @@ def get_exposure_maps(
 def get_sky_backgrounds(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
-    t_step=5,
-    t_integrate=None,
+    interp_method="linear",
+    time_step=5,
+    time_integrate=None,
     ra_range=[0, 360],
     dec_range=[-90, 90],
     ra_res=0.1,
@@ -829,9 +841,9 @@ def get_sky_backgrounds(
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
         documentation for more information. Default is 'linear'.
-    t_step : int or float, optional
+    time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
-    t_integrate : int or float, optional
+    time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
     ra_range : list, optional
@@ -867,7 +879,7 @@ def get_sky_backgrounds(
                 Declination array
             - time_range : list
                 Time range of the sky backgrounds
-            - t_integrate : int or float
+            - time_integrate : int or float
                 Integration time in seconds of the sky backgrounds
             - ra_range : list
                 Right ascension range of the sky backgrounds in degrees
@@ -888,12 +900,12 @@ def get_sky_backgrounds(
         time_range=time_range,
         time_zone=time_zone,
         interp_method=interp_method,
-        t_step=t_step,
+        time_step=time_step,
         ra_range=ra_range,
         dec_range=dec_range,
         ra_res=ra_res,
         dec_res=dec_res,
-        t_integrate=t_integrate,
+        time_integrate=time_integrate,
         save_exposure_map_file=save_exposure_map_file,
         save_exposure_map_image=save_exposure_map_image,
         verbose=verbose,
@@ -912,14 +924,14 @@ def get_sky_backgrounds(
         dec_stop = exposure_maps_dict["dec_range"][1]
         ra_res = exposure_maps_dict["ra_res"]
         dec_res = exposure_maps_dict["dec_res"]
-        t_integrate = int(exposure_maps_dict["t_integrate"])
+        time_integrate = int(exposure_maps_dict["time_integrate"])
         start_time_arr = exposure_maps_dict["start_time_arr"]
         stop_time_arr = exposure_maps_dict["stop_time_arr"]
 
         sky_backgrounds_file_name = (
             f"{save_folder}/lexi_sky_background_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
             f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
-            f"{dec_res}_Tint_{t_integrate}.npy"
+            f"{dec_res}_Tint_{time_integrate}.npy"
         )
         # Read the sky background from the pickle file
         sky_backgrounds_dict = pickle.load(open(sky_backgrounds_file_name, "rb"))
@@ -972,13 +984,13 @@ def get_sky_backgrounds(
         )
 
         # Make a dictionary to store the sky backgrounds, ra_arr, and dec_arr, time_range, and
-        # t_integrate, ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
+        # time_integrate, ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
         sky_backgrounds_dict = {
             "sky_backgrounds": sky_backgrounds,
             "ra_arr": exposure_maps_dict["ra_arr"],
             "dec_arr": exposure_maps_dict["dec_arr"],
             "time_range": time_range,
-            "t_integrate": t_integrate,
+            "time_integrate": time_integrate,
             "ra_range": ra_range,
             "dec_range": dec_range,
             "ra_res": ra_res,
@@ -998,11 +1010,11 @@ def get_sky_backgrounds(
             dec_stop = exposure_maps_dict["dec_range"][1]
             ra_res = exposure_maps_dict["ra_res"]
             dec_res = exposure_maps_dict["dec_res"]
-            t_integrate = int(exposure_maps_dict["t_integrate"])
+            time_integrate = int(exposure_maps_dict["time_integrate"])
             sky_backgrounds_file_name = (
                 f"{save_folder}/lexi_sky_background_Tstart_{t_start}_Tstop_{t_stop}_RAstart_{ra_start}"
                 f"_RAstop_{ra_stop}_RAres_{ra_res}_DECstart_{dec_start}_DECstop_{dec_stop}_DECres_"
-                f"{dec_res}_Tint_{t_integrate}.npy"
+                f"{dec_res}_Tint_{time_integrate}.npy"
             )
             # Save the sky background array to a pickle file
             with open(sky_backgrounds_file_name, "wb") as f:
@@ -1011,7 +1023,7 @@ def get_sky_backgrounds(
                 sky_backgrounds_file_dir = Path(sky_backgrounds_file_name).parent
                 sky_backgrounds_file_name = Path(sky_backgrounds_file_name).name
                 print(
-                    f"Sky background saved to file: \033[92m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
+                    f"Sky background saved to file: \033[1;94m {sky_backgrounds_file_dir}/\033[1;92m{sky_backgrounds_file_name} \033[0m\n"
                 )
 
     # If requested, save the sky background as an image
@@ -1025,6 +1037,7 @@ def get_sky_backgrounds(
                 start_time=sky_backgrounds_dict["start_time_arr"][i],
                 stop_time=sky_backgrounds_dict["stop_time_arr"][i],
                 cmap="viridis",
+                cmin=0.1,
                 norm=None,
                 norm_type="linear",
                 aspect="auto",
@@ -1038,10 +1051,10 @@ def get_sky_backgrounds(
                 figure_format="png",
                 figure_font_size=12,
                 save=True,
-                # save_path="figures/sky_background",
                 save_name="default",
                 dpi=300,
-                dark_mode=True,
+                dark_mode=False,
+                verbose=verbose,
             )
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
     # if np.shape(sky_backgrounds)[0] == 1:
@@ -1052,13 +1065,13 @@ def get_sky_backgrounds(
 def get_lexi_images(
     time_range=None,
     time_zone="UTC",
-    interp_method=None,
-    t_step=5,
-    t_integrate=None,
+    interp_method="linear",
+    time_step=5,
     ra_range=[0, 360],
     dec_range=[-90, 90],
     ra_res=0.1,
     dec_res=0.1,
+    time_integrate=None,
     background_correction_on=True,
     save_exposure_map_file=False,
     save_exposure_map_image=False,
@@ -1089,9 +1102,9 @@ def get_lexi_images(
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
         documentation for more information. Default is 'linear'.
-    t_step : int or float, optional
+    time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
-    t_integrate : int or float, optional
+    time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
     ra_range : list, optional
@@ -1131,7 +1144,7 @@ def get_lexi_images(
                 Declination array
             - time_range : list
                 Time range of the LEXI images
-            - t_integrate : int or float
+            - time_integrate : int or float
                 Integration time in seconds of the LEXI images
             - ra_range : list
                 Right ascension range of the LEXI images in degrees
@@ -1173,13 +1186,13 @@ def get_lexi_images(
                 f"\033[1;91m Interpolation method \033[1;92m (interp_method) \033[1;91m not provided. Setting interpolation method to \033[1;92m {interp_method} \033[0m\n"
             )
 
-    _ = validate_input("t_step", t_step)
-    t_integrate_validated = validate_input("t_integrate", t_integrate)
-    if not t_integrate_validated:
-        t_integrate = (time_range[1] - time_range[0]).total_seconds()
+    _ = validate_input("time_step", time_step)
+    time_integrate_validated = validate_input("time_integrate", time_integrate)
+    if not time_integrate_validated:
+        time_integrate = (time_range[1] - time_range[0]).total_seconds()
         if verbose:
             print(
-                f"\033[1;91m Integration time \033[1;92m (t_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {t_integrate} seconds \033[0m\n"
+                f"\033[1;91m Integration time \033[1;92m (time_integrate) \033[1;91m not provided. Setting integration time to the time span of the spacecraft ephemeris data: \033[1;92m {time_integrate} seconds \033[0m\n"
             )
     ra_range_validated = validate_input("ra_range", ra_range)
     dec_range_validated = validate_input("dec_range", dec_range)
@@ -1252,7 +1265,7 @@ def get_lexi_images(
             )
 
     # Insert one row per integration window with NaN data.
-    # This ensures that even if there are periods in the data longer than t_integrate
+    # This ensures that even if there are periods in the data longer than time_integrate
     # in which "nothing happens", this function will still return the appropriate
     # number of lexi images, some of which empty.
     # (Besides it being more correct to return also the empty lexi images, this is
@@ -1260,24 +1273,31 @@ def get_lexi_images(
     integration_filler_idcs = pd.date_range(
         time_range[0],
         time_range[1],
-        freq=pd.Timedelta(t_integrate, unit="s"),
+        freq=pd.Timedelta(time_integrate, unit="s"),
     )
     photons = photons.reindex(
         index=np.union1d(integration_filler_idcs, photons.index), method=None
     )
 
-    # Slice to relevant time range; make groups of rows spanning t_integration
+    # Slice to relevant time range; make groups of rows spanning time_integratetion
     integ_groups = photons[time_range[0] : time_range[1]].resample(
-        pd.Timedelta(t_integrate, unit="s"), origin="start"
+        pd.Timedelta(time_integrate, unit="s"), origin="start"
     )
 
     start_time_arr = []
     stop_time_arr = []
     for _, group in integ_groups:
-        start_time_arr.append(group.index.min())
-        stop_time_arr.append(group.index.max())
+        start_time_val = group.index.min()
+        stop_time_val = group.index.max()
+        # If start and stop times are the same, then skip this group
+        if start_time_val == stop_time_val:
+            continue
+        else:
+            start_time_arr.append(group.index.min())
+            stop_time_arr.append(group.index.max())
+
     # Make as many empty lexi histograms as there are integration groups
-    histograms = np.zeros((len(integ_groups) - 1, len(ra_arr), len(dec_arr)))
+    histograms = np.zeros((len(start_time_arr), len(ra_arr), len(dec_arr)))
 
     for hist_idx, (_, group) in enumerate(integ_groups):
         # Loop through each photon strike and add it to the map
@@ -1287,10 +1307,10 @@ def get_lexi_images(
                     np.where(ra_arr % 360 >= row.ra_J2000_deg % 360, 1, np.nan)
                 )
                 dec_idx = np.nanargmin(
-                    np.where(dec_arr % 360 >= row.dec_J2000_deg % 360, 1, np.nan)
+                    np.where(dec_arr % 90 >= row.dec_J2000_deg % 90, 1, np.nan)
                 )
                 histograms[hist_idx][ra_idx][dec_idx] += 1
-            except ValueError:
+            except Exception:
                 # photon was out of bounds on one or both axes,
                 # or the row was an integration filler
                 pass
@@ -1302,8 +1322,8 @@ def get_lexi_images(
             time_range=time_range,
             time_zone=time_zone,
             interp_method=interp_method,
-            t_step=t_step,
-            t_integrate=t_integrate,
+            time_step=time_step,
+            time_integrate=time_integrate,
             ra_range=ra_range,
             dec_range=dec_range,
             ra_res=ra_res,
@@ -1315,17 +1335,16 @@ def get_lexi_images(
             verbose=verbose,
         )
         sky_backgrounds = sky_backgrounds_dict["sky_backgrounds"]
-
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
-    # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and t_integrate,
+    # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
     # ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
     lexi_images_dict = {
         "lexi_images": histograms,
         "ra_arr": ra_arr,
         "dec_arr": dec_arr,
         "time_range": time_range,
-        "t_integrate": t_integrate,
+        "time_integrate": time_integrate,
         "ra_range": ra_range,
         "dec_range": dec_range,
         "ra_res": ra_res,
@@ -1402,7 +1421,7 @@ def array_to_image(
     save_path: str = None,
     save_name: str = None,
     dpi: int = 300,
-    dark_mode: bool = True,
+    dark_mode: bool = False,
     verbose: bool = False,
 ):
     """
@@ -1567,6 +1586,7 @@ def array_to_image(
         ],
         origin="lower",
         aspect=aspect,
+        interpolation=None,
     )
 
     # Turn on the grid
@@ -1668,7 +1688,7 @@ def array_to_image(
         )
         if verbose:
             print(
-                f"Saved figure to \033[1;94m {save_path}/\033[1;92m{save_name} \033[0m \n"
+                f"Saved figure to ==> \033[1;94m {save_path}/\033[1;92m{save_name} \033[0m \n"
             )
 
     if display:
