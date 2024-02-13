@@ -205,11 +205,11 @@ def validate_input(key, value):
 
 
 def get_spc_prams(
-    time_range=None,
-    time_zone="UTC",
-    time_step=5,
-    interp_method="linear",
-    verbose=True,
+    time_range: list = None,
+    time_zone: str = "UTC",
+    time_step: float = 5,
+    interp_method: str = "linear",
+    verbose: bool = True,
 ):
     """
     Function to get spacecraft ephemeris data
@@ -461,7 +461,7 @@ def get_spc_prams(
     return dfinterp
 
 
-def vignette(d):
+def vignette(d: float = 0.0):
     """
     Function to calculate the vignetting factor for a given distance from boresight
 
@@ -484,18 +484,18 @@ def vignette(d):
 
 
 def get_exposure_maps(
-    time_range=None,
-    time_zone="UTC",
-    interp_method="linear",
-    time_step=5,
-    ra_range=[0, 360],
-    dec_range=[-90, 90],
-    ra_res=0.1,
-    dec_res=0.1,
-    time_integrate=None,
-    save_exposure_map_file=False,
-    save_exposure_map_image=False,
-    verbose=True,
+    time_range: list = None,
+    time_zone: str = "UTC",
+    interp_method: str = "linear",
+    time_step: float = 5,
+    ra_range: list = [0, 360],
+    dec_range: list = [-90, 90],
+    ra_res: float = 0.1,
+    dec_res: float = 0.1,
+    time_integrate: float = None,
+    save_exposure_map_file: bool = False,
+    save_exposure_map_image: bool = False,
+    verbose: bool = True,
 ):
     """
     Function to get exposure maps
@@ -779,6 +779,9 @@ def get_exposure_maps(
                 y_range=dec_range,
                 start_time=exposure_maps_dict["start_time_arr"][i],
                 stop_time=exposure_maps_dict["stop_time_arr"][i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=exposure_maps_dict["time_integrate"],
                 cmap="jet",
                 cmin=0.1,
                 norm=None,
@@ -804,20 +807,20 @@ def get_exposure_maps(
 
 
 def get_sky_backgrounds(
-    time_range=None,
-    time_zone="UTC",
-    interp_method="linear",
-    time_step=5,
-    time_integrate=None,
-    ra_range=[0, 360],
-    dec_range=[-90, 90],
-    ra_res=0.1,
-    dec_res=0.1,
-    save_exposure_map_file=False,
-    save_exposure_map_image=False,
-    save_sky_backgrounds_file=False,
-    save_sky_backgrounds_image=False,
-    verbose=True,
+    time_range: list = None,
+    time_zone: str = "UTC",
+    interp_method: str = "linear",
+    time_step: float = 5,
+    time_integrate: float = None,
+    ra_range: list = [0, 360],
+    dec_range: list = [-90, 90],
+    ra_res: float = 0.1,
+    dec_res: float = 0.1,
+    save_exposure_map_file: bool = False,
+    save_exposure_map_image: bool = False,
+    save_sky_backgrounds_file: bool = False,
+    save_sky_backgrounds_image: bool = False,
+    verbose: bool = True,
 ):
     """
     Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
@@ -1036,6 +1039,9 @@ def get_sky_backgrounds(
                 y_range=dec_range,
                 start_time=sky_backgrounds_dict["start_time_arr"][i],
                 stop_time=sky_backgrounds_dict["stop_time_arr"][i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=sky_backgrounds_dict["time_integrate"],
                 cmap="viridis",
                 cmin=0.1,
                 norm=None,
@@ -1063,22 +1069,22 @@ def get_sky_backgrounds(
 
 
 def get_lexi_images(
-    time_range=None,
-    time_zone="UTC",
-    interp_method="linear",
-    time_step=5,
-    ra_range=[0, 360],
-    dec_range=[-90, 90],
-    ra_res=0.1,
-    dec_res=0.1,
-    time_integrate=None,
-    background_correction_on=True,
-    save_exposure_map_file=False,
-    save_exposure_map_image=False,
-    save_sky_backgrounds_file=False,
-    save_sky_backgrounds_image=False,
-    save_lexi_images=False,
-    verbose=True,
+    time_range: list = None,
+    time_zone: str = "UTC",
+    interp_method: str = "linear",
+    time_step: float = 5,
+    ra_range: list = [0, 360],
+    dec_range: list = [-90, 90],
+    ra_res: float = 0.1,
+    dec_res: float = 0.1,
+    time_integrate: float = None,
+    background_correction_on: bool = True,
+    save_exposure_map_file: bool = False,
+    save_exposure_map_image: bool = False,
+    save_sky_backgrounds_file: bool = False,
+    save_sky_backgrounds_image: bool = False,
+    save_lexi_images: bool = False,
+    verbose: bool = True,
 ):
     """
     Function to get LEXI images for a given time range and RA/DEC range and resolution using
@@ -1209,7 +1215,19 @@ def get_lexi_images(
     # Read the LEXI data
     photons_cdf = CDF(lexi_data)
 
-    key_list = photons_cdf.cdf_info().zVariables
+    # Try to get the keys from the CDF file using either of the following methods
+    try:
+        key_list = photons_cdf.cdf_info().zVariables
+        if verbose:
+            print(
+                "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+            )
+    except Exception:
+        key_list = photons_cdf.cdf_info()["zVariables"]
+        if verbose:
+            print(
+                "Getting the keys from the CDF file using the \033[1;92m [zVariables] \033[0m method"
+            )
 
     photons_data = {}
     for key in key_list:
@@ -1363,6 +1381,9 @@ def get_lexi_images(
                 y_range=dec_range,
                 start_time=start_time_arr[i],
                 stop_time=stop_time_arr[i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=lexi_images_dict["time_integrate"],
                 cmap="viridis",
                 cmin=1,
                 v_min=None,
@@ -1401,6 +1422,9 @@ def array_to_image(
     y_range: list = None,
     start_time: pd.Timestamp = None,
     stop_time: pd.Timestamp = None,
+    ra_res: float = None,
+    dec_res: float = None,
+    time_integrate: float = None,
     cmap: str = "viridis",
     cmin: float = None,
     v_min: float = None,
@@ -1429,6 +1453,12 @@ def array_to_image(
 
     Parameters
     ----------
+    ra_res : float, optional
+        Right ascension resolution in degrees. Default is None.
+    dec_res : float, optional
+        Declination resolution in degrees. Default is None.
+    time_integrate : int or float, optional
+        Integration time in seconds. Default is None.
     input_array : np.ndarray
         2D array to convert to an image.
     x_range : list, optional
@@ -1676,7 +1706,9 @@ def array_to_image(
             start_time_str = start_time.strftime("%Y%m%d_%H%M%S")
             stop_time_str = stop_time.strftime("%Y%m%d_%H%M%S")
             save_name = (
-                f"{key.split('/')[0]}_Tstart_{start_time_str}_Tstop_{stop_time_str}"
+                f"{key.split('/')[0]}_Tstart_{start_time_str}_Tstop_{stop_time_str}_RAstart_{x_range[0]}"
+                f"_RAstop_{x_range[1]}_RAres_{ra_res}_DECstart_{y_range[0]}_DECstop_{y_range[1]}_DECres_"
+                f"{dec_res}_Tint_{time_integrate}"
             )
 
         save_name = save_name + "." + figure_format
