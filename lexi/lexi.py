@@ -461,7 +461,7 @@ def get_spc_prams(
     return dfinterp
 
 
-def vignette(d: float):
+def vignette(d: float = 0.0):
     """
     Function to calculate the vignetting factor for a given distance from boresight
 
@@ -779,6 +779,9 @@ def get_exposure_maps(
                 y_range=dec_range,
                 start_time=exposure_maps_dict["start_time_arr"][i],
                 stop_time=exposure_maps_dict["stop_time_arr"][i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=exposure_maps_dict["time_integrate"],
                 cmap="jet",
                 cmin=0.1,
                 norm=None,
@@ -1036,6 +1039,9 @@ def get_sky_backgrounds(
                 y_range=dec_range,
                 start_time=sky_backgrounds_dict["start_time_arr"][i],
                 stop_time=sky_backgrounds_dict["stop_time_arr"][i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=sky_backgrounds_dict["time_integrate"],
                 cmap="viridis",
                 cmin=0.1,
                 norm=None,
@@ -1209,7 +1215,19 @@ def get_lexi_images(
     # Read the LEXI data
     photons_cdf = CDF(lexi_data)
 
-    key_list = photons_cdf.cdf_info().zVariables
+    # Try to get the keys from the CDF file using either of the following methods
+    try:
+        key_list = photons_cdf.cdf_info().zVariables
+        if verbose:
+            print(
+                "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+            )
+    except Exception:
+        key_list = photons_cdf.cdf_info()["zVariables"]
+        if verbose:
+            print(
+                "Getting the keys from the CDF file using the \033[1;92m [zVariables] \033[0m method"
+            )
 
     photons_data = {}
     for key in key_list:
@@ -1357,15 +1375,15 @@ def get_lexi_images(
     if save_lexi_images:
         for i, histogram in enumerate(lexi_images_dict["lexi_images"]):
             array_to_image(
-                ra_res=ra_res,
-                dec_res=dec_res,
-                time_integrate=time_integrate,
                 input_array=histogram,
                 key=f"lexi_images/background_corrected_{background_correction_on}",
                 x_range=ra_range,
                 y_range=dec_range,
                 start_time=start_time_arr[i],
                 stop_time=stop_time_arr[i],
+                ra_res=ra_res,
+                dec_res=dec_res,
+                time_integrate=lexi_images_dict["time_integrate"],
                 cmap="viridis",
                 cmin=1,
                 v_min=None,
@@ -1398,15 +1416,15 @@ def get_lexi_images(
 
 
 def array_to_image(
-    ra_res: float = None,
-    dec_res: float = None,
-    time_integrate: float = None,
     input_array: np.ndarray = None,
     key: str = None,
     x_range: list = None,
     y_range: list = None,
     start_time: pd.Timestamp = None,
     stop_time: pd.Timestamp = None,
+    ra_res: float = None,
+    dec_res: float = None,
+    time_integrate: float = None,
     cmap: str = "viridis",
     cmin: float = None,
     v_min: float = None,
@@ -1689,8 +1707,8 @@ def array_to_image(
             stop_time_str = stop_time.strftime("%Y%m%d_%H%M%S")
             save_name = (
                 f"{key.split('/')[0]}_Tstart_{start_time_str}_Tstop_{stop_time_str}_RAstart_{x_range[0]}"
-            f"_RAstop_{x_range[1]}_RAres_{ra_res}_DECstart_{y_range[0]}_DECstop_{y_range[1]}_DECres_"
-            f"{dec_res}_Tint_{time_integrate}"
+                f"_RAstop_{x_range[1]}_RAres_{ra_res}_DECstart_{y_range[0]}_DECstop_{y_range[1]}_DECres_"
+                f"{dec_res}_Tint_{time_integrate}"
             )
 
         save_name = save_name + "." + figure_format

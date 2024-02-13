@@ -7,7 +7,7 @@ importlib.reload(lexi)
 input_params = {
     "time_range": ["2024-07-08T21:43:41", "2024-07-08T21:47:41"],
     "time_zone": "UTC",
-    "time_integrate": 120,
+    # "time_integrate": 120,
     # "time_step": "5",
     "ra_res": 2,
     "dec_res": 5,
