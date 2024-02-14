@@ -9,7 +9,7 @@ from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
-from . import __version__, __doc__
+from lexi import __version__, __doc__
 
 # Add the docstring to the package
 __doc__ = __doc__
