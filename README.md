@@ -1,7 +1,9 @@
 # lexi
 Main repository for all data analysis related to LEXI
 
-This document guides you through the installation of Lexi.
+# Installation Guide
+
+The next section of this document will guide you through the installation process of `lexi`.
 
 Though it is not necessary, we strongly recommend that you install Lexi in a virtual environment.
 This will prevent any conflicts with other Python packages you may have installed.
@@ -15,7 +17,8 @@ you need to install packages that might conflict with other packages you have in
 There are several ways to create a virtual environment. We recommend using `python3` to do so.
 
 For this exercise, we will assume that you have a directory called `Documents/lexi` where you will
-install Lexi and create your virtual environment.
+install Lexi and create your virtual environment. Please replace `Documents/lexi` with the actual
+path to the directory where you want to install Lexi and create your virtual environment.
 
 - cd into `Documents/lexi`
 
@@ -62,7 +65,8 @@ by following these steps:
 
 1. Download `lexi-version.tar.gz` directory from the following link: [Download LEXI Software](https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz)
 
-2. Copy the `lexi-version.tar.gz` file into `Documents/lexi`
+2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
+   to install Lexi in).
 
 3. Activate your virtual environment using the instructions above.
 
@@ -128,3 +132,52 @@ which should produce output similar to the following:
 '0.0.1'
 ```
 If that worked, congratulations! You have successfully installed Lexi.
+
+
+# Using LEXI Software
+
+NOTE: We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
+to demonstrate how to use `lexi` to analyze data from LEXI.
+
+## Using the Example Jupyter Notebook
+1. If you haven't already, download the example folder from the following link: [Download LEXI
+Examples](https://lexi-bu.github.io/software/examples.zip) and extract it to a directory of your
+choice. We will refer to this directory as `examples` for the rest of this document.
+
+2. Activate your virtual environment. If you haven't already created a virtual environment, please
+   refer to the [creating a virtual environment](#creating-a-virtual-environment) section for
+   instructions on how to do so. Remeember that you can activate your virtual environment by running
+   the following command:
+
+#### on Linux/MacOS:
+
+```bash
+    source lexi_venv/bin/activate
+```
+
+#### on Windows:
+
+```bash
+    .\lexi_venv\Scripts\activate.bat
+```
+
+3. `cd` into the `examples` directory and 
+
+4. If you haven't already, install Jupyter Notebook by running the following command:
+
+```bash
+    pip install jupyter
+```
+
+5. Open the Jupyter Notebook by running the following command:
+
+```bash
+    jupyter notebook lexi_tutorial.ipynb
+```
+
+6. This will open a new tab in your web browser and will look like the image below:
+
+![Jupyter Notebook](./images/lexi_notebook_screeenshot.png)
+
+7. You can now run the cells in the Jupyter Notebook to see how to use `lexi` to analyze data from
+   LEXI.
