@@ -286,16 +286,29 @@ def get_spc_prams(
     # Get the folder location of where the current file is located
     eph_file_path = (
         Path(__file__).resolve().parent
-        / ".lexi_data/sample_lexi_pointing_ephem_edited.csv"
+        / ".lexi_data/LEXI_RA_DEC_J2000_rad-data-2024-11-07 16_20_24.csv"
     )
     df = pd.read_csv(eph_file_path)
-    # Convert the epoch_utc column to a datetime object
-    df["epoch_utc"] = pd.to_datetime(df["epoch_utc"])
+    # Convert the time coloumn from UNIX timestamp to datetime object and set the timezone to UTC
+    df["epoch_utc"] = pd.to_datetime(df["Time"], unit="s")
+    df["epoch_utc"] = df["epoch_utc"].dt.tz_localize("UTC")
+
+    # Drop the Time column
+    df = df.drop(columns=["Time"])
     # Set the index to be the epoch_utc column and remove the epoch_utc column
     df = df.set_index("epoch_utc", inplace=False)
-    # Set the timezone to UTC
-    df = df.tz_localize("UTC")
 
+    # Rename the columns, so that they are called just "RA" and "DEC"
+    try:
+        for key in df.keys():
+            if "ra_" in key.lower():
+                df = df.rename(columns={key: "RA"})
+            if "dec_" in key.lower():
+                df = df.rename(columns={key: "DEC"})
+    except Exception as e:
+        print(e)
+
+    # If the ephemeris data do not span the time_range, send warning
     if df.index[0] > time_range[0] or df.index[-1] < time_range[1]:
         warnings.warn(
             "Ephemeris data do not cover the full time range requested."
@@ -622,8 +635,8 @@ def get_exposure_maps(
     # The sample ephemeris data uses column names "mp_ra" and "mp_dec" for look direction;
     # in the final lexi ephemeris files on CDAweb, this will be called just "RA" and "DEC".
     # Therefore...
-    spc_df["RA"] = spc_df.mp_ra
-    spc_df["DEC"] = spc_df.mp_dec
+    # spc_df["RA"] = spc_df.mp_ra
+    # spc_df["DEC"] = spc_df.mp_dec
     # (end of chunk that must be removed once we start using real ephemeris data)
 
     # Set up coordinate grid
