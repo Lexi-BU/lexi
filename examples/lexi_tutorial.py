@@ -38,7 +38,7 @@
 #     - `ra`: Right Ascension in degrees
 #     - `dec`: Declination in degrees
 #     - `roll`: Roll angle in degrees
-#     The interpolation is done internally on the ephemeris data using the `t_step` parameter. `t_step`
+#     The interpolation is done internally on the ephemeris data using the `time_step` parameter. `time_step`
 #     is the time step in seconds at which the user desires to have look-direction computed. The
 #     default value is set to 5 seconds and is sufficient for most of the cases. The user can change it
 #     to a different value if needed.
@@ -75,10 +75,10 @@
 #     `ra_res` and `dec_res` are provided, the function will use the number of bins computed from
 #     the resolution values. However, if either of them is not provided, the function will use the
 #     number of bins provided by the user.
-#     - `t_step`: time step in seconds at which the user desires to have look-direction computed.
+#     - `time_step`: time step in seconds at which the user desires to have look-direction computed.
 #     The default value is set to 5 seconds and is sufficient for most of the cases. The user can
 #     change it to a different value if needed.
-#     - `t_integrate`: the integration time in seconds. This the length of time for wwhich each
+#     - `time_integrate`: the integration time in seconds. This the length of time for wwhich each
 #     exposure map is computed. The default value is set to 600 seconds (10 minutes). If it is not
 #     provided by the user, the function will assume the time difference between the start and end
 #     time of the observation as the integration time. For example, if the provided `t_range` is
@@ -101,8 +101,8 @@
 #     - `ra_res`: `0.1`
 #     - `dec_res`: `0.1`
 #     - `nbins`: `[3600, 1800]`
-#     - `t_step`: `5`
-#     - `t_integrate`: `600`
+#     - `time_step`: `5`
+#     - `time_integrate`: `600`
 #     The function will save the exposure maps as
 #     `lexi_exposure_maps_Tstart_20200101_000000_Tstop_20200101_021000_RAstart_0_RAstop_360_Decstart_-90_Decstop_90_RAres_0.1_Decres_0.1_tint_600.npy`
 #     in the `data/exposure_maps/` folder and the PNG files in the `figures/exposure_maps/` folder.
@@ -110,7 +110,7 @@
 # The function returns the following:
 # - `exposure_maps`: a numpy array containing the exposure maps. The shape of the array is
 #     `(nbins_time, nbins_dec, nbins_ra)`. The `nbins_time` is the number of exposure maps computed
-#     for the given `t_range` and `t_integrate`. The `nbins_dec` and `nbins_ra` are the number of
+#     for the given `t_range` and `time_integrate`. The `nbins_dec` and `nbins_ra` are the number of
 #     bins computed for the given `dec_res` and `ra_res` respectively. The unit of the exposure maps
 #     is `seconds` for each bin in the array.
 # - `ra_arr`: a numpy array containing the RA values for the exposure maps. The shape of the array
@@ -154,10 +154,10 @@
 #     `ra_res` and `dec_res` are provided, the function will use the number of bins computed from
 #     the resolution values. However, if either of them is not provided, the function will use the
 #     number of bins provided by the user.
-#     - `t_step`: time step in seconds at which the user desires to have look-direction computed.
+#     - `time_step`: time step in seconds at which the user desires to have look-direction computed.
 #     The default value is set to 5 seconds and is sufficient for most of the cases. The user can
 #     change it to a different value if needed.
-#     - `t_integrate`: the integration time in seconds. This the length of time for wwhich each
+#     - `time_integrate`: the integration time in seconds. This the length of time for wwhich each
 #     exposure map is computed. The default value is set to 600 seconds (10 minutes). If it is not
 #     provided by the user, the function will assume the time difference between the start and end
 #     time of the observation as the integration time. For example, if the provided `t_range` is
@@ -173,7 +173,7 @@
 # The function returns the following:
 # - `sky_backgrounds`: a numpy array containing the sky backgrounds. The shape of the array is
 #     `(nbins_time, nbins_dec, nbins_ra)`. The `nbins_time` is the number of sky background images
-#     computed for the given `t_range` and `t_integrate`. The `nbins_dec` and `nbins_ra` are the
+#     computed for the given `t_range` and `time_integrate`. The `nbins_dec` and `nbins_ra` are the
 #     number of bins computed for the given `dec_res` and `ra_res` respectively. The unit of the sky
 #     backgrounds is `counts` for each bin in the array.
 # - `ra_arr`: a numpy array containing the RA values for the sky backgrounds. The shape of the
@@ -222,10 +222,10 @@
 #     `ra_res` and `dec_res` are provided, the function will use the number of bins computed from
 #     the resolution values. However, if either of them is not provided, the function will use the
 #     number of bins provided by the user.
-#     - `t_step`: time step in seconds at which the user desires to have look-direction computed.
+#     - `time_step`: time step in seconds at which the user desires to have look-direction computed.
 #     The default value is set to 5 seconds and is sufficient for most of the cases. The user can
 #     change it to a different value if needed.
-#     - `t_integrate`: the integration time in seconds. This the length of time for wwhich each
+#     - `time_integrate`: the integration time in seconds. This the length of time for wwhich each
 #     exposure map is computed. The default value is set to 600 seconds (10 minutes). If it is not
 #     provided by the user, the function will assume the time difference between the start and end
 #     time of the observation as the integration time. For example, if the provided `t_range` is
@@ -237,7 +237,7 @@
 # The function returns the following:
 # - `lexi_images`: a numpy array containing the x-ray images. The shape of the array is
 #     `(nbins_time, nbins_dec, nbins_ra)`. The `nbins_time` is the number of x-ray images
-#     computed for the given `t_range` and `t_integrate`. The `nbins_dec` and `nbins_ra` are the
+#     computed for the given `t_range` and `time_integrate`. The `nbins_dec` and `nbins_ra` are the
 #     number of bins computed for the given `dec_res` and `ra_res` respectively. The unit of the x-ray
 #     images is `counts` for each bin in the array.
 # - `ra_arr`: a numpy array containing the RA values for the x-ray images. The shape of the
