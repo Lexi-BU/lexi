@@ -270,7 +270,9 @@ def get_spc_prams(
                 time_range[0] = time_range[0].tz_localize("UTC")
                 time_range[1] = time_range[1].tz_localize("UTC")
                 if verbose:
-                    print("Timezone set to \033[1;92m UTC \033[0m \n")
+                    print(
+                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                    )
 
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
@@ -282,19 +284,21 @@ def get_spc_prams(
     if not interp_method_validated:
         interp_method = "linear"
 
-    # TODO: REMOVE ME once we start using real ephemeris data
+    # TODO: REMOVE ME once we start using real ephemeris data (start of chunk)
     # Get the folder location of where the current file is located
     eph_file_path = (
         Path(__file__).resolve().parent
-        / ".lexi_data/LEXI_RA_DEC_J2000_rad-data-2024-11-07 16_20_24.csv"
+        / ".lexi_data/20241114_LEXIAngleData_20250302Landing_rad.csv"
     )
     df = pd.read_csv(eph_file_path)
     # Convert the time coloumn from UNIX timestamp to datetime object and set the timezone to UTC
-    df["epoch_utc"] = pd.to_datetime(df["Time"], unit="s")
-    df["epoch_utc"] = df["epoch_utc"].dt.tz_localize("UTC")
+    df["epoch_utc"] = pd.to_datetime(df["epoch_utc"], unit="s")
+    # Check if the time_zone is UTC, if not then set it to UTC
+    if df["epoch_utc"].dt.tz is None:
+        df["epoch_utc"] = df["epoch_utc"].dt.tz_localize("UTC")
+        if verbose:
+            print("Timezone of ephemeris file set to \033[1;92m UTC \033[0m \n")
 
-    # Drop the Time column
-    df = df.drop(columns=["Time"])
     # Set the index to be the epoch_utc column and remove the epoch_utc column
     df = df.set_index("epoch_utc", inplace=False)
 
@@ -330,7 +334,7 @@ def get_spc_prams(
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
 
-    # (end of chunk that must be removed once we start using real ephemeris data)
+    # NOTE: (end of chunk that must be removed once we start using real ephemeris data)
 
     # Get the year, month, and day of the start and stop times
     start_time = time_range[0]
@@ -744,7 +748,7 @@ def get_exposure_maps(
         dec_res = dec_res
         time_integrate = int(time_integrate)
 
-        # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
+        # Define a dictionary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
         # ra_range, and dec_range, ra_res, and dec_res
         exposure_maps_dict = {
             "exposure_maps": exposure_maps,
