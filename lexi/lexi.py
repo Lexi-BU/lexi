@@ -207,96 +207,32 @@ def validate_input(key, value):
 
 
 def download_files_from_github(
-    file_name_list,
-    repo,
-    folder_path,
-    branch="main",
-    save_dir="downloaded_data",
-    verbose=False,
+    file_name_list, repo, folder_path, branch="main", save_dir="downloaded_data"
 ):
-    """
-    Function to download files from a GitHub repository. Eventually, this function will be removed
-    and we will be able to use the `get_lexi_data` function to download the files directly from the
-    CDAweb website. For now, we will use this function to download the files from the GitHub to be
-    used as a placeholder until we have the real data hosted on the appropriate website.
-
-    NOTE: In this function, we are using two folders to store and download the files. The first
-    folder contains the first 950 files, and the second folder contains the remaining files. The
-    reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
-    folder contains more than 1000 files, then the files are split into multiple folders. The folder
-    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hardcoded in the
-    function.
-
-    Parameters
-    ----------
-    file_name_list : list
-        List of file names to download
-    repo : str
-        Name of the GitHub repository
-    folder_path : str
-        Path to the folder in the GitHub repository
-    branch : str, optional
-        Name of the branch in the GitHub repository. Default is "main"
-    save_dir : str, optional
-        Directory to save the downloaded files. Default is "downloaded_data"
-    verbose : bool, optional
-        If True, print messages. Default is False
-
-    Returns
-    -------
-    local_file_list : list
-        List of local file paths
-
-    Raises
-    ------
-    ValueError
-        If the status code of the response is not 200
-    """
+    """ """
     # GitHub API URL for the folder
-    # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
-    # more than 1000 files, then the files are split into multiple folders. The first folder contains
-    # the first 950 files, and the second folder contains the remaining files. The folder names are
-    # as follows: files_0_to_950, files_950_to_1917
-    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}"
-    api_url_1 = api_url + "/files_0_to_950" + f"?ref={branch}"
-    api_url_2 = api_url + "/files_950_to_1917" + f"?ref={branch}"
+    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}?ref={branch}"
 
     # Fetch folder contents
-    response_1 = requests.get(api_url_1)
-    response_2 = requests.get(api_url_2)
-    if response_1.status_code != 200:
+    response = requests.get(api_url)
+    if response.status_code != 200:
         print(
-            f"Error: Unable to access {api_url} (Status code: {response_1.status_code})"
-        )
-        # return
-    if response_2.status_code != 200:
-        print(
-            f"Error: Unable to access {api_url} (Status code: {response_2.status_code})"
+            f"Error: Unable to access {api_url} (Status code: {response.status_code})"
         )
         return
 
     # Parse response JSON
-    files_1 = response_1.json()
-    files_2 = response_2.json()
-    files = files_1 + files_2
-    print(len(files))
+    files = response.json()
+
     # Ensure the save directory exists
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
     print(
         f"Downloading files from \033[95m{folder_path}\033[00m on branch \033[92m{branch}\033[00m:"
     )
-    print(f"A total of \033[1;92m{len(files)}\033[0m files found\n")
-    print(f"Files to download: \033[1;92m{len(file_name_list)}\033[0m\n")
     local_file_list = []
     for file in files:
         if file["name"] in file_name_list:
-            # Check if the file exists in the data directory, if it does then skip to the next file
-            if (Path(save_dir) / file["name"]).exists():
-                if verbose:
-                    print(f"File already exists ==> \033[92m{file['name']}\033[00m\n")
-                local_file_list.append(Path(save_dir) / file["name"])
-                continue
             # Construct the raw file URL
             raw_url = file["download_url"]
 
@@ -327,36 +263,6 @@ def get_lexi_data(
     time_zone: str = "UTC",
     verbose: bool = True,
 ):
-    """
-    Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
-    download the data from the GitHub repository. This function will be updated to download the data
-    from the CDAweb website once the data is available and hosted on the website.
-
-    Parameters
-    ----------
-    time_range : list
-        Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-
-    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
-
-    Note that endpoints are inclusive (the end time is a closed interval); this is because
-    the time range slicing is done with pandas, and label slicing in pandas is inclusive.
-
-    time_zone : str, optional
-        The timezone of the time range of interest. Default is "UTC"
-    verbose : bool, optional
-        If True, print messages. Default is True
-
-    Returns
-    -------
-    df : pandas DataFrame
-        LEXI data in a pandas DataFrame
-
-    """
 
     # Validate time_range
     time_range_validated = validate_input("time_range", time_range)
@@ -394,6 +300,7 @@ def get_lexi_data(
     lexi_file_list_name = (
         Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
     ).expanduser()
+    print(lexi_file_list_name)
     df = pd.read_csv(str(lexi_file_list_name))
 
     # Change the time column to datetime format
@@ -419,16 +326,16 @@ def get_lexi_data(
         # Try to get the data from the cdf file using either of the following methods
         try:
             key_list = cdf_file.cdf_info().zVariables
-            # if verbose:
-            #     print(
-            #         "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
-            #     )
+            if verbose:
+                print(
+                    "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+                )
         except Exception:
             key_list = cdf_file.cdf_info()["zVariables"]
-            # if verbose:
-            #     print(
-            #         "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
-            #     )
+            if verbose:
+                print(
+                    "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
+                )
 
         # Create a dictionary to store the data
         lexi_data_dict = {}
@@ -1560,7 +1467,6 @@ def get_lexi_images(
     # Download and read the LEXI data in a pandas dataframe
     # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
     # database.
-    print(time_range)
     photons = get_lexi_data(time_range=time_range, verbose=verbose)
     print(photons)
     # Check if the photons dataframe has duplicate indices
