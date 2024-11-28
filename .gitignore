@@ -165,7 +165,9 @@ cython_debug/
 # Ignore the local_data directory
 local_data/
 lexi/.DS_Store
+data/
 
 # Ignore the ~.lock files
 *.lock
 *.~lock*
+

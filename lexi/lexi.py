@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pytz
 import pickle
+import requests
 import urllib.request
 from pathlib import Path
 from cdflib import CDF
@@ -202,6 +203,167 @@ def validate_input(key, value):
             raise ValueError("save_lexi_images must be a boolean")
 
     return True
+
+
+def download_files_from_github(
+    file_name_list, repo, folder_path, branch="main", save_dir="downloaded_data"
+):
+    """ """
+    # GitHub API URL for the folder
+    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}?ref={branch}"
+
+    # Fetch folder contents
+    response = requests.get(api_url)
+    if response.status_code != 200:
+        print(
+            f"Error: Unable to access {api_url} (Status code: {response.status_code})"
+        )
+        return
+
+    # Parse response JSON
+    files = response.json()
+
+    # Ensure the save directory exists
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+
+    print(
+        f"Downloading files from \033[95m{folder_path}\033[00m on branch \033[92m{branch}\033[00m:"
+    )
+    local_file_list = []
+    for file in files:
+        if file["name"] in file_name_list:
+            # Construct the raw file URL
+            raw_url = file["download_url"]
+
+            # Download the file
+            print(f"Downloading \033[96m{file['name']}\033[00m...\n")
+            file_response = requests.get(raw_url, stream=True)
+            if file_response.status_code == 200:
+                local_path = Path(save_dir) / file["name"]
+                with open(local_path, "wb") as f:
+                    for chunk in file_response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                print(
+                    f"Saved \033[96m{file['name']}\033[00m to \033[92m{local_path}\033[00m\n"
+                )
+                local_file_list.append(local_path)
+            else:
+                print(
+                    f"Failed to download \033[91m{file['name']}\033[00m (Status code: {file_response.status_code})"
+                )
+        else:
+            # print(f"Skipping {file["name"]} (not in file_name_list)")
+            pass
+    return local_file_list
+
+
+def get_lexi_data(
+    time_range: list = None,
+    time_zone: str = "UTC",
+    verbose: bool = True,
+):
+
+    # Validate time_range
+    time_range_validated = validate_input("time_range", time_range)
+
+    if time_range_validated:
+        # If time_range elements are strings, convert them to datetime objects
+        if isinstance(time_range[0], str):
+            time_range[0] = pd.to_datetime(time_range[0])
+        if isinstance(time_range[1], str):
+            time_range[1] = pd.to_datetime(time_range[1])
+        # Validate time_zone, if it is not valid, set it to UTC
+        if time_zone is not None:
+            time_zone_validated = validate_input("time_zone", time_zone)
+            if time_zone_validated:
+                # Check if time_range elements are timezone aware
+                if time_range[0].tzinfo is None:
+                    # Set the timezone to the time_range
+                    time_range[0] = time_range[0].tz_localize(time_zone)
+                    time_range[1] = time_range[1].tz_localize(time_zone)
+                elif time_range[0].tzinfo != time_zone:
+                    # Convert the timezone to the time_range
+                    time_range[0] = time_range[0].tz_convert(time_zone)
+                    time_range[1] = time_range[1].tz_convert(time_zone)
+                if verbose:
+                    print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
+            else:
+                time_range[0] = time_range[0].tz_localize("UTC")
+                time_range[1] = time_range[1].tz_localize("UTC")
+                if verbose:
+                    print(
+                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                    )
+
+    # Read the file_list data
+    lexi_file_list_name = (
+        Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
+    ).expanduser()
+    print(lexi_file_list_name)
+    df = pd.read_csv(str(lexi_file_list_name))
+
+    # Change the time column to datetime format
+    df["epoch_utc"] = pd.to_datetime(df["epoch_utc"], unit="s", utc=True)
+    # Set the index to the epoch_utc column
+    df.set_index("epoch_utc", inplace=True)
+
+    # Get the file name list based on the start and end time
+    file_name_list = df.loc[time_range[0] : time_range[1], "file_name"].tolist()
+
+    repo_name = "Lexi-BU/lexi_data_analysis"
+    folder_path = "data/level_1c/cdf/1.0.0"
+    branch_name = "stable"
+    local_file_list = download_files_from_github(
+        file_name_list, repo_name, folder_path, branch_name
+    )
+
+    # For each file in the local_file_list, read the cdf file and save it to a dictionary
+    lexi_data_dict_list = []
+    for file in local_file_list:
+        # Read the cdf file
+        cdf_file = CDF(file)
+        # Try to get the data from the cdf file using either of the following methods
+        try:
+            key_list = cdf_file.cdf_info().zVariables
+            if verbose:
+                print(
+                    "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+                )
+        except Exception:
+            key_list = cdf_file.cdf_info()["zVariables"]
+            if verbose:
+                print(
+                    "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
+                )
+
+        # Create a dictionary to store the data
+        lexi_data_dict = {}
+        for key in key_list:
+            lexi_data_dict[key] = cdf_file.varget(key)
+
+        # Add the dictionary to the list of dictionaries
+        lexi_data_dict_list.append(lexi_data_dict)
+
+    # Loop through the list of dictionaries and save the data to a single dictionary
+    lexi_data_dict = {}
+    for key in lexi_data_dict_list[0].keys():
+        lexi_data_dict[key] = np.concatenate(
+            [d[key] for d in lexi_data_dict_list], axis=0
+        )
+
+    # Convert the dictionary to a pandas DataFrame
+    df = pd.DataFrame(lexi_data_dict)
+
+    # Convert the Epoch_utc column to a datetime object
+    df["Epoch_utc"] = pd.to_datetime(df["Epoch_unix"], unit="s", utc=True)
+
+    # Drop the Epoch column
+    df = df.drop(columns=["Epoch"])
+
+    # Set the index to the Epoch column
+    df = df.set_index("Epoch_utc", inplace=False)
+
+    return df
 
 
 def get_spc_prams(
@@ -965,7 +1127,7 @@ def get_sky_backgrounds(
         print("Sky background not found, computing now. This may take a while \n")
 
         # Get ROSAT background
-        # Ultimately KKip is supposed to provide this file and we will have it saved somewhere static.
+        # NOTE: Ultimately KKip is supposed to provide this file and we will have it saved somewhere static.
         # For now, this is Cadin's sample xray data:
         rosat_data = (
             Path(__file__).resolve().parent / ".lexi_data/sample_xray_background.csv"
@@ -1228,45 +1390,12 @@ def get_lexi_images(
     # function called `data_dir` or something similar. This function will be implemented in the future.
     # For now, try reading in sample CDF file
     # Get the location of the LEXI data
-    lexi_data = Path(__file__).resolve().parent / ".lexi_data/PIT_shifted_jul08.cdf"
-    # Read the LEXI data
-    photons_cdf = CDF(lexi_data)
 
-    # Try to get the keys from the CDF file using either of the following methods
-    try:
-        key_list = photons_cdf.cdf_info().zVariables
-        if verbose:
-            print(
-                "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
-            )
-    except Exception:
-        key_list = photons_cdf.cdf_info()["zVariables"]
-        if verbose:
-            print(
-                "Getting the keys from the CDF file using the \033[1;92m [zVariables] \033[0m method"
-            )
-
-    photons_data = {}
-    for key in key_list:
-        photons_data[key] = photons_cdf.varget(key)
-
-    # Convert to dataframe
-    photons = pd.DataFrame({key: photons_data[key] for key in photons_data.keys()})
-    # Convert the time to a datetime objecta from UNIX time (in nanoseconds)
-    photons["Epoch_unix"] = pd.to_datetime(
-        photons["Epoch_unix"], unit="s", origin="unix"
-    )
-
-    # Set index to the time column
-    photons = photons.set_index("Epoch_unix", inplace=False)
-
-    # Convert the time from local time to UTC
-    photons.index = photons.index.tz_localize("UTC").tz_convert("US/Eastern")
-
-    # Set the timezone to UTC
-    photons.index = photons.index.tz_localize(None)
-    photons.index = photons.index.tz_localize("UTC")
-
+    # Download and read the LEXI data in a pandas dataframe
+    # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
+    # database.
+    photons = get_lexi_data(time_range=time_range, verbose=verbose)
+    print(photons)
     # Check if the photons dataframe has duplicate indices
     # NOTE: Refer to the GitHub issue for more information on why we are doing this:
     # https://github.com/Lexi-BU/lexi/issues/38
