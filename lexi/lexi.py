@@ -207,32 +207,59 @@ def validate_input(key, value):
 
 
 def download_files_from_github(
-    file_name_list, repo, folder_path, branch="main", save_dir="downloaded_data"
+    file_name_list,
+    repo,
+    folder_path,
+    branch="main",
+    save_dir="downloaded_data",
+    verbose=False,
 ):
     """ """
     # GitHub API URL for the folder
-    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}?ref={branch}"
+    # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
+    # more than 1000 files, then the files are split into multiple folders. The first folder contains
+    # the first 950 files, and the second folder contains the remaining files. The folder names are
+    # as follows: files_0_to_950, files_950_to_1917
+    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}"
+    api_url_1 = api_url + "/files_0_to_950" + f"?ref={branch}"
+    api_url_2 = api_url + "/files_950_to_1917" + f"?ref={branch}"
 
     # Fetch folder contents
-    response = requests.get(api_url)
-    if response.status_code != 200:
+    response_1 = requests.get(api_url_1)
+    response_2 = requests.get(api_url_2)
+    if response_1.status_code != 200:
         print(
-            f"Error: Unable to access {api_url} (Status code: {response.status_code})"
+            f"Error: Unable to access {api_url} (Status code: {response_1.status_code})"
+        )
+        return
+    if response_2.status_code != 200:
+        print(
+            f"Error: Unable to access {api_url} (Status code: {response_2.status_code})"
         )
         return
 
     # Parse response JSON
-    files = response.json()
-
+    files_1 = response_1.json()
+    files_2 = response_2.json()
+    files = files_1 + files_2
+    print(len(files))
     # Ensure the save directory exists
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
     print(
         f"Downloading files from \033[95m{folder_path}\033[00m on branch \033[92m{branch}\033[00m:"
     )
+    print(f"A total of \033[1;92m{len(files)}\033[0m files found\n")
+    print(f"Files to download: \033[1;92m{len(file_name_list)}\033[0m\n")
     local_file_list = []
     for file in files:
         if file["name"] in file_name_list:
+            # Check if the file exists in the data directory, if it does then skip to the next file
+            if (Path(save_dir) / file["name"]).exists():
+                if verbose:
+                    print(f"File already exists ==> \033[92m{file['name']}\033[00m\n")
+                local_file_list.append(Path(save_dir) / file["name"])
+                continue
             # Construct the raw file URL
             raw_url = file["download_url"]
 
@@ -300,7 +327,6 @@ def get_lexi_data(
     lexi_file_list_name = (
         Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
     ).expanduser()
-    print(lexi_file_list_name)
     df = pd.read_csv(str(lexi_file_list_name))
 
     # Change the time column to datetime format
@@ -326,16 +352,16 @@ def get_lexi_data(
         # Try to get the data from the cdf file using either of the following methods
         try:
             key_list = cdf_file.cdf_info().zVariables
-            if verbose:
-                print(
-                    "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
-                )
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+            #     )
         except Exception:
             key_list = cdf_file.cdf_info()["zVariables"]
-            if verbose:
-                print(
-                    "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
-                )
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
+            #     )
 
         # Create a dictionary to store the data
         lexi_data_dict = {}
@@ -734,6 +760,8 @@ def get_exposure_maps(
 
     verbose : bool, optional
         If True, print messages. Default is True
+    force_compute : bool, optional
+        If True, force the computation of the exposure maps. Default is False.
 
     force_compute : bool, optional
         If True, force the computation of the exposure maps even if an exposure map is present in the
@@ -1095,6 +1123,8 @@ def get_sky_backgrounds(
 
     verbose : bool, optional
         If True, print messages. Default is True
+    force_compute : bool, optional
+        If True, force the computation of the sky backgrounds. Default is False.
 
     force_compute : bool, optional
         If True, force the computation of the sky backgrounds even if a skybackground data is present
@@ -1467,6 +1497,7 @@ def get_lexi_images(
     # Download and read the LEXI data in a pandas dataframe
     # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
     # database.
+    print(time_range)
     photons = get_lexi_data(time_range=time_range, verbose=verbose)
     print(photons)
     # Check if the photons dataframe has duplicate indices

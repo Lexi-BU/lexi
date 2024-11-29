@@ -167,6 +167,8 @@ local_data/
 lexi/.DS_Store
 data/
 downloaded_data/
-data/exposure_maps/
-data/sky_backgrounds/
+
+# Ignore the ~.lock files
+*.lock
+*.~lock*
 
