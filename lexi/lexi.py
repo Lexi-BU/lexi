@@ -206,32 +206,59 @@ def validate_input(key, value):
 
 
 def download_files_from_github(
-    file_name_list, repo, folder_path, branch="main", save_dir="downloaded_data"
+    file_name_list,
+    repo,
+    folder_path,
+    branch="main",
+    save_dir="downloaded_data",
+    verbose=False,
 ):
     """ """
     # GitHub API URL for the folder
-    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}?ref={branch}"
+    # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
+    # more than 1000 files, then the files are split into multiple folders. The first folder contains
+    # the first 950 files, and the second folder contains the remaining files. The folder names are
+    # as follows: files_0_to_950, files_950_to_1917
+    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}"
+    api_url_1 = api_url + "/files_0_to_950" + f"?ref={branch}"
+    api_url_2 = api_url + "/files_950_to_1917" + f"?ref={branch}"
 
     # Fetch folder contents
-    response = requests.get(api_url)
-    if response.status_code != 200:
+    response_1 = requests.get(api_url_1)
+    response_2 = requests.get(api_url_2)
+    if response_1.status_code != 200:
         print(
-            f"Error: Unable to access {api_url} (Status code: {response.status_code})"
+            f"Error: Unable to access {api_url} (Status code: {response_1.status_code})"
+        )
+        return
+    if response_2.status_code != 200:
+        print(
+            f"Error: Unable to access {api_url} (Status code: {response_2.status_code})"
         )
         return
 
     # Parse response JSON
-    files = response.json()
-
+    files_1 = response_1.json()
+    files_2 = response_2.json()
+    files = files_1 + files_2
+    print(len(files))
     # Ensure the save directory exists
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
     print(
         f"Downloading files from \033[95m{folder_path}\033[00m on branch \033[92m{branch}\033[00m:"
     )
+    print(f"A total of \033[1;92m{len(files)}\033[0m files found\n")
+    print(f"Files to download: \033[1;92m{len(file_name_list)}\033[0m\n")
     local_file_list = []
     for file in files:
         if file["name"] in file_name_list:
+            # Check if the file exists in the data directory, if it does then skip to the next file
+            if (Path(save_dir) / file["name"]).exists():
+                if verbose:
+                    print(f"File already exists ==> \033[92m{file['name']}\033[00m\n")
+                local_file_list.append(Path(save_dir) / file["name"])
+                continue
             # Construct the raw file URL
             raw_url = file["download_url"]
 
@@ -299,7 +326,6 @@ def get_lexi_data(
     lexi_file_list_name = (
         Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
     ).expanduser()
-    print(lexi_file_list_name)
     df = pd.read_csv(str(lexi_file_list_name))
 
     # Change the time column to datetime format
@@ -325,16 +351,16 @@ def get_lexi_data(
         # Try to get the data from the cdf file using either of the following methods
         try:
             key_list = cdf_file.cdf_info().zVariables
-            if verbose:
-                print(
-                    "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
-                )
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+            #     )
         except Exception:
             key_list = cdf_file.cdf_info()["zVariables"]
-            if verbose:
-                print(
-                    "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
-                )
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
+            #     )
 
         # Create a dictionary to store the data
         lexi_data_dict = {}
@@ -675,6 +701,7 @@ def get_exposure_maps(
     save_exposure_map_file: bool = False,
     save_exposure_map_image: bool = False,
     verbose: bool = True,
+    force_compute: bool = False,
 ):
     """
     Function to get exposure maps
@@ -718,6 +745,8 @@ def get_exposure_maps(
         If True, save the exposure maps to a PNG image. Default is False.
     verbose : bool, optional
         If True, print messages. Default is True
+    force_compute : bool, optional
+        If True, force the computation of the exposure maps. Default is False.
 
     Returns
     -------
@@ -780,6 +809,10 @@ def get_exposure_maps(
         verbose=verbose,
     )
 
+    # Convert the RA and DEC columns to degrees
+    spc_df["RA"] = np.degrees(spc_df["RA"])
+    spc_df["DEC"] = np.degrees(spc_df["DEC"])
+
     # Validate time_integrate
     if time_integrate is None:
         # If time_integrate is not provided, set it to the timedelta of the provided time_range
@@ -826,6 +859,9 @@ def get_exposure_maps(
     dec_grid = np.tile(dec_arr, (len(ra_arr), 1))
 
     try:
+        # If force_compute is set to True, then go to the except block
+        if force_compute:
+            raise FileNotFoundError
         # Read the exposure map from a pickle file, if it exists
         # Define the folder where the exposure maps are saved
         save_folder = Path.cwd() / "data/exposure_maps"
@@ -858,6 +894,7 @@ def get_exposure_maps(
         integ_groups = spc_df[time_range[0] : time_range[1]].resample(
             pd.Timedelta(time_integrate, unit="s"), origin="start"
         )
+
         # Get the min and max times of each group
         start_time_arr = []
         stop_time_arr = []
@@ -869,8 +906,9 @@ def get_exposure_maps(
 
         # Loop through each pointing step and add the exposure to the map
         # Wrap-proofing: First make everything [0,360)...
-        ra_grid_mod = ra_grid % 360
-        dec_grid_mod = dec_grid % 90
+        ra_grid_mod = ra_grid  # % 360
+        dec_grid_mod = dec_grid  # % 90
+
         for map_idx, (_, group) in enumerate(integ_groups):
             for row in group.itertuples():
                 # Get distance in degrees to the pointing step
@@ -961,7 +999,7 @@ def get_exposure_maps(
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=exposure_maps_dict["time_integrate"],
-                cmap="jet",
+                cmap="viridis",
                 cmin=0.1,
                 norm=None,
                 norm_type="linear",
@@ -1000,6 +1038,7 @@ def get_sky_backgrounds(
     save_sky_backgrounds_file: bool = False,
     save_sky_backgrounds_image: bool = False,
     verbose: bool = True,
+    force_compute: bool = False,
 ):
     """
     Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
@@ -1048,6 +1087,8 @@ def get_sky_backgrounds(
         If True, save the sky backgrounds to a PNG image. Default is False.
     verbose : bool, optional
         If True, print messages. Default is True
+    force_compute : bool, optional
+        If True, force the computation of the sky backgrounds. Default is False.
 
     Returns
     -------
@@ -1095,6 +1136,9 @@ def get_sky_backgrounds(
     exposure_maps = exposure_maps_dict["exposure_maps"]
 
     try:
+        # If force_compute is set to True, then go to the except block
+        if force_compute:
+            raise FileNotFoundError
         # Read the sky background from a pickle file, if it exists
         # Define the folder where the sky backgrounds are saved
         save_folder = Path.cwd() / "data/sky_backgrounds"
@@ -1394,6 +1438,7 @@ def get_lexi_images(
     # Download and read the LEXI data in a pandas dataframe
     # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
     # database.
+    print(time_range)
     photons = get_lexi_data(time_range=time_range, verbose=verbose)
     print(photons)
     # Check if the photons dataframe has duplicate indices
@@ -1498,7 +1543,9 @@ def get_lexi_images(
             save_sky_backgrounds_image=save_sky_backgrounds_image,
             verbose=verbose,
         )
-        sky_backgrounds = sky_backgrounds_dict["sky_backgrounds"]
+        # NOTE: Chnage the factor of 0.001 in the line below to the actual factor that should be
+        # (ideallly 1)
+        sky_backgrounds = 0.001 * sky_backgrounds_dict["sky_backgrounds"]
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
