@@ -230,7 +230,7 @@ def download_files_from_github(
         print(
             f"Error: Unable to access {api_url} (Status code: {response_1.status_code})"
         )
-        return
+        # return
     if response_2.status_code != 200:
         print(
             f"Error: Unable to access {api_url} (Status code: {response_2.status_code})"
