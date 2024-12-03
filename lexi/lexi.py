@@ -213,7 +213,44 @@ def download_files_from_github(
     save_dir="downloaded_data",
     verbose=False,
 ):
-    """ """
+    """
+    Function to download files from a GitHub repository. Eventually, this function will be removed
+    and we will be able to use the `get_lexi_data` function to download the files directly from the
+    CDAweb website. For now, we will use this function to download the files from the GitHub to be
+    used as a placeholder until we have the real data hosted on the appropriate website.
+
+    NOTE: In this function, we are using two folders to store and download the files. The first
+    folder contains the first 950 files, and the second folder contains the remaining files. The
+    reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
+    folder contains more than 1000 files, then the files are split into multiple folders. The folder
+    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hardcoded in the
+    function.
+
+    Parameters
+    ----------
+    file_name_list : list
+        List of file names to download
+    repo : str
+        Name of the GitHub repository
+    folder_path : str
+        Path to the folder in the GitHub repository
+    branch : str, optional
+        Name of the branch in the GitHub repository. Default is "main"
+    save_dir : str, optional
+        Directory to save the downloaded files. Default is "downloaded_data"
+    verbose : bool, optional
+        If True, print messages. Default is False
+
+    Returns
+    -------
+    local_file_list : list
+        List of local file paths
+
+    Raises
+    ------
+    ValueError
+        If the status code of the response is not 200
+    """
     # GitHub API URL for the folder
     # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
     # more than 1000 files, then the files are split into multiple folders. The first folder contains
@@ -289,6 +326,33 @@ def get_lexi_data(
     time_zone: str = "UTC",
     verbose: bool = True,
 ):
+    """
+    Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
+    download the data from the GitHub repository. This function will be updated to download the data
+    from the CDAweb website once the data is available and hosted on the website.
+
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+        formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+            This time range defines the time range of the ephemeris data and the time range of
+            the LEXI data.
+        Note that endpoints are inclusive (the end time is a closed interval); this is because
+        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    df : pandas DataFrame
+        LEXI data in a pandas DataFrame
+    """
 
     # Validate time_range
     time_range_validated = validate_input("time_range", time_range)
@@ -746,7 +810,8 @@ def get_exposure_maps(
     verbose : bool, optional
         If True, print messages. Default is True
     force_compute : bool, optional
-        If True, force the computation of the exposure maps. Default is False.
+        If True, force the computation of the exposure maps even if an exposure map is present in the
+        default folder. Default is False.
 
     Returns
     -------
@@ -1088,7 +1153,8 @@ def get_sky_backgrounds(
     verbose : bool, optional
         If True, print messages. Default is True
     force_compute : bool, optional
-        If True, force the computation of the sky backgrounds. Default is False.
+        If True, force the computation of the sky backgrounds even if a skybackground data is present
+       in the default folder. Default is False.
 
     Returns
     -------
