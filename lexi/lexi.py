@@ -10,13 +10,14 @@ from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
-from lexi import __version__, __doc__
+
+# from lexi import __version__, __doc__
 
 # Add the docstring to the package
-__doc__ = __doc__
+# __doc__ = __doc__
 
 # Add the version to the package
-__version__ = __version__
+# __version__ = __version__
 
 # Define a list of global variables
 # Define the field of view of LEXI in degrees
@@ -335,14 +336,16 @@ def get_lexi_data(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because
+    the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
     verbose : bool, optional
@@ -352,6 +355,7 @@ def get_lexi_data(
     -------
     df : pandas DataFrame
         LEXI data in a pandas DataFrame
+
     """
 
     # Validate time_range
@@ -470,14 +474,15 @@ def get_spc_prams(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+    Note that endpoints are inclusive (the end time is a closed interval); this is because he time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
     time_step : int or float, optional
@@ -774,41 +779,55 @@ def get_exposure_maps(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     ra_range : list, optional
-        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
-        ephemeris data is used.
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
+
     force_compute : bool, optional
         If True, force the computation of the exposure maps even if an exposure map is present in the
         default folder. Default is False.
@@ -839,6 +858,7 @@ def get_exposure_maps(
                 Start time of each exposure map
             - stop_time_arr : numpy array
                 Stop time of each exposure map
+
     """
 
     # Validate time_step
@@ -1113,48 +1133,65 @@ def get_sky_backgrounds(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     ra_range : list, optional
         Range of right ascension in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     save_sky_backgrounds_file : bool, optional
         If True, save the sky backgrounds to a binary file. Default is False.
+
     save_sky_backgrounds_image : bool, optional
         If True, save the sky backgrounds to a PNG image. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
+
     force_compute : bool, optional
         If True, force the computation of the sky backgrounds even if a skybackground data is present
-       in the default folder. Default is False.
+        in the default folder. Default is False.
 
     Returns
     -------
@@ -1182,6 +1219,7 @@ def get_sky_backgrounds(
                 Start time of each sky background
             - stop_time_arr : numpy array
                 Stop time of each sky background
+
     """
 
     # Get exposure maps
@@ -1383,47 +1421,65 @@ def get_lexi_images(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     ra_range : list, optional
         Range of right ascension in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     background_correction_on : bool, optional
         If True, apply the background correction to the LEXI images. Default is True.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     save_sky_backgrounds_file : bool, optional
         If True, save the sky backgrounds to a binary file. Default is False.
+
     save_sky_backgrounds_image : bool, optional
         If True, save the sky backgrounds to a PNG image. Default is False.
+
     save_lexi_images : bool, optional
         If True, save the LEXI images to a PNG file. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
 
