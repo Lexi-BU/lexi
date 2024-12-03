@@ -8,7 +8,7 @@
     <title>LEXI Documentation &#8212; lexi  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=e9e59aa0" />
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -23,19 +23,31 @@
   
 
   </head><body>
-  
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">lexi</a></h1>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
 
-          <div class="body" role="main">
-            
-  <section id="lexi-documentation">
-<h1>LEXI Documentation<a class="headerlink" href="#lexi-documentation" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+
+<p class="blurb">Documentation for the LEXI Package</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functions.html">Functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/lexi.lexi.array_to_image.html">array_to_image</a></li>
@@ -50,6 +62,210 @@
 </ul>
 </li>
 </ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="functions.html" title="next chapter">Functions</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="lexi-documentation">
+<h1>LEXI Documentation<a class="headerlink" href="#lexi-documentation" title="Link to this heading">¶</a></h1>
+<p># lexi
+Main repository for all data analysis related to LEXI</p>
+<p># Installation Guide</p>
+<p>The next section of this document will guide you through the installation process of <cite>lexi</cite>.</p>
+<p>Though it is not necessary, we strongly recommend that you install Lexi in a virtual environment.
+This will prevent any conflicts with other Python packages you may have installed.</p>
+<p>A virtual environment is a self-contained directory tree that contains a Python installation for a
+particular version of Python, plus a number of additional packages. You can install packages into a
+virtual environment without affecting the system Python installation. This is especially useful when
+you need to install packages that might conflict with other packages you have installed.</p>
+<p>## Creating a virtual environment
+There are several ways to create a virtual environment. We recommend using <cite>python3</cite> to do so.</p>
+<p>For this exercise, we will assume that you have a directory called <cite>Documents/lexi</cite> where you will
+install Lexi and create your virtual environment. Please replace <cite>Documents/lexi</cite> with the actual
+path to the directory where you want to install Lexi and create your virtual environment.</p>
+<ul class="simple">
+<li><p>cd into <cite>Documents/lexi</cite></p></li>
+</ul>
+<p>### Using python3
+You can create a virtual environment called <cite>lexi_venv</cite> (or any other name you might like) using
+<cite>python3</cite> by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</dt><dd><p>python3 -m venv lexi_venv</p>
+</dd>
+</dl>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>You can activate the virtual environment by running the following command:</p>
+<p>#### on Linux/MacOS:</p>
+<dl class="simple">
+<dt><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>bash</dt><dd><p>source lexi_venv/bin/activate</p>
+</dd>
+</dl>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>#### on Windows:</p>
+<dl class="simple">
+<dt><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>bash</dt><dd><p>.lexi_venvScriptsactivate.bat</p>
+</dd>
+</dl>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>You can deactivate the virtual environment by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>bash</dt><dd><p>deactivate</p>
+</dd>
+</dl>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+<p>## Installing Lexi</p>
+<p>### Installing from source
+After you have created and activated your virtual environment, you can install Lexi directly from GitHub by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>bash</dt><dd><p>pip install git+https://github.com/Lexi-BU/lexi</p>
+</dd>
+</dl>
+<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
+<p>### Installing from a local copy
+After you have created and activated your virtual environment, you can install Lexi from a local copy
+by following these steps:</p>
+<ol class="arabic">
+<li><p>Download <cite>lexi-version.tar.gz</cite> directory from the following link: [Download LEXI Software](<a class="reference external" href="https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz">https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz</a>)</p></li>
+<li><p>Copy the <cite>lexi-version.tar.gz</cite> file into <cite>Documents/lexi</cite> (or any other directory where you want
+to install Lexi in).</p></li>
+<li><p>Activate your virtual environment using the instructions above.</p></li>
+<li><p>Install Lexi by running the following command (NOTE: replace <cite>lexi-version.tar.gz</cite> with the actual name of the file you downloaded):</p>
+<blockquote>
+<div><dl class="simple">
+<dt><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>bash</dt><dd><p>pip install lexi-version.tar.gz</p>
+</dd>
+</dl>
+<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+</div></blockquote>
+</li>
+</ol>
+<p>This will install Lexi and all its dependencies.</p>
+<p>## Verifying the installation
+You can verify that Lexi was installed by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>bash</dt><dd><p>pip show lexi</p>
+</dd>
+</dl>
+<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
+<p>which should produce output similar to the following:</p>
+<dl class="simple">
+<dt><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a></dt><dd><p>Name: lexi
+Version: 0.0.1
+Summary: Main repository for all data analysis related to LEXI
+Home-page:
+Author: qudsiramiz
+Author-email: <a class="reference external" href="mailto:qudsiramiz&#37;&#52;&#48;gmail&#46;com">qudsiramiz<span>&#64;</span>gmail<span>&#46;</span>com</a>
+License: GNU GPLv3
+Location: /home/cephadrius/Desktop/lexi_code_test_v2/lexi_test_v2/lib/python3.10/site-packages
+Requires: cdflib, matplotlib, pandas, pytest, toml
+Required-by:</p>
+</dd>
+</dl>
+<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+<p>You can also verify that Lexi was installed by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>bash</dt><dd><p>pip list</p>
+</dd>
+</dl>
+<p><a href="#id69"><span class="problematic" id="id70">``</span></a>`
+which should produce output similar to the following:</p>
+<dl class="simple">
+<dt><a href="#id71"><span class="problematic" id="id72">``</span></a><a href="#id73"><span class="problematic" id="id74">`</span></a>bash</dt><dd><p>Package         Version
+————— ——-
+…………………
+kiwisolver      1.4.5
+lexi            0.0.1
+matplotlib      3.8.2
+numpy           1.26.4
+…………………</p>
+</dd>
+</dl>
+<p><a href="#id75"><span class="problematic" id="id76">``</span></a><a href="#id77"><span class="problematic" id="id78">`</span></a></p>
+<p>You can open a Python shell and import Lexi by running the following command:</p>
+<dl class="simple">
+<dt><a href="#id79"><span class="problematic" id="id80">``</span></a><a href="#id81"><span class="problematic" id="id82">`</span></a>bash</dt><dd><p>python
+import lexi
+lexi.__version__</p>
+</dd>
+</dl>
+<p><a href="#id83"><span class="problematic" id="id84">``</span></a><a href="#id85"><span class="problematic" id="id86">`</span></a></p>
+<p>which should produce output similar to the following:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">'0.0.1'</span>
+<span class="pre">`</span></code>
+If that worked, congratulations! You have successfully installed Lexi.</p>
+<p># Using LEXI Software</p>
+<p>NOTE: We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
+to demonstrate how to use <cite>lexi</cite> to analyze data from LEXI.</p>
+<p>## Using the Example Jupyter Notebook
+1. If you haven’t already, download the example folder from the following link: [Download LEXI
+Examples](<a class="reference external" href="https://lexi-bu.github.io/software/examples.zip">https://lexi-bu.github.io/software/examples.zip</a>) and extract it to a directory of your
+choice. We will refer to this directory as <cite>examples</cite> for the rest of this document.</p>
+<ol class="arabic simple" start="2">
+<li><p>Activate your virtual environment. If you haven’t already created a virtual environment, please
+refer to the [creating a virtual environment](#creating-a-virtual-environment) section for
+instructions on how to do so. Remeember that you can activate your virtual environment by running
+the following command:</p></li>
+</ol>
+<p>#### on Linux/MacOS:</p>
+<dl class="simple">
+<dt><a href="#id87"><span class="problematic" id="id88">``</span></a><a href="#id89"><span class="problematic" id="id90">`</span></a>bash</dt><dd><p>source lexi_venv/bin/activate</p>
+</dd>
+</dl>
+<p><a href="#id91"><span class="problematic" id="id92">``</span></a><a href="#id93"><span class="problematic" id="id94">`</span></a></p>
+<p>#### on Windows:</p>
+<dl class="simple">
+<dt><a href="#id95"><span class="problematic" id="id96">``</span></a><a href="#id97"><span class="problematic" id="id98">`</span></a>bash</dt><dd><p>.lexi_venvScriptsactivate.bat</p>
+</dd>
+</dl>
+<p><a href="#id99"><span class="problematic" id="id100">``</span></a><a href="#id101"><span class="problematic" id="id102">`</span></a></p>
+<ol class="arabic simple" start="3">
+<li><p><cite>cd</cite> into the <cite>examples</cite> directory and</p></li>
+<li><p>If you haven’t already, install Jupyter Notebook by running the following command:</p></li>
+</ol>
+<dl class="simple">
+<dt><a href="#id103"><span class="problematic" id="id104">``</span></a><a href="#id105"><span class="problematic" id="id106">`</span></a>bash</dt><dd><p>pip install jupyter</p>
+</dd>
+</dl>
+<p><a href="#id107"><span class="problematic" id="id108">``</span></a><a href="#id109"><span class="problematic" id="id110">`</span></a></p>
+<ol class="arabic simple" start="5">
+<li><p>Open the Jupyter Notebook by running the following command:</p></li>
+</ol>
+<dl class="simple">
+<dt><a href="#id111"><span class="problematic" id="id112">``</span></a><a href="#id113"><span class="problematic" id="id114">`</span></a>bash</dt><dd><p>jupyter notebook lexi_tutorial.ipynb</p>
+</dd>
+</dl>
+<p><a href="#id115"><span class="problematic" id="id116">``</span></a><a href="#id117"><span class="problematic" id="id118">`</span></a></p>
+<ol class="arabic simple" start="6">
+<li><p>This will open a new tab in your web browser and will look like the image below:</p></li>
+</ol>
+<p>![Jupyter Notebook](./images/lexi_notebook_screeenshot.png)</p>
+<ol class="arabic simple" start="7">
+<li><p>You can now run the cells in the Jupyter Notebook to see how to use <cite>lexi</cite> to analyze data from
+LEXI.</p></li>
+</ol>
+<div class="toctree-wrapper compound">
 </div>
 <dl class="py function" id="module-lexi.lexi">
 <dt class="sig sig-object py" id="lexi.lexi.validate_input">
@@ -93,8 +309,8 @@ reason for this is that the GitHub API only returns a maximum of 1000 files per 
 folder contains more than 1000 files, then the files are split into multiple folders. The folder
 names are as follows: files_0_to_950, files_950_to_1917. The folder names are hardcoded in the
 function.</p>
-<section id="id1">
-<h2>Parameters<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="id119">
+<h2>Parameters<a class="headerlink" href="#id119" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>file_name_list<span class="classifier">list</span></dt><dd><p>List of file names to download</p>
 </dd>
@@ -110,15 +326,15 @@ function.</p>
 </dd>
 </dl>
 </section>
-<section id="id2">
-<h2>Returns<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id120">
+<h2>Returns<a class="headerlink" href="#id120" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>local_file_list<span class="classifier">list</span></dt><dd><p>List of local file paths</p>
 </dd>
 </dl>
 </section>
-<section id="id3">
-<h2>Raises<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id121">
+<h2>Raises<a class="headerlink" href="#id121" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If the status code of the response is not 200</p>
 </dd>
@@ -132,8 +348,8 @@ function.</p>
 <dd><p>Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
 download the data from the GitHub repository. This function will be updated to download the data
 from the CDAweb website once the data is available and hosted on the website.</p>
-<section id="id4">
-<h2>Parameters<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id122">
+<h2>Parameters<a class="headerlink" href="#id122" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
 </dd>
@@ -154,8 +370,8 @@ the time range slicing is done with pandas, and label slicing in pandas is inclu
 </dd>
 </dl>
 </section>
-<section id="id5">
-<h2>Returns<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id123">
+<h2>Returns<a class="headerlink" href="#id123" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>df<span class="classifier">pandas DataFrame</span></dt><dd><p>LEXI data in a pandas DataFrame</p>
 </dd>
@@ -176,8 +392,8 @@ the time range slicing is done with pandas, and label slicing in pandas is inclu
 <dt class="sig sig-object py" id="lexi.lexi.get_spc_prams">
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_spc_prams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_spc_prams" title="Link to this definition">¶</a></dt>
 <dd><p>Function to get spacecraft ephemeris data</p>
-<section id="id6">
-<h2>Parameters<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id124">
+<h2>Parameters<a class="headerlink" href="#id124" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
 </dd>
@@ -204,8 +420,8 @@ more information. Default is ‘linear’.</p>
 </dd>
 </dl>
 </section>
-<section id="id7">
-<h2>Returns<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id125">
+<h2>Returns<a class="headerlink" href="#id125" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>dfinterp<span class="classifier">pandas DataFrame</span></dt><dd><p>Interpolated spacecraft ephemeris data</p>
 </dd>
@@ -228,15 +444,15 @@ more information. Default is ‘linear’.</p>
 <dt class="sig sig-object py" id="lexi.lexi.vignette">
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">vignette</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.vignette" title="Link to this definition">¶</a></dt>
 <dd><p>Function to calculate the vignetting factor for a given distance from boresight</p>
-<section id="id8">
-<h2>Parameters<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<section id="id126">
+<h2>Parameters<a class="headerlink" href="#id126" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>d<span class="classifier">float</span></dt><dd><p>Distance from boresight in degrees</p>
 </dd>
 </dl>
 </section>
-<section id="id9">
-<h2>Returns<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id127">
+<h2>Returns<a class="headerlink" href="#id127" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>f<span class="classifier">float</span></dt><dd><p>Vignetting factor</p>
 </dd>
@@ -253,8 +469,8 @@ more information. Default is ‘linear’.</p>
 <dt class="sig sig-object py" id="lexi.lexi.get_exposure_maps">
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_exposure_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">360]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-90,</span> <span class="pre">90]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_compute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_exposure_maps" title="Link to this definition">¶</a></dt>
 <dd><p>Function to get exposure maps</p>
-<section id="id10">
-<h2>Parameters<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<section id="id128">
+<h2>Parameters<a class="headerlink" href="#id128" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
 </dd>
@@ -303,8 +519,8 @@ default folder. Default is False.</p>
 </dd>
 </dl>
 </section>
-<section id="id11">
-<h2>Returns<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<section id="id129">
+<h2>Returns<a class="headerlink" href="#id129" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>exposure_maps_dict<span class="classifier">dict</span></dt><dd><dl class="simple">
 <dt>Dictionary containing the following keys:</dt><dd><ul class="simple">
@@ -395,8 +611,8 @@ default folder. Default is False.</p>
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_sky_backgrounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">360]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-90,</span> <span class="pre">90]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_sky_backgrounds_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_sky_backgrounds_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_compute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_sky_backgrounds" title="Link to this definition">¶</a></dt>
 <dd><p>Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
 ROSAT data and exposure maps</p>
-<section id="id12">
-<h2>Parameters<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
+<section id="id130">
+<h2>Parameters<a class="headerlink" href="#id130" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
 </dd>
@@ -450,8 +666,8 @@ in the default folder. Default is False.</p>
 </dd>
 </dl>
 </section>
-<section id="id13">
-<h2>Returns<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h2>
+<section id="id131">
+<h2>Returns<a class="headerlink" href="#id131" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>sky_backgrounds_dict<span class="classifier">dict</span></dt><dd><dl class="simple">
 <dt>Dictionary containing the following keys:</dt><dd><ul class="simple">
@@ -544,8 +760,8 @@ in the default folder. Default is False.</p>
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_lexi_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">360]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-90,</span> <span class="pre">90]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_correction_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_sky_backgrounds_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_sky_backgrounds_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_lexi_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_lexi_images" title="Link to this definition">¶</a></dt>
 <dd><p>Function to get LEXI images for a given time range and RA/DEC range and resolution using
 ROSAT data and exposure maps</p>
-<section id="id14">
-<h2>Parameters<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h2>
+<section id="id132">
+<h2>Parameters<a class="headerlink" href="#id132" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
 </dd>
@@ -600,8 +816,8 @@ ephemeris data is used.</p>
 </dd>
 </dl>
 </section>
-<section id="id15">
-<h2>Returns<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h2>
+<section id="id133">
+<h2>Returns<a class="headerlink" href="#id133" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>lexi_images_dict<span class="classifier">dict</span></dt><dd><dl class="simple">
 <dt>Dictionary containing the following keys:</dt><dd><ul class="simple">
@@ -684,8 +900,8 @@ ephemeris data is used.</p>
 <dt class="sig sig-object py" id="lexi.lexi.array_to_image">
 <span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">array_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">matplotlib.colors.LogNorm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vertical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.array_to_image" title="Link to this definition">¶</a></dt>
 <dd><p>Convert a 2D array to an image.</p>
-<section id="id16">
-<h2>Parameters<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h2>
+<section id="id134">
+<h2>Parameters<a class="headerlink" href="#id134" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>ra_res<span class="classifier">float, optional</span></dt><dd><p>Right ascension resolution in degrees. Default is None.</p>
 </dd>
@@ -739,8 +955,8 @@ Default is None.</p>
 </dd>
 </dl>
 </section>
-<section id="id17">
-<h2>Returns<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h2>
+<section id="id135">
+<h2>Returns<a class="headerlink" href="#id135" title="Link to this heading">¶</a></h2>
 <dl class="simple">
 <dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure object.</p>
 </dd>
@@ -798,52 +1014,8 @@ Default is None.</p>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">lexi</a></h1>
-
-
-
-
-
-
-
-
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="functions.html">Functions</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="functions.html" title="next chapter">Functions</a></li>
-  </ul></li>
-</ul>
-</div>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &#169;2024, Ramiz Qudsi, Brian Walsh, Cadin Connor.
       

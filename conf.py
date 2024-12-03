@@ -22,6 +22,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
+    "myst_parser",
 ]
 
 autosummary_generate = True
@@ -65,3 +66,10 @@ autodoc_mock_imports = [
     "lexi.__init__",
     "lexi.__version__",
 ]
+
+html_theme_options = {
+    "description": "Documentation for the LEXI Package",
+    "sidebar_collapse": False,
+    "page_width": "80%",
+    "fixed_sidebar": True,
+}

@@ -1,8 +1,9 @@
 LEXI Documentation
 ==================
+.. include:: README.md
+
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+   :hidden:
 
    functions
 
