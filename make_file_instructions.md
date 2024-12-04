@@ -1,3 +1,19 @@
+## Installing required packages
+1. Install sphinx
+```bash
+    pip install sphinx
+```
+2. Install type hints for sphinx
+```bash
+    pip install sphinx-autodoc-typehints
+```
+3. Install myst-parser
+```bash
+    pip install myst-parser
+```
+
+## Generating the documentation
+
 1. Method one:
 
 Go to the directory where the file is located and run the following command:
