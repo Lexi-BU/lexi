@@ -1,0 +1,7 @@
+/* custom.css */
+
+/* Control logo size */
+.wy-nav-side .wy-logo {
+    width: 50px;  /* Adjust the width as needed */
+    height: auto;  /* Keep the aspect ratio */
+}

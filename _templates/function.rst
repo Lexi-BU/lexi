@@ -1,7 +1,7 @@
 {% if fullname %}
 .. _{{ fullname }}:
 
-{{ fullname.split('.')[-1] }}
+{{ fullname.split('.') }}
 =============================
 
 **Docstring:**

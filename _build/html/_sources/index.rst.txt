@@ -32,7 +32,7 @@ available on `GitHub <https://github.com/Lexi-BU/lexi>`_ under the GNU General P
    :maxdepth: 5
 
    Installation <install>
-   Getting Started
+
 
 
 
