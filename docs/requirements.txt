@@ -1,0 +1,11 @@
+sphinx
+sphinx-rtd-theme
+sphinx-automodapi
+cdflib
+matplotlib
+pandas
+pytest
+toml
+pytest
+cdflib
+jupyter
