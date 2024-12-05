@@ -22,7 +22,6 @@ jobs:
           pip install sphinx
           pip install sphinx-rtd-theme
           pip install myst_parser
-          pip install sphinxcontrib
           pip install sphinx-tabs
           pip install sphinx-reredirects
           pip install sphinx-issues
