@@ -20,7 +20,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install sphinx
-          pip install -r docs/requirements.txt  # If you have dependencies
 
       - name: Build the documentation
         run: sphinx-build -b html docs docs/_build/html
