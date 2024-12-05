@@ -21,7 +21,7 @@ The package is developed by the LEXI team at Boston University and is open-sourc
 available on `GitHub <https://github.com/Lexi-BU/lexi>`_ under the GNU General Public License v3.0.
 
 
-.. important::
+.. note::
 
     The package is still under development and might be a bit buggy to use. Please report any bug
     that you might find to us. The documentation is also a work in progress and is being continuously updated.
