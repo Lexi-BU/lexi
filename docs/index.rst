@@ -11,13 +11,6 @@
 LEXI Documentation
 ==================
 
-
-.. important::
-
-    The package is still under development and might be a bit buggy to use. Please report any bug
-    that you might find to us. The documentation is also a work in progress and is being continuously updated.
-
-
 .. _LEXI: https://lexi-bu.github.io/
 
 LEXI is a Python package for the analysis of data from the `LEXI`_ imager aboard the Blue Ghost
@@ -26,6 +19,12 @@ receive from the `LEXI`_ imager.
 
 The package is developed by the LEXI team at Boston University and is open-source. The source code is
 available on `GitHub <https://github.com/Lexi-BU/lexi>`_ under the GNU General Public License v3.0.
+
+
+.. important::
+
+    The package is still under development and might be a bit buggy to use. Please report any bug
+    that you might find to us. The documentation is also a work in progress and is being continuously updated.
 
 
 Contents
