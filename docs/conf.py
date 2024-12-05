@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "LEXI"
-copyright = "2024, Ramiz Qudsi, Brian Walsh, Cadin Connor"
+copyright = "LEXI Team @ Boston University, 2024"
 author = "Ramiz Qudsi, Brian Walsh, Cadin Connor"
 
 html_baseurl = "https://lexi-bu.github.io/"
