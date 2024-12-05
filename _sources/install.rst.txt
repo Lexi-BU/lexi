@@ -194,7 +194,7 @@ On Windows:
 
 6. This will open a new tab in your web browser and will look like the image below:
 
-.. image:: ../images/lexi_notebook_screeenshot.png
+.. image:: _static/lexi_notebook_screeenshot.png
    :alt: Jupyter Notebook Screenshot
 
 7. You can now run the cells in the Jupyter Notebook to see how to use `lexi` to analyze data from
