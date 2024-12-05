@@ -17,6 +17,8 @@ project = "LEXI"
 copyright = "2024, Ramiz Qudsi, Brian Walsh, Cadin Connor"
 author = "Ramiz Qudsi, Brian Walsh, Cadin Connor"
 
+html_baseurl = "https://lexi-bu.github.io/"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
