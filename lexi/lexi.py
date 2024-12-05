@@ -11,13 +11,13 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
 
-# from lexi import __version__, __doc__
+from lexi import __version__, __doc__
 
 # Add the docstring to the package
-# __doc__ = __doc__
+__doc__ = __doc__
 
 # Add the version to the package
-# __version__ = __version__
+__version__ = __version__
 
 # Define a list of global variables
 # Define the field of view of LEXI in degrees

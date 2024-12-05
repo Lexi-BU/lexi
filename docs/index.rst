@@ -14,8 +14,8 @@ LEXI Documentation
 
 .. important::
 
-    The package is still under development and is not yet ready for public use. The documentation
-    is also a work in progress.
+    The package is still under development and might be a bit buggy to use. Please report any bug
+    that you might find to us. The documentation is also a work in progress.
 
 
 .. _LEXI: https://lexi-bu.github.io/
