@@ -4,8 +4,8 @@
 
 .. image:: _static/lexi_logo.jpeg
     :alt: LEXI logo
-    :align: left
-    :Scale: 40%
+    :align: right
+    :Scale: 20%
 
 ==================
 LEXI Documentation
