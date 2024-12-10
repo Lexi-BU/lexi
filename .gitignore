@@ -172,3 +172,4 @@ downloaded_data/
 *.lock
 *.~lock*
 
+/lexi_venv
