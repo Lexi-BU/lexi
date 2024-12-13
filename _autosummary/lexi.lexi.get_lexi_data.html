@@ -86,20 +86,21 @@ download the data from the GitHub repository. This function will be updated to d
 from the CDAweb website once the data is available and hosted on the website.</p>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
-</dd>
-<dt>formats:</dt><dd><ol class="arabic simple">
+<dl>
+<dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following
+formats:</p>
+<blockquote>
+<div><ol class="arabic simple">
 <li><p>A string in the format ‘YYYY-MM-DDTHH:MM:SS’ (e.g. ‘2022-01-01T00:00:00’)</p></li>
 <li><p>A datetime object</p></li>
-<li><p>A float in the format of a UNIX timestamp (e.g. 1640995200.0)</p></li>
 </ol>
-</dd>
-</dl>
-<p>This time range defines the time range of the ephemeris data and the time range of the LEXI data.</p>
+<p>3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+This time range defines the time range of the ephemeris data and the time range of
+the LEXI data.</p>
+</div></blockquote>
 <p>Note that endpoints are inclusive (the end time is a closed interval); this is because
 the time range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
-<dl class="simple">
+</dd>
 <dt>time_zone<span class="classifier">str, optional</span></dt><dd><p>The timezone of the time range of interest. Default is “UTC”</p>
 </dd>
 <dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, print messages. Default is True</p>
