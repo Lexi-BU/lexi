@@ -3,12 +3,14 @@ import numpy as np
 import pandas as pd
 import pytz
 import pickle
+import requests
 import urllib.request
 from pathlib import Path
 from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
+
 from lexi import __version__, __doc__
 
 # Add the docstring to the package
@@ -204,6 +206,260 @@ def validate_input(key, value):
     return True
 
 
+def download_files_from_github(
+    file_name_list,
+    repo,
+    folder_path,
+    branch="main",
+    save_dir="downloaded_data",
+    verbose=False,
+):
+    """
+    Function to download files from a GitHub repository. Eventually, this function will be removed
+    and we will be able to use the `get_lexi_data` function to download the files directly from the
+    CDAweb website. For now, we will use this function to download the files from the GitHub to be
+    used as a placeholder until we have the real data hosted on the appropriate website.
+
+    NOTE: In this function, we are using two folders to store and download the files. The first
+    folder contains the first 950 files, and the second folder contains the remaining files. The
+    reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
+    folder contains more than 1000 files, then the files are split into multiple folders. The folder
+    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hardcoded in the
+    function.
+
+    Parameters
+    ----------
+    file_name_list : list
+        List of file names to download
+    repo : str
+        Name of the GitHub repository
+    folder_path : str
+        Path to the folder in the GitHub repository
+    branch : str, optional
+        Name of the branch in the GitHub repository. Default is "main"
+    save_dir : str, optional
+        Directory to save the downloaded files. Default is "downloaded_data"
+    verbose : bool, optional
+        If True, print messages. Default is False
+
+    Returns
+    -------
+    local_file_list : list
+        List of local file paths
+
+    Raises
+    ------
+    ValueError
+        If the status code of the response is not 200
+    """
+    # GitHub API URL for the folder
+    # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
+    # more than 1000 files, then the files are split into multiple folders. The first folder contains
+    # the first 950 files, and the second folder contains the remaining files. The folder names are
+    # as follows: files_0_to_950, files_950_to_1917
+    api_url = f"https://api.github.com/repos/{repo}/contents/{folder_path}"
+    api_url_1 = api_url + "/files_0_to_950" + f"?ref={branch}"
+    api_url_2 = api_url + "/files_950_to_1917" + f"?ref={branch}"
+
+    # Fetch folder contents
+    response_1 = requests.get(api_url_1)
+    response_2 = requests.get(api_url_2)
+    if response_1.status_code != 200:
+        print(
+            f"Error: Unable to access {api_url} (Status code: {response_1.status_code})"
+        )
+        # return
+    if response_2.status_code != 200:
+        print(
+            f"Error: Unable to access {api_url} (Status code: {response_2.status_code})"
+        )
+        return
+
+    # Parse response JSON
+    files_1 = response_1.json()
+    files_2 = response_2.json()
+    files = files_1 + files_2
+    print(len(files))
+    # Ensure the save directory exists
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+
+    print(
+        f"Downloading files from \033[95m{folder_path}\033[00m on branch \033[92m{branch}\033[00m:"
+    )
+    print(f"A total of \033[1;92m{len(files)}\033[0m files found\n")
+    print(f"Files to download: \033[1;92m{len(file_name_list)}\033[0m\n")
+    local_file_list = []
+    for file in files:
+        if file["name"] in file_name_list:
+            # Check if the file exists in the data directory, if it does then skip to the next file
+            if (Path(save_dir) / file["name"]).exists():
+                if verbose:
+                    print(f"File already exists ==> \033[92m{file['name']}\033[00m\n")
+                local_file_list.append(Path(save_dir) / file["name"])
+                continue
+            # Construct the raw file URL
+            raw_url = file["download_url"]
+
+            # Download the file
+            print(f"Downloading \033[96m{file['name']}\033[00m...\n")
+            file_response = requests.get(raw_url, stream=True)
+            if file_response.status_code == 200:
+                local_path = Path(save_dir) / file["name"]
+                with open(local_path, "wb") as f:
+                    for chunk in file_response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                print(
+                    f"Saved \033[96m{file['name']}\033[00m to \033[92m{local_path}\033[00m\n"
+                )
+                local_file_list.append(local_path)
+            else:
+                print(
+                    f"Failed to download \033[91m{file['name']}\033[00m (Status code: {file_response.status_code})"
+                )
+        else:
+            # print(f"Skipping {file["name"]} (not in file_name_list)")
+            pass
+    return local_file_list
+
+
+def get_lexi_data(
+    time_range: list = None,
+    time_zone: str = "UTC",
+    verbose: bool = True,
+):
+    """
+    Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
+    download the data from the GitHub repository. This function will be updated to download the data
+    from the CDAweb website once the data is available and hosted on the website.
+
+    Parameters
+    ----------
+    time_range : list
+        Time range to consider. [start time, end time]. Times can be expressed in the following
+    formats:
+            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+            2. A datetime object
+            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because
+    the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    time_zone : str, optional
+        The timezone of the time range of interest. Default is "UTC"
+    verbose : bool, optional
+        If True, print messages. Default is True
+
+    Returns
+    -------
+    df : pandas DataFrame
+        LEXI data in a pandas DataFrame
+
+    """
+
+    # Validate time_range
+    time_range_validated = validate_input("time_range", time_range)
+
+    if time_range_validated:
+        # If time_range elements are strings, convert them to datetime objects
+        if isinstance(time_range[0], str):
+            time_range[0] = pd.to_datetime(time_range[0])
+        if isinstance(time_range[1], str):
+            time_range[1] = pd.to_datetime(time_range[1])
+        # Validate time_zone, if it is not valid, set it to UTC
+        if time_zone is not None:
+            time_zone_validated = validate_input("time_zone", time_zone)
+            if time_zone_validated:
+                # Check if time_range elements are timezone aware
+                if time_range[0].tzinfo is None:
+                    # Set the timezone to the time_range
+                    time_range[0] = time_range[0].tz_localize(time_zone)
+                    time_range[1] = time_range[1].tz_localize(time_zone)
+                elif time_range[0].tzinfo != time_zone:
+                    # Convert the timezone to the time_range
+                    time_range[0] = time_range[0].tz_convert(time_zone)
+                    time_range[1] = time_range[1].tz_convert(time_zone)
+                if verbose:
+                    print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
+            else:
+                time_range[0] = time_range[0].tz_localize("UTC")
+                time_range[1] = time_range[1].tz_localize("UTC")
+                if verbose:
+                    print(
+                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                    )
+
+    # Read the file_list data
+    lexi_file_list_name = (
+        Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
+    ).expanduser()
+    df = pd.read_csv(str(lexi_file_list_name))
+
+    # Change the time column to datetime format
+    df["epoch_utc"] = pd.to_datetime(df["epoch_utc"], unit="s", utc=True)
+    # Set the index to the epoch_utc column
+    df.set_index("epoch_utc", inplace=True)
+
+    # Get the file name list based on the start and end time
+    file_name_list = df.loc[time_range[0] : time_range[1], "file_name"].tolist()
+
+    repo_name = "Lexi-BU/lexi_data_analysis"
+    folder_path = "data/level_1c/cdf/1.0.0"
+    branch_name = "stable"
+    local_file_list = download_files_from_github(
+        file_name_list, repo_name, folder_path, branch_name
+    )
+
+    # For each file in the local_file_list, read the cdf file and save it to a dictionary
+    lexi_data_dict_list = []
+    for file in local_file_list:
+        # Read the cdf file
+        cdf_file = CDF(file)
+        # Try to get the data from the cdf file using either of the following methods
+        try:
+            key_list = cdf_file.cdf_info().zVariables
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
+            #     )
+        except Exception:
+            key_list = cdf_file.cdf_info()["zVariables"]
+            # if verbose:
+            #     print(
+            #         "Getting the keys from the CDF file using the \033[1;92m ['zVariables'] \033[0m method"
+            #     )
+
+        # Create a dictionary to store the data
+        lexi_data_dict = {}
+        for key in key_list:
+            lexi_data_dict[key] = cdf_file.varget(key)
+
+        # Add the dictionary to the list of dictionaries
+        lexi_data_dict_list.append(lexi_data_dict)
+
+    # Loop through the list of dictionaries and save the data to a single dictionary
+    lexi_data_dict = {}
+    for key in lexi_data_dict_list[0].keys():
+        lexi_data_dict[key] = np.concatenate(
+            [d[key] for d in lexi_data_dict_list], axis=0
+        )
+
+    # Convert the dictionary to a pandas DataFrame
+    df = pd.DataFrame(lexi_data_dict)
+
+    # Convert the Epoch_utc column to a datetime object
+    df["Epoch_utc"] = pd.to_datetime(df["Epoch_unix"], unit="s", utc=True)
+
+    # Drop the Epoch column
+    df = df.drop(columns=["Epoch"])
+
+    # Set the index to the Epoch column
+    df = df.set_index("Epoch_utc", inplace=False)
+
+    return df
+
+
 def get_spc_prams(
     time_range: list = None,
     time_zone: str = "UTC",
@@ -218,14 +474,15 @@ def get_spc_prams(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+    Note that endpoints are inclusive (the end time is a closed interval); this is because he time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
     time_step : int or float, optional
@@ -270,7 +527,9 @@ def get_spc_prams(
                 time_range[0] = time_range[0].tz_localize("UTC")
                 time_range[1] = time_range[1].tz_localize("UTC")
                 if verbose:
-                    print("Timezone set to \033[1;92m UTC \033[0m \n")
+                    print(
+                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                    )
 
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
@@ -282,19 +541,21 @@ def get_spc_prams(
     if not interp_method_validated:
         interp_method = "linear"
 
-    # TODO: REMOVE ME once we start using real ephemeris data
+    # TODO: REMOVE ME once we start using real ephemeris data (start of chunk)
     # Get the folder location of where the current file is located
     eph_file_path = (
         Path(__file__).resolve().parent
-        / ".lexi_data/LEXI_RA_DEC_J2000_rad-data-2024-11-07 16_20_24.csv"
+        / ".lexi_data/20241114_LEXIAngleData_20250302Landing_rad.csv"
     )
     df = pd.read_csv(eph_file_path)
     # Convert the time coloumn from UNIX timestamp to datetime object and set the timezone to UTC
-    df["epoch_utc"] = pd.to_datetime(df["Time"], unit="s")
-    df["epoch_utc"] = df["epoch_utc"].dt.tz_localize("UTC")
+    df["epoch_utc"] = pd.to_datetime(df["epoch_utc"], unit="s")
+    # Check if the time_zone is UTC, if not then set it to UTC
+    if df["epoch_utc"].dt.tz is None:
+        df["epoch_utc"] = df["epoch_utc"].dt.tz_localize("UTC")
+        if verbose:
+            print("Timezone of ephemeris file set to \033[1;92m UTC \033[0m \n")
 
-    # Drop the Time column
-    df = df.drop(columns=["Time"])
     # Set the index to be the epoch_utc column and remove the epoch_utc column
     df = df.set_index("epoch_utc", inplace=False)
 
@@ -330,7 +591,7 @@ def get_spc_prams(
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
     return dfinterp
 
-    # (end of chunk that must be removed once we start using real ephemeris data)
+    # NOTE: (end of chunk that must be removed once we start using real ephemeris data)
 
     # Get the year, month, and day of the start and stop times
     start_time = time_range[0]
@@ -509,6 +770,7 @@ def get_exposure_maps(
     save_exposure_map_file: bool = False,
     save_exposure_map_image: bool = False,
     verbose: bool = True,
+    force_compute: bool = False,
 ):
     """
     Function to get exposure maps
@@ -517,41 +779,58 @@ def get_exposure_maps(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     ra_range : list, optional
-        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
-        ephemeris data is used.
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
+
+    force_compute : bool, optional
+        If True, force the computation of the exposure maps even if an exposure map is present in the
+        default folder. Default is False.
 
     Returns
     -------
@@ -579,6 +858,7 @@ def get_exposure_maps(
                 Start time of each exposure map
             - stop_time_arr : numpy array
                 Stop time of each exposure map
+
     """
 
     # Validate time_step
@@ -613,6 +893,10 @@ def get_exposure_maps(
         interp_method=interp_method,
         verbose=verbose,
     )
+
+    # Convert the RA and DEC columns to degrees
+    spc_df["RA"] = np.degrees(spc_df["RA"])
+    spc_df["DEC"] = np.degrees(spc_df["DEC"])
 
     # Validate time_integrate
     if time_integrate is None:
@@ -660,6 +944,9 @@ def get_exposure_maps(
     dec_grid = np.tile(dec_arr, (len(ra_arr), 1))
 
     try:
+        # If force_compute is set to True, then go to the except block
+        if force_compute:
+            raise FileNotFoundError
         # Read the exposure map from a pickle file, if it exists
         # Define the folder where the exposure maps are saved
         save_folder = Path.cwd() / "data/exposure_maps"
@@ -692,6 +979,7 @@ def get_exposure_maps(
         integ_groups = spc_df[time_range[0] : time_range[1]].resample(
             pd.Timedelta(time_integrate, unit="s"), origin="start"
         )
+
         # Get the min and max times of each group
         start_time_arr = []
         stop_time_arr = []
@@ -703,8 +991,9 @@ def get_exposure_maps(
 
         # Loop through each pointing step and add the exposure to the map
         # Wrap-proofing: First make everything [0,360)...
-        ra_grid_mod = ra_grid % 360
-        dec_grid_mod = dec_grid % 90
+        ra_grid_mod = ra_grid  # % 360
+        dec_grid_mod = dec_grid  # % 90
+
         for map_idx, (_, group) in enumerate(integ_groups):
             for row in group.itertuples():
                 # Get distance in degrees to the pointing step
@@ -744,7 +1033,7 @@ def get_exposure_maps(
         dec_res = dec_res
         time_integrate = int(time_integrate)
 
-        # Define a dictoinary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
+        # Define a dictionary to store the exposure maps, ra_arr, and dec_arr, time_range, and time_integrate,
         # ra_range, and dec_range, ra_res, and dec_res
         exposure_maps_dict = {
             "exposure_maps": exposure_maps,
@@ -795,7 +1084,7 @@ def get_exposure_maps(
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=exposure_maps_dict["time_integrate"],
-                cmap="jet",
+                cmap="viridis",
                 cmin=0.1,
                 norm=None,
                 norm_type="linear",
@@ -834,6 +1123,7 @@ def get_sky_backgrounds(
     save_sky_backgrounds_file: bool = False,
     save_sky_backgrounds_image: bool = False,
     verbose: bool = True,
+    force_compute: bool = False,
 ):
     """
     Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
@@ -843,45 +1133,65 @@ def get_sky_backgrounds(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     ra_range : list, optional
         Range of right ascension in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     save_sky_backgrounds_file : bool, optional
         If True, save the sky backgrounds to a binary file. Default is False.
+
     save_sky_backgrounds_image : bool, optional
         If True, save the sky backgrounds to a PNG image. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
+
+    force_compute : bool, optional
+        If True, force the computation of the sky backgrounds even if a skybackground data is present
+        in the default folder. Default is False.
 
     Returns
     -------
@@ -909,6 +1219,7 @@ def get_sky_backgrounds(
                 Start time of each sky background
             - stop_time_arr : numpy array
                 Stop time of each sky background
+
     """
 
     # Get exposure maps
@@ -929,6 +1240,9 @@ def get_sky_backgrounds(
     exposure_maps = exposure_maps_dict["exposure_maps"]
 
     try:
+        # If force_compute is set to True, then go to the except block
+        if force_compute:
+            raise FileNotFoundError
         # Read the sky background from a pickle file, if it exists
         # Define the folder where the sky backgrounds are saved
         save_folder = Path.cwd() / "data/sky_backgrounds"
@@ -961,7 +1275,7 @@ def get_sky_backgrounds(
         print("Sky background not found, computing now. This may take a while \n")
 
         # Get ROSAT background
-        # Ultimately KKip is supposed to provide this file and we will have it saved somewhere static.
+        # NOTE: Ultimately KKip is supposed to provide this file and we will have it saved somewhere static.
         # For now, this is Cadin's sample xray data:
         rosat_data = (
             Path(__file__).resolve().parent / ".lexi_data/sample_xray_background.csv"
@@ -1107,47 +1421,65 @@ def get_lexi_images(
     ----------
     time_range : list
         Time range to consider. [start time, end time]. Times can be expressed in the following
-        formats:
+    formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
             2. A datetime object
             3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
-            This time range defines the time range of the ephemeris data and the time range of
-            the LEXI data.
-        Note that endpoints are inclusive (the end time is a closed interval); this is because
-        the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+
+    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
+    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     interp_method : str, optional
-        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'. See pandas.DataFrame.interpolate
-        documentation for more information. Default is 'linear'.
+        Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
+    Options:
+        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+
+    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
         `time_range` is used.
+
     ra_range : list, optional
         Range of right ascension in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
         ephemeris data is used.
+
     ra_res : float, optional
         Right ascension resolution in degrees. Default is 0.1 degrees.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is 0.1 degrees.
+
     background_correction_on : bool, optional
         If True, apply the background correction to the LEXI images. Default is True.
+
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
+
     save_exposure_map_image : bool, optional
         If True, save the exposure maps to a PNG image. Default is False.
+
     save_sky_backgrounds_file : bool, optional
         If True, save the sky backgrounds to a binary file. Default is False.
+
     save_sky_backgrounds_image : bool, optional
         If True, save the sky backgrounds to a PNG image. Default is False.
+
     save_lexi_images : bool, optional
         If True, save the LEXI images to a PNG file. Default is False.
+
     verbose : bool, optional
         If True, print messages. Default is True
 
@@ -1224,45 +1556,13 @@ def get_lexi_images(
     # function called `data_dir` or something similar. This function will be implemented in the future.
     # For now, try reading in sample CDF file
     # Get the location of the LEXI data
-    lexi_data = Path(__file__).resolve().parent / ".lexi_data/PIT_shifted_jul08.cdf"
-    # Read the LEXI data
-    photons_cdf = CDF(lexi_data)
 
-    # Try to get the keys from the CDF file using either of the following methods
-    try:
-        key_list = photons_cdf.cdf_info().zVariables
-        if verbose:
-            print(
-                "Getting the keys from the CDF file using the \033[1;92m .zVariables \033[0m method"
-            )
-    except Exception:
-        key_list = photons_cdf.cdf_info()["zVariables"]
-        if verbose:
-            print(
-                "Getting the keys from the CDF file using the \033[1;92m [zVariables] \033[0m method"
-            )
-
-    photons_data = {}
-    for key in key_list:
-        photons_data[key] = photons_cdf.varget(key)
-
-    # Convert to dataframe
-    photons = pd.DataFrame({key: photons_data[key] for key in photons_data.keys()})
-    # Convert the time to a datetime objecta from UNIX time (in nanoseconds)
-    photons["Epoch_unix"] = pd.to_datetime(
-        photons["Epoch_unix"], unit="s", origin="unix"
-    )
-
-    # Set index to the time column
-    photons = photons.set_index("Epoch_unix", inplace=False)
-
-    # Convert the time from local time to UTC
-    photons.index = photons.index.tz_localize("UTC").tz_convert("US/Eastern")
-
-    # Set the timezone to UTC
-    photons.index = photons.index.tz_localize(None)
-    photons.index = photons.index.tz_localize("UTC")
-
+    # Download and read the LEXI data in a pandas dataframe
+    # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
+    # database.
+    print(time_range)
+    photons = get_lexi_data(time_range=time_range, verbose=verbose)
+    print(photons)
     # Check if the photons dataframe has duplicate indices
     # NOTE: Refer to the GitHub issue for more information on why we are doing this:
     # https://github.com/Lexi-BU/lexi/issues/38
@@ -1365,7 +1665,9 @@ def get_lexi_images(
             save_sky_backgrounds_image=save_sky_backgrounds_image,
             verbose=verbose,
         )
-        sky_backgrounds = sky_backgrounds_dict["sky_backgrounds"]
+        # NOTE: Chnage the factor of 0.001 in the line below to the actual factor that should be
+        # (ideallly 1)
+        sky_backgrounds = 0.001 * sky_backgrounds_dict["sky_backgrounds"]
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
