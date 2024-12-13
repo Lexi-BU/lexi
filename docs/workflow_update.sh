@@ -1,3 +1,6 @@
+# If anything is messed up, run the following commands:
+# python generate_rst_files.py
+
 make html
 
 git add .
