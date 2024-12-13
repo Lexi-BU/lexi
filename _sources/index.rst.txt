@@ -14,7 +14,7 @@ LEXI Documentation
 .. _LEXI: https://lexi-bu.github.io/
 
 LEXI is a Python package for the analysis of data from the `LEXI`_ imager aboard the Blue Ghost
-Mission by FireFly Aerospace. The package provides tools for the analysis of cdf files that we
+Mission by FireFly Aerospace. The package provides functions for the analysis of cdf files that we
 receive from the `LEXI`_ imager.
 
 The package is developed by the LEXI team at Boston University and is open-source. The source code is
