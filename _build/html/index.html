@@ -59,7 +59,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-lexi">Installing Lexi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#installing-lexi">Installing lexi</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="install.html#installing-from-source">Installing from Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="install.html#installing-from-a-local-copy">Installing from a Local Copy</a></li>
 </ul>
@@ -120,10 +120,10 @@
 <p>The package is still under development and is not yet ready for public use. The documentation
 is also a work in progress.</p>
 </div>
-<p>LEXI is a Python package for the analysis of data from the <a class="reference external" href="https://lexi-bu.github.io/">LEXI</a> imager aboard the Blue Ghost
-Mission by FireFly Aerospace. The package provides tools for the analysis of cdf files that we
-receive from the <a class="reference external" href="https://lexi-bu.github.io/">LEXI</a> imager.</p>
-<p>The package is developed by the LEXI team at Boston University and is open-source. The source code is
+<p>LEXI is a Python package for the analysis of data from the <a class="reference external" href="https://sites.bu.edu/lexi/">LEXI</a> imager aboard the Blue Ghost
+Mission by FireFly Aerospace. The package provides tools for downloading spacecraft data, generating
+and correcting images, background removal, and viewing spacecraft parameters.</p>
+<p>This open-source package is developed by the LEXI team at Boston University. The source code is
 available on <a class="reference external" href="https://github.com/Lexi-BU/lexi">GitHub</a> under the GNU General Public License v3.0.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
@@ -137,7 +137,7 @@ available on <a class="reference external" href="https://github.com/Lexi-BU/lexi
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-lexi">Installing Lexi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#installing-lexi">Installing lexi</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="install.html#installing-from-source">Installing from Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="install.html#installing-from-a-local-copy">Installing from a Local Copy</a></li>
 </ul>
@@ -290,8 +290,8 @@ the time range slicing is done with pandas, and label slicing in pandas is inclu
 </ol>
 </dd>
 </dl>
-<p>This time range defines the time range of the ephemeris data and the time range of he LEXI data.
-Note that endpoints are inclusive (the end time is a closed interval); this is because he time
+<p>This time range defines the time range of the ephemeris data and the time range of the LEXI data.
+Note that endpoints are inclusive (the end time is a closed interval); this is because the time
 range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
 <dl class="simple">
 <dt>time_zone<span class="classifier">str, optional</span></dt><dd><p>The timezone of the time range of interest. Default is “UTC”</p>
@@ -367,7 +367,7 @@ more information. Default is ‘linear’.</p>
 </ol>
 </dd>
 </dl>
-<p>This time range defines the time range of the ephemeris data and the time range of he LEXI data.</p>
+<p>This time range defines the time range of the ephemeris data and the time range of the LEXI data.</p>
 <p>Note that endpoints are inclusive (the end time is a closed interval); this is because the time
 range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
 <dl class="simple">
@@ -528,10 +528,10 @@ range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
 <cite>time_range</cite> is used.</p>
 </dd>
 <dt>ra_range<span class="classifier">list, optional</span></dt><dd><p>Range of right ascension in degrees. If no range is provided, the range of the spacecraft
-ephemeris data is used.</p>
+  ephemeris data is used.</p>
 </dd>
 <dt>dec_range<span class="classifier">list, optional</span></dt><dd><p>Range of declination in degrees. If no range is provided, the range of the spacecraft
-ephemeris data is used.</p>
+  ephemeris data is used.</p>
 </dd>
 <dt>ra_res<span class="classifier">float, optional</span></dt><dd><p>Right ascension resolution in degrees. Default is 0.1 degrees.</p>
 </dd>
@@ -547,7 +547,7 @@ ephemeris data is used.</p>
 </dd>
 <dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, print messages. Default is True</p>
 </dd>
-<dt>force_compute<span class="classifier">bool, optional</span></dt><dd><p>If True, force the computation of the sky backgrounds even if a skybackground data is present
+<dt>force_compute<span class="classifier">bool, optional</span></dt><dd><p>If True, force the computation of the sky backgrounds even if sky background data is present
 in the default folder. Default is False.</p>
 </dd>
 </dl>
