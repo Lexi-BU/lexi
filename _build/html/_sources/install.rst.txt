@@ -46,7 +46,7 @@ On Windows:
 
 .. code-block:: bash
 
-    .\lexi_venv\Scripts\activate.bat
+    .\lexi_venv\Scripts\activate
 
 You can deactivate the virtual environment by running the following command:
 
@@ -176,7 +176,7 @@ On Windows:
 
 .. code-block:: bash
 
-    .\lexi_venv\Scripts\activate.bat
+    .\lexi_venv\Scripts\activate
 
 3. Change into the `examples` directory.
 

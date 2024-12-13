@@ -158,7 +158,7 @@ choice. We will refer to this directory as `examples` for the rest of this docum
 #### on Windows:
 
 ```bash
-    .\lexi_venv\Scripts\activate.bat
+    .\lexi_venv\Scripts\activate
 ```
 
 3. `cd` into the `examples` directory and 

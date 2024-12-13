@@ -41,7 +41,7 @@ You can activate the virtual environment by running the following command:
 #### on Windows:
 
 ```bash
-    .\lexi_venv\Scripts\activate.bat
+    .\lexi_venv\Scripts\activate
 ```
 
 You can deactivate the virtual environment by running the following command:
@@ -158,7 +158,7 @@ choice. We will refer to this directory as `examples` for the rest of this docum
 #### on Windows:
 
 ```bash
-    .\lexi_venv\Scripts\activate.bat
+    .\lexi_venv\Scripts\activate
 ```
 
 3. `cd` into the `examples` directory and 
