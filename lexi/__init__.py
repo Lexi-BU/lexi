@@ -8,6 +8,8 @@ __doc__ = """
 The lexi is a package developed using the Python programming language. The package is
 designed to provide a simple list of functions to work with the LEXI dataset. The package has
 following usable modules:
+    - get_lexi_data: This module is used to get the LEXI dataset from the CDAweb website using a
+      specified time range.
     - get_spc_prams: This module is used to get the spacecraft parameters from the LEXI dataset using
       a specified time range.
     - get_exposure_maps: This module is used to get the exposure maps from the LEXI dataset using a
@@ -20,7 +22,8 @@ following usable modules:
       image from the data set.
 
 The package is developed by the LEXI team at the Boston University.
-For more information, please visit the LEXI website at https://lexi-bu.github.io/ or read the README file.
+For more information, please visit the LEXI website at https://lexi-bu.github.io/ or read the README
+file.
 """
 
 try:
