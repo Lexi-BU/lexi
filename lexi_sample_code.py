@@ -26,16 +26,19 @@ input_params = {
     "verbose": True,
     # "spc_prams": True,
     "lexi_data": True,
-    "return_data_type": "meh",
+    "return_data_type": "all",
+    "time_pad": 900,
+    "data_clip": True,
     # "spc_prams_kwargs": {"time_step": "60", "interp_method": "index"},
     # "lexi_data_kwargs": {
     # "force_compute": False,
 }
 
 # df1, df2, df3 = lexi.get_lexi_data(**input_params)
-df3 = lexi.get_spc_prams(**input_params)
-# df = lexi.get_spc_prams(**input_params)
-
+# df3 = lexi.get_spc_prams(**input_params)
+df1, df2, df3 = lexi.get_spc_prams(**input_params)
+print(df1, df2, df3)
+print(input_params["time_range"])
 # exposure_maps_dict = lexi.get_exposure_maps(**input_params)
 
 # exposure_maps = exposure_maps_dict["exposure_maps"]
