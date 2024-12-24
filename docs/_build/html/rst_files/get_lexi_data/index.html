@@ -97,7 +97,7 @@
 <h1>Get LEXI Data (<cite>lexi.lexi.get_lexi_data</cite>)<a class="headerlink" href="#get-lexi-data-lexi-lexi-get-lexi-data" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="lexi.lexi.get_lexi_data">
-<span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_lexi_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_lexi_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_lexi_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spc_prams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merged'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spc_prams_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_lexi_data" title="Link to this definition"></a></dt>
 <dd><p>Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
 download the data from the GitHub repository. This function will be updated to download the data
 from the CDAweb website once the data is available and hosted on the website.</p>
@@ -116,17 +116,40 @@ from the CDAweb website once the data is available and hosted on the website.</p
 <p>This time range defines the time range of the ephemeris data and the time range of the LEXI data.</p>
 <p>Note that endpoints are inclusive (the end time is a closed interval); this is because
 the time range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
-<dl class="simple">
+<dl>
 <dt>time_zone<span class="classifier">str, optional</span></dt><dd><p>The timezone of the time range of interest. Default is “UTC”</p>
 </dd>
 <dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, print messages. Default is True</p>
+</dd>
+<dt>spc_prams<span class="classifier">bool, optional</span></dt><dd><p>If True, get the spacecraft parameters for the same time range as LEXI data. Default is False</p>
+</dd>
+<dt>return_data_type<span class="classifier">str, optional</span></dt><dd><p>Type of data to return. This parameter is only used when spc_prams is True. This defines what
+kind of dataframes to return. Valid options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘merged’: Merged LEXI and spacecraft parameters dataframes using the ‘pd.merge_asof’
+function with a tolerance of 1 minute and direction of ‘nearest’. Default option.</p></li>
+<li><p>‘lexi’: LEXI data only</p></li>
+<li><p>‘spc_prams’: Spacecraft parameters data only</p></li>
+<li><p>‘both’: Both LEXI and spacecraft parameters dataframes</p></li>
+<li><p>‘all’: All three dataframes</p></li>
+</ul>
+</div></blockquote>
+<p>Default is ‘merged’</p>
+</dd>
+<dt>spc_prams_kwargs<span class="classifier">dict, optional</span></dt><dd><p>Keyword arguments to pass to the get_spc_prams function. Default is None. If None, then the
+default values of the get_spc_prams function are used.</p>
 </dd>
 </dl>
 </section>
 <section id="returns">
 <h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>df<span class="classifier">pandas DataFrame</span></dt><dd><p>LEXI data in a pandas DataFrame</p>
+<dt>df<span class="classifier">pandas DataFrame</span></dt><dd><p>LEXI data</p>
+</dd>
+<dt>df_spc_prams<span class="classifier">pandas DataFrame</span></dt><dd><p>Spacecraft parameters data</p>
+</dd>
+<dt>df_merged<span class="classifier">pandas DataFrame</span></dt><dd><p>Merged LEXI and spacecraft parameters data</p>
 </dd>
 </dl>
 </section>
@@ -136,6 +159,9 @@ the time range slicing is done with pandas, and label slicing in pandas is inclu
 <li><p><strong>time_range</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>time_zone</strong> (<em>str</em>)</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
+<li><p><strong>spc_prams</strong> (<em>bool</em>)</p></li>
+<li><p><strong>return_data_type</strong> (<em>str</em>)</p></li>
+<li><p><strong>spc_prams_kwargs</strong> (<em>dict</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
