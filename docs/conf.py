@@ -97,8 +97,8 @@ autodoc_default_options = {
     "exclude-members": "__weakref__",
 }
 
-# Optionally disable autodoc typehints to simplify the output
-# autodoc_typehints = "none"
+# Disable autodoc typehints to simplify the output
+autodoc_typehints = "none"
 
 # -- Options for autodock mock imports ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports

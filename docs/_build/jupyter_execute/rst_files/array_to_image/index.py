@@ -4,8 +4,14 @@
 # In[1]:
 
 
+from lexi.lexi import array_to_image
 import numpy as np
+import matplotlib.pyplot as plt
 
-data = np.random.random((100, 100))
-print(data.shape)
+# Create a 2D array
+input_array = np.random.rand(100, 100)
+
+# Print the shape of the input array
+# The shape should be (100, 100)
+print(input_array.shape)
 

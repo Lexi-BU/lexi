@@ -1,8 +1,8 @@
-from lexi import lexi as lexi
-import importlib
-import numpy as np
-
-importlib.reload(lexi)
+# from lexi import lexi as lexi
+# import importlib
+# import numpy as np
+#
+# importlib.reload(lexi)
 
 array_to_image_kwargs_exp = {
     "x_range": [190, 240],
@@ -107,7 +107,7 @@ input_params = {
 # df1, df2, df3 = lexi.get_spc_prams(**input_params)
 # print(df1, df2, df3)
 # print(input_params["time_range"])
-exposure_maps_dict = lexi.get_lexi_images(**input_params)
+# exposure_maps_dict = lexi.get_lexi_images(**input_params)
 
 # exposure_maps = exposure_maps_dict["exposure_maps"]
 
@@ -121,3 +121,4 @@ exposure_maps_dict = lexi.get_lexi_images(**input_params)
 
 # lexi_images_dict = lexi.get_lexi_images(**input_params)
 # print(np.shape(lexi_images_dict["lexi_images"]))
+

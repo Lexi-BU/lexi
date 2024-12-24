@@ -220,10 +220,16 @@ Default is None.</p>
 <p>The following demonstrates how to use the <cite>array_to_image</cite> function:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lexi.lexi</span> <span class="kn">import</span> <span class="n">array_to_image</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># Create a 2D array</span>
+<span class="n">input_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Print the shape of the input array</span>
+<span class="c1"># The shape should be (100, 100)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -234,45 +240,6 @@ Default is None.</p>
 </div>
 </div>
 </section>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_array</strong> (<em>numpy.ndarray</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>key</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>x_range</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>y_range</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>x_lim</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>y_lim</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>start_time</strong> (<em>pandas.Timestamp</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>stop_time</strong> (<em>pandas.Timestamp</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>ra_res</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>dec_res</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>time_integrate</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cmap</strong> (<em>str</em>)</p></li>
-<li><p><strong>cmin</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>v_min</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>v_max</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>norm</strong> (<em>matplotlib.colors.LogNorm</em>)</p></li>
-<li><p><strong>norm_type</strong> (<em>str</em>)</p></li>
-<li><p><strong>aspect</strong> (<em>str</em>)</p></li>
-<li><p><strong>figure_title</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>show_colorbar</strong> (<em>bool</em>)</p></li>
-<li><p><strong>cbar_label</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cbar_orientation</strong> (<em>str</em>)</p></li>
-<li><p><strong>show_axes</strong> (<em>bool</em>)</p></li>
-<li><p><strong>display</strong> (<em>bool</em>)</p></li>
-<li><p><strong>figure_size</strong> (<em>tuple</em>)</p></li>
-<li><p><strong>figure_format</strong> (<em>str</em>)</p></li>
-<li><p><strong>figure_font_size</strong> (<em>float</em>)</p></li>
-<li><p><strong>save</strong> (<em>bool</em>)</p></li>
-<li><p><strong>save_path</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>save_name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>dpi</strong> (<em>int</em>)</p></li>
-<li><p><strong>dark_mode</strong> (<em>bool</em>)</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 </section>

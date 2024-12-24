@@ -274,28 +274,68 @@ default values of the array_to_image function are used.</p>
 </dd>
 </dl>
 </section>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>time_range</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>time_zone</strong> (<em>str</em>)</p></li>
-<li><p><strong>interp_method</strong> (<em>str</em>)</p></li>
-<li><p><strong>time_step</strong> (<em>float</em>)</p></li>
-<li><p><strong>time_integrate</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>ra_range</strong> (<em>list</em>)</p></li>
-<li><p><strong>dec_range</strong> (<em>list</em>)</p></li>
-<li><p><strong>ra_res</strong> (<em>float</em>)</p></li>
-<li><p><strong>dec_res</strong> (<em>float</em>)</p></li>
-<li><p><strong>save_exposure_map_file</strong> (<em>bool</em>)</p></li>
-<li><p><strong>save_exposure_map_image</strong> (<em>bool</em>)</p></li>
-<li><p><strong>save_sky_backgrounds_file</strong> (<em>bool</em>)</p></li>
-<li><p><strong>save_sky_backgrounds_image</strong> (<em>bool</em>)</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
-<li><p><strong>force_compute</strong> (<em>bool</em>)</p></li>
-<li><p><strong>array_to_image_kwargs</strong> (<em>dict</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-</dl>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<p>The following example demonstrates how to get sky backgrounds for a given time range and RA/DEC
+range and resolution using ROSAT data and exposure maps:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lexi.lexi</span> <span class="kn">import</span> <span class="n">get_sky_backgrounds</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sky_background_dict</span> <span class="o">=</span> <span class="n">get_sky_backgrounds</span><span class="p">(</span>
+<span class="go">        time_range=[&quot;2025-03-02 08:50:00&quot;, &quot;2025-03-02 09:23:00&quot;],</span>
+<span class="go">        ra_range=[160, 230],</span>
+<span class="go">        dec_range=[-20, 5],</span>
+<span class="go">        ra_res=0.5,</span>
+<span class="go">        dec_res=0.5,</span>
+<span class="go">        time_integrate=500,</span>
+<span class="go">        save_exposure_map_file=True,</span>
+<span class="go">        save_sky_backgrounds_file=True,</span>
+<span class="go">        save_exposure_map_image=True,</span>
+<span class="go">        save_sky_backgrounds_image=True,</span>
+<span class="go">        verbose=True</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyter-notebook-usage">
+<h2>Jupyter Notebook Usage:<a class="headerlink" href="#jupyter-notebook-usage" title="Link to this heading"></a></h2>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lexi.lexi</span> <span class="kn">import</span> <span class="n">get_sky_backgrounds</span>
+
+<span class="n">sky_background_dict</span> <span class="o">=</span> <span class="n">get_sky_backgrounds</span><span class="p">(</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;2025-03-02 08:04:00&quot;</span><span class="p">,</span> <span class="s2">&quot;2025-03-08 23:43:00&quot;</span><span class="p">],</span>
+    <span class="n">ra_range</span><span class="o">=</span><span class="p">[</span><span class="mi">190</span><span class="p">,</span> <span class="mi">310</span><span class="p">],</span>
+    <span class="n">dec_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="n">ra_res</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">dec_res</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">save_exposure_map_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_sky_backgrounds_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_exposure_map_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">save_sky_backgrounds_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">array_to_image_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">sky_background_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Exposure map not found, computing now. This may take a while 
+
+</pre></div>
+</div>
+<img alt="../../_images/index_0_2.png" src="../../_images/index_0_2.png" />
+<img alt="../../_images/index_0_3.png" src="../../_images/index_0_3.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Sky background not found, computing now. This may take a while 
+
+dict_keys([&#39;sky_backgrounds&#39;, &#39;ra_arr&#39;, &#39;dec_arr&#39;, &#39;time_range&#39;, &#39;time_integrate&#39;, &#39;ra_range&#39;, &#39;dec_range&#39;, &#39;ra_res&#39;, &#39;dec_res&#39;, &#39;start_time_arr&#39;, &#39;stop_time_arr&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </dd></dl>
 
 </section>
