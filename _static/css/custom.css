@@ -5,3 +5,37 @@
     width: 50px;  /* Adjust the width as needed */
     height: auto;  /* Keep the aspect ratio */
 }
+
+/* Version picker */
+.version-selector {
+    margin: 1em 0;
+    padding: 0.5em;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.version-selector h3 {
+    margin: 0 0 0.5em;
+    font-size: 1.1em;
+}
+
+.version-selector ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.version-selector li {
+    margin: 0.5em 0;
+}
+
+.version-selector li a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.version-selector li a:hover {
+    text-decoration: underline;
+}
+
