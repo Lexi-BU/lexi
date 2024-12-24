@@ -49,7 +49,7 @@ html_context = {
     "github_user": "Lexi-BU",
     "github_repo": "lexi",
     "github_version": "stable",
-    "conf_py_path": "/docs/",
+    "conf_py_path": "./",
 }
 
 # -- Options for autodoc -----------------------------------------------------
