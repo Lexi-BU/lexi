@@ -1,13 +1,9 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
 
 # Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Project information -----------------------------------------------------
 project = "LEXI"
@@ -17,8 +13,6 @@ author = "Ramiz Qudsi, Brian Walsh, Cadin Connor"
 html_baseurl = "https://lexi-bu.github.io/"
 
 # -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -36,11 +30,9 @@ html_static_path = ["_static"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "sphinx_rtd_theme"
-html_static_path = ["_static"]  # Ensure _static is in the static path
 html_css_files = [
-    "css/custom.css",  # Add custom.css to the list
+    "css/custom.css",
 ]
 html_logo = "_static/lexi_logo.png"
 
@@ -53,8 +45,6 @@ html_context = {
 }
 
 # -- Options for autodoc -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc
-
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
@@ -62,9 +52,6 @@ autodoc_default_options = {
     "undoc-members": True,
     "exclude-members": "__weakref__",
 }
-
-# -- Options for autodock mock imports ---------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 autodoc_mock_imports = [
     "numpy",
@@ -74,8 +61,6 @@ autodoc_mock_imports = [
     "scipy",
     "cdflib",
     "jupyter",
-    "lexi.__init__",
-    "lexi.__version__",
 ]
 
 html_theme_options = {
