@@ -53,6 +53,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "myst_parser",
+    "jupyter_sphinx",
+    "nbsphinx",
 ]
 
 autosummary_generate = True
