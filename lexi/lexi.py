@@ -325,6 +325,8 @@ def download_files_from_github(
 def get_lexi_data(
     time_range: list = None,
     time_zone: str = "UTC",
+    time_pad: float = 300,
+    data_clip: bool = True,
     verbose: bool = True,
     spc_prams: bool = False,
     return_data_type: str = "merged",
@@ -354,8 +356,16 @@ def get_lexi_data(
     verbose : bool, optional
         If True, print messages. Default is True
 
+    time_pad : float, optional
+        Time padding in seconds to add to the time range value. Default is 300 seconds
+
+    data_clip : bool, optional
+        If True, clip the data to the original time range specified, else, keep the entire dataframe.
+        Default is True
+
     spc_prams : bool, optional
         If True, get the spacecraft parameters for the same time range as LEXI data. Default is False
+
     return_data_type : str, optional
         Type of data to return. This parameter is only used when spc_prams is True. This defines what
         kind of dataframes to return. Valid options are:
@@ -366,6 +376,7 @@ def get_lexi_data(
             - 'both': Both LEXI and spacecraft parameters dataframes
             - 'all': All three dataframes
         Default is 'merged'
+
     spc_prams_kwargs : dict, optional
         Keyword arguments to pass to the get_spc_prams function. Default is None. If None, then the
         default values of the get_spc_prams function are used.
@@ -413,6 +424,16 @@ def get_lexi_data(
                         "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
                     )
 
+    # Modify the time_range based on the time_pad value
+    if time_pad is not None:
+        new_time_range = [
+            time_range[0] - pd.Timedelta(seconds=time_pad),
+            time_range[1] + pd.Timedelta(seconds=time_pad),
+        ]
+    else:
+        new_time_range = time_range
+
+    print(f"Time range: {time_range[0]} to {time_range[1]}")
     # Read the file_list data
     lexi_file_list_name = (
         Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
@@ -425,7 +446,7 @@ def get_lexi_data(
     df.set_index("epoch_utc", inplace=True)
 
     # Get the file name list based on the start and end time
-    file_name_list = df.loc[time_range[0] : time_range[1], "file_name"].tolist()
+    file_name_list = df.loc[new_time_range[0] : new_time_range[1], "file_name"].tolist()
 
     repo_name = "Lexi-BU/lexi_data_analysis"
     folder_path = "data/level_1c/cdf/1.0.0"
@@ -483,7 +504,7 @@ def get_lexi_data(
     # If spc_prams is True, then get the spacecraft parameters
     if spc_prams:
         df_spc_prams = get_spc_prams(
-            time_range=time_range,
+            time_range=new_time_range,
             time_zone=time_zone,
             verbose=verbose,
             **(spc_prams_kwargs if spc_prams_kwargs else {}),
@@ -509,26 +530,41 @@ def get_lexi_data(
             if return_data_type == "merged":
                 if verbose:
                     print("Returning merged data")
+                if data_clip:
+                    df_merged = df_merged.loc[time_range[0] : time_range[1]]
                 return df_merged
             elif return_data_type == "all":
                 if verbose:
                     print("Returning all data")
+                if data_clip:
+                    df = df.loc[time_range[0] : time_range[1]]
+                    df_spc_prams = df_spc_prams.loc[time_range[0] : time_range[1]]
+                    df_merged = df_merged.loc[time_range[0] : time_range[1]]
                 return df, df_spc_prams, df_merged
         elif return_data_type == "both":
             if verbose:
                 print("Returning both LEXI and spacecraft parameters dataframes")
+            if data_clip:
+                df = df.loc[time_range[0] : time_range[1]]
+                df_spc_prams = df_spc_prams.loc[time_range[0] : time_range[1]]
             return df, df_spc_prams
         elif return_data_type == "lexi":
             if verbose:
                 print("Returning LEXI data only")
+            if data_clip:
+                df = df.loc[time_range[0] : time_range[1]]
             return df
         elif return_data_type == "spc_prams":
             if verbose:
                 print("Returning spacecraft parameters data only")
+            if data_clip:
+                df_spc_prams = df_spc_prams.loc[time_range[0] : time_range[1]]
             return df_spc_prams
     else:
         if verbose:
             print("Returning LEXI data only")
+        if data_clip:
+            df = df.loc[time_range[0] : time_range[1]]
         return df
 
 
@@ -536,6 +572,8 @@ def get_spc_prams(
     time_range: list = None,
     time_zone: str = "UTC",
     time_step: float = 5,
+    time_pad: float = 300,
+    data_clip: bool = True,
     interp_method: str = "linear",
     verbose: bool = True,
     lexi_data: bool = False,
@@ -560,17 +598,29 @@ def get_spc_prams(
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
+
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
+
+    time_pad : float, optional
+        Time padding in seconds to add to the time range value. Default is 300 seconds
+
+    data_clip : bool, optional
+        If True, clip the data to the original time range specified, else, keep the entire dataframe.
+        Default is True
+
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
         'linear', 'index', 'values', 'pad'. See pandas.DataFrame.interpolate documentation for
         more information. Default is 'linear'.
+
     verbose : bool, optional
         If True, print messages. Default is True
+
     lexi_data : bool, optional
         If True, get the LEXI data for the same time range as the spacecraft parameters. Default is
         False.
+
     return_data_type : str, optional
         Type of data to return. This parameter is only used when lexi_data is True. This defines what
         kind of dataframes to return. Valid options are:
@@ -581,6 +631,7 @@ def get_spc_prams(
             - 'both': Both LEXI and spacecraft parameters dataframes
             - 'all': All three dataframes
         Default is 'merged'
+
     lexi_data_kwargs : dict, optional
         Keyword arguments to pass to the get_lexi_data function. Default is None. If None, then the
         default values of the get_lexi_data function are used.
@@ -589,8 +640,10 @@ def get_spc_prams(
     -------
     df : pandas DataFrame
         Spacecraft parameters data
+
     df_lexi : pandas DataFrame
         LEXI data
+
     df_merged : pandas DataFrame
         Merged LEXI and spacecraft parameters data
 
@@ -626,6 +679,10 @@ def get_spc_prams(
                     print(
                         "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
                     )
+
+    # Modify the time_range based on the time_pad value
+    time_range[0] = time_range[0] - pd.Timedelta(time_pad, unit="s")
+    time_range[1] = time_range[1] + pd.Timedelta(time_pad, unit="s")
 
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
@@ -715,26 +772,41 @@ def get_spc_prams(
             if return_data_type == "merged":
                 if verbose:
                     print("Returning merged data")
+                if data_clip:
+                    df_merged = df_merged.loc[time_range[0] : time_range[1]]
                 return df_merged
             elif return_data_type == "all":
                 if verbose:
                     print("Returning all data")
+                if data_clip:
+                    df_lexi = df_lexi.loc[time_range[0] : time_range[1]]
+                    dfinterp = dfinterp.loc[time_range[0] : time_range[1]]
+                    df_merged = df_merged.loc[time_range[0] : time_range[1]]
                 return df_lexi, dfinterp, df_merged
         elif return_data_type == "both":
             if verbose:
                 print("Returning both LEXI and spacecraft parameters data")
+            if data_clip:
+                df_lexi = df_lexi.loc[time_range[0] : time_range[1]]
+                dfinterp = dfinterp.loc[time_range[0] : time_range[1]]
             return df_lexi, dfinterp
         elif return_data_type == "lexi":
             if verbose:
                 print("Returning LEXI data")
+            if data_clip:
+                df_lexi = df_lexi.loc[time_range[0] : time_range[1]]
             return df_lexi
         elif return_data_type == "spc_prams":
             if verbose:
                 print("Returning spacecraft parameters data only")
+            if data_clip:
+                dfinterp = dfinterp.loc[time_range[0] : time_range[1]]
             return dfinterp
     else:
         if verbose:
             print("Returning spacecraft parameters data only")
+        if data_clip:
+            dfinterp = dfinterp.loc[time_range[0] : time_range[1]]
         return dfinterp
 
     # NOTE: (end of chunk that must be removed once we start using real ephemeris data) However, do
