@@ -93,9 +93,12 @@ autodoc_default_options = {
     "member-order": "bysource",
     "special-members": True,
     "undoc-members": True,
+    "show-inheritance": True,
     "exclude-members": "__weakref__",
 }
 
+# Optionally disable autodoc typehints to simplify the output
+autodoc_typehints = "none"
 # -- Options for autodock mock imports ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
