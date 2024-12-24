@@ -279,7 +279,7 @@ def download_files_from_github(
     files_1 = response_1.json()
     files_2 = response_2.json()
     files = files_1 + files_2
-    print(len(files))
+
     # Ensure the save directory exists
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
@@ -317,7 +317,7 @@ def download_files_from_github(
                     f"Failed to download \033[91m{file['name']}\033[00m (Status code: {file_response.status_code})"
                 )
         else:
-            # print(f"Skipping {file["name"]} (not in file_name_list)")
+            # print(f"Skipping {file['name']} (not in file_name_list)")
             pass
     return local_file_list
 
@@ -326,6 +326,9 @@ def get_lexi_data(
     time_range: list = None,
     time_zone: str = "UTC",
     verbose: bool = True,
+    spc_prams: bool = False,
+    return_data_type: str = "merged",
+    spc_prams_kwargs: dict = None,
 ):
     """
     Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
@@ -351,10 +354,30 @@ def get_lexi_data(
     verbose : bool, optional
         If True, print messages. Default is True
 
+    spc_prams : bool, optional
+        If True, get the spacecraft parameters for the same time range as LEXI data. Default is False
+    return_data_type : str, optional
+        Type of data to return. This parameter is only used when spc_prams is True. This defines what
+        kind of dataframes to return. Valid options are:
+            - 'merged': Merged LEXI and spacecraft parameters dataframes using the 'pd.merge_asof'
+              function with a tolerance of 1 minute and direction of 'nearest'. Default option.
+            - 'lexi': LEXI data only
+            - 'spc_prams': Spacecraft parameters data only
+            - 'both': Both LEXI and spacecraft parameters dataframes
+            - 'all': All three dataframes
+        Default is 'merged'
+    spc_prams_kwargs : dict, optional
+        Keyword arguments to pass to the get_spc_prams function. Default is None. If None, then the
+        default values of the get_spc_prams function are used.
+
     Returns
     -------
     df : pandas DataFrame
-        LEXI data in a pandas DataFrame
+        LEXI data
+    df_spc_prams : pandas DataFrame
+        Spacecraft parameters data
+    df_merged : pandas DataFrame
+        Merged LEXI and spacecraft parameters data
 
     """
 
@@ -457,7 +480,56 @@ def get_lexi_data(
     # Set the index to the Epoch column
     df = df.set_index("Epoch_utc", inplace=False)
 
-    return df
+    # If spc_prams is True, then get the spacecraft parameters
+    if spc_prams:
+        df_spc_prams = get_spc_prams(
+            time_range=time_range,
+            time_zone=time_zone,
+            verbose=verbose,
+            **(spc_prams_kwargs if spc_prams_kwargs else {}),
+        )
+
+        valid_return_data_types = ["merged", "lexi", "spc_prams", "both", "all"]
+        if return_data_type not in valid_return_data_types:
+            if verbose:
+                warnings.warn(
+                    f"Invalid \033[1;91m return_data_type = {return_data_type}\033[0m. Setting return_data_type to \033[1;32m 'merged' \033[0m \n"
+                )
+            return_data_type = "merged"
+        if return_data_type in ["merged", "all"]:
+            print("Merging the LEXI data with the spacecraft parameters")
+            df_merged = pd.merge_asof(
+                df,
+                df_spc_prams,
+                left_index=True,
+                right_index=True,
+                tolerance=pd.Timedelta("1min"),
+                direction="nearest",
+            )
+            if return_data_type == "merged":
+                if verbose:
+                    print("Returning merged data")
+                return df_merged
+            elif return_data_type == "all":
+                if verbose:
+                    print("Returning all data")
+                return df, df_spc_prams, df_merged
+        elif return_data_type == "both":
+            if verbose:
+                print("Returning both LEXI and spacecraft parameters dataframes")
+            return df, df_spc_prams
+        elif return_data_type == "lexi":
+            if verbose:
+                print("Returning LEXI data only")
+            return df
+        elif return_data_type == "spc_prams":
+            if verbose:
+                print("Returning spacecraft parameters data only")
+            return df_spc_prams
+    else:
+        if verbose:
+            print("Returning LEXI data only")
+        return df
 
 
 def get_spc_prams(
@@ -466,6 +538,9 @@ def get_spc_prams(
     time_step: float = 5,
     interp_method: str = "linear",
     verbose: bool = True,
+    lexi_data: bool = False,
+    return_data_type: str = "merged",
+    lexi_data_kwargs: dict = None,
 ):
     """
     Function to get spacecraft ephemeris data
@@ -493,11 +568,32 @@ def get_spc_prams(
         more information. Default is 'linear'.
     verbose : bool, optional
         If True, print messages. Default is True
+    lexi_data : bool, optional
+        If True, get the LEXI data for the same time range as the spacecraft parameters. Default is
+        False.
+    return_data_type : str, optional
+        Type of data to return. This parameter is only used when lexi_data is True. This defines what
+        kind of dataframes to return. Valid options are:
+            - 'merged': Merged LEXI and spacecraft parameters dataframes using the 'pd.merge_asof'
+              function with a tolerance of 1 minute and direction of 'nearest'. Default option.
+            - 'lexi': LEXI data only
+            - 'spc_prams': Spacecraft parameters data only
+            - 'both': Both LEXI and spacecraft parameters dataframes
+            - 'all': All three dataframes
+        Default is 'merged'
+    lexi_data_kwargs : dict, optional
+        Keyword arguments to pass to the get_lexi_data function. Default is None. If None, then the
+        default values of the get_lexi_data function are used.
 
     Returns
     -------
-    dfinterp : pandas DataFrame
-        Interpolated spacecraft ephemeris data
+    df : pandas DataFrame
+        Spacecraft parameters data
+    df_lexi : pandas DataFrame
+        LEXI data
+    df_merged : pandas DataFrame
+        Merged LEXI and spacecraft parameters data
+
     """
     # Validate time_range
     time_range_validated = validate_input("time_range", time_range)
@@ -589,9 +685,60 @@ def get_spc_prams(
     dfslice = df[t_start:t_stop]
     dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
-    return dfinterp
 
-    # NOTE: (end of chunk that must be removed once we start using real ephemeris data)
+    # If lexi_data is True, then get the LEXI data
+    if lexi_data:
+        df_lexi = get_lexi_data(
+            time_range=time_range,
+            time_zone=time_zone,
+            verbose=verbose,
+            **(lexi_data_kwargs if lexi_data_kwargs else {}),
+        )
+
+        valid_return_data_types = ["merged", "lexi", "spc_prams", "both", "all"]
+        if return_data_type not in valid_return_data_types:
+            if verbose:
+                warnings.warn(
+                    f"Invalid \033[1;91m return_data_type = {return_data_type}\033[0m. Setting return_data_type to \033[1;32m 'merged' \033[0m \n"
+                )
+            return_data_type = "merged"
+        if return_data_type in ["merged", "all"]:
+            print("Merging the LEXI data with the spacecraft parameters")
+            df_merged = pd.merge_asof(
+                df_lexi,
+                dfinterp,
+                left_index=True,
+                right_index=True,
+                tolerance=pd.Timedelta("1min"),
+                direction="nearest",
+            )
+            if return_data_type == "merged":
+                if verbose:
+                    print("Returning merged data")
+                return df_merged
+            elif return_data_type == "all":
+                if verbose:
+                    print("Returning all data")
+                return df_lexi, dfinterp, df_merged
+        elif return_data_type == "both":
+            if verbose:
+                print("Returning both LEXI and spacecraft parameters data")
+            return df_lexi, dfinterp
+        elif return_data_type == "lexi":
+            if verbose:
+                print("Returning LEXI data")
+            return df_lexi
+        elif return_data_type == "spc_prams":
+            if verbose:
+                print("Returning spacecraft parameters data only")
+            return dfinterp
+    else:
+        if verbose:
+            print("Returning spacecraft parameters data only")
+        return dfinterp
+
+    # NOTE: (end of chunk that must be removed once we start using real ephemeris data) However, do
+    # move the merged data part to the end of the function
 
     # Get the year, month, and day of the start and stop times
     start_time = time_range[0]
@@ -1566,9 +1713,8 @@ def get_lexi_images(
     # Download and read the LEXI data in a pandas dataframe
     # NOTE: This is a sample LEXI data file. The actual LEXI data will be downloaded from the LEXI
     # database.
-    print(time_range)
     photons = get_lexi_data(time_range=time_range, verbose=verbose)
-    print(photons)
+
     # Check if the photons dataframe has duplicate indices
     # NOTE: Refer to the GitHub issue for more information on why we are doing this:
     # https://github.com/Lexi-BU/lexi/issues/38
