@@ -994,6 +994,7 @@ def get_exposure_maps(
     save_exposure_map_image: bool = False,
     verbose: bool = True,
     force_compute: bool = False,
+    array_to_image_kwargs: dict = None,
 ):
     """
     Function to get exposure maps
@@ -1058,6 +1059,11 @@ def get_exposure_maps(
         default folder. Default is False.
         If True, force the computation of the exposure maps even if an exposure map is present in the
         default folder. Default is False.
+
+    array_to_image_kwargs : dict, optional
+        Keyword arguments to pass to the array_to_image function. Default is None. If None, then the
+        default values of the array_to_image function are used.
+
 
     Returns
     -------
@@ -1300,36 +1306,24 @@ def get_exposure_maps(
     if save_exposure_map_image:
         if verbose:
             print("Saving exposure maps as images")
+        # Check if the following keys are present in the array_to_image_kwargs dictionary, if not
+        # then add them:
+        # - x_range
+        # - y_range
+        if "x_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["x_range"] = ra_range
+        if "y_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["y_range"] = dec_range
         for i, exposure in enumerate(exposure_maps_dict["exposure_maps"]):
             array_to_image(
                 input_array=exposure,
                 key="exposure_maps",
-                x_range=ra_range,
-                y_range=dec_range,
                 start_time=exposure_maps_dict["start_time_arr"][i],
                 stop_time=exposure_maps_dict["stop_time_arr"][i],
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=exposure_maps_dict["time_integrate"],
-                cmap="viridis",
-                cmin=0.1,
-                norm=None,
-                norm_type="linear",
-                aspect="auto",
-                figure_title="Exposure Map",
-                show_colorbar=True,
-                cbar_label="Seconds",
-                cbar_orientation="vertical",
-                show_axes=True,
-                display=False,
-                figure_size=(5, 5),
-                figure_format="png",
-                figure_font_size=12,
-                save=True,
-                save_name="default",
-                dpi=300,
-                dark_mode=False,
-                verbose=verbose,
+                **(array_to_image_kwargs if array_to_image_kwargs else {}),
             )
 
     return exposure_maps_dict
@@ -1351,6 +1345,7 @@ def get_sky_backgrounds(
     save_sky_backgrounds_image: bool = False,
     verbose: bool = True,
     force_compute: bool = False,
+    array_to_image_kwargs: dict = None,
 ):
     """
     Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
@@ -1422,6 +1417,10 @@ def get_sky_backgrounds(
         If True, force the computation of the sky backgrounds even if a skybackground data is present
         in the default folder. Default is False.
 
+    array_to_image_kwargs : dict, optional
+        Keyword arguments to pass to the array_to_image function. Default is None. If None, then the
+        default values of the array_to_image function are used.
+
     Returns
     -------
     sky_backgrounds_dict : dict
@@ -1465,6 +1464,7 @@ def get_sky_backgrounds(
         save_exposure_map_file=save_exposure_map_file,
         save_exposure_map_image=save_exposure_map_image,
         verbose=verbose,
+        array_to_image_kwargs=array_to_image_kwargs,
     )
     exposure_maps = exposure_maps_dict["exposure_maps"]
 
@@ -1587,36 +1587,26 @@ def get_sky_backgrounds(
 
     # If requested, save the sky background as an image
     if save_sky_backgrounds_image:
+        if verbose:
+            print("Saving sky backgrounds as images")
+        # Check if the following keys are present in the array_to_image_kwargs dictionary, if not
+        # then add them:
+        # - x_range
+        # - y_range
+        if "x_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["x_range"] = ra_range
+        if "y_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["y_range"] = dec_range
         for i, sky_background in enumerate(sky_backgrounds_dict["sky_backgrounds"]):
             array_to_image(
                 input_array=sky_background,
                 key="sky_backgrounds",
-                x_range=ra_range,
-                y_range=dec_range,
                 start_time=sky_backgrounds_dict["start_time_arr"][i],
                 stop_time=sky_backgrounds_dict["stop_time_arr"][i],
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=sky_backgrounds_dict["time_integrate"],
-                cmap="viridis",
-                cmin=0.1,
-                norm=None,
-                norm_type="linear",
-                aspect="auto",
-                figure_title="Sky Background",
-                show_colorbar=True,
-                cbar_label="Counts/sec",
-                cbar_orientation="vertical",
-                show_axes=True,
-                display=False,
-                figure_size=(5, 5),
-                figure_format="png",
-                figure_font_size=12,
-                save=True,
-                save_name="default",
-                dpi=300,
-                dark_mode=False,
-                verbose=verbose,
+                **(array_to_image_kwargs if array_to_image_kwargs else {}),
             )
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
     # if np.shape(sky_backgrounds)[0] == 1:
@@ -1641,6 +1631,7 @@ def get_lexi_images(
     save_sky_backgrounds_image: bool = False,
     save_lexi_images: bool = False,
     verbose: bool = True,
+    array_to_image_kwargs: dict = None,
 ):
     """
     Function to get LEXI images for a given time range and RA/DEC range and resolution using
@@ -1711,6 +1702,10 @@ def get_lexi_images(
 
     verbose : bool, optional
         If True, print messages. Default is True
+
+    array_to_image_kwargs : dict, optional
+        Keyword arguments to pass to the array_to_image function. Default is None. If None, then the
+        default values of the array_to_image function are used.
 
     Returns
     -------
@@ -1892,10 +1887,11 @@ def get_lexi_images(
             save_sky_backgrounds_file=save_sky_backgrounds_file,
             save_sky_backgrounds_image=save_sky_backgrounds_image,
             verbose=verbose,
+            array_to_image_kwargs=array_to_image_kwargs,
         )
         # NOTE: Chnage the factor of 0.001 in the line below to the actual factor that should be
         # (ideallly 1)
-        sky_backgrounds = 0.001 * sky_backgrounds_dict["sky_backgrounds"]
+        sky_backgrounds = 0.01 * sky_backgrounds_dict["sky_backgrounds"]
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
@@ -1916,43 +1912,31 @@ def get_lexi_images(
 
     # If requested, save the histograms as images
     if save_lexi_images:
+        if verbose:
+            print("Saving LEXI images as images")
+        # Check if the following keys are present in the array_to_image_kwargs dictionary, if not
+        # then add them:
+        # - x_range
+        # - y_range
+        if "x_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["x_range"] = ra_range
+        if "y_range" not in array_to_image_kwargs:
+            array_to_image_kwargs["y_range"] = dec_range
         for i, histogram in enumerate(lexi_images_dict["lexi_images"]):
             array_to_image(
                 input_array=histogram,
                 key=f"lexi_images/background_corrected_{background_correction_on}",
-                x_range=ra_range,
-                y_range=dec_range,
                 start_time=start_time_arr[i],
                 stop_time=stop_time_arr[i],
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=lexi_images_dict["time_integrate"],
-                cmap="viridis",
-                cmin=1,
-                v_min=None,
-                v_max=None,
-                norm=None,
-                norm_type="linear",
-                aspect="auto",
                 figure_title=(
                     "Background Corrected LEXI Image"
                     if background_correction_on
                     else "LEXI Image (no background correction)"
                 ),
-                show_colorbar=True,
-                cbar_label="Counts/sec",
-                cbar_orientation="vertical",
-                show_axes=True,
-                display=False,
-                figure_size=(5, 5),
-                figure_format="png",
-                figure_font_size=12,
-                save=True,
-                # save_path="../figures/lexi_images",
-                save_name="default",
-                dpi=300,
-                dark_mode=True,
-                verbose=verbose,
+                **(array_to_image_kwargs if array_to_image_kwargs else {}),
             )
 
     return lexi_images_dict
@@ -1963,6 +1947,8 @@ def array_to_image(
     key: str = None,
     x_range: list = None,
     y_range: list = None,
+    x_lim: list = None,
+    y_lim: list = None,
     start_time: pd.Timestamp = None,
     stop_time: pd.Timestamp = None,
     ra_res: float = None,
@@ -2008,6 +1994,10 @@ def array_to_image(
         Range of the x-axis.  Default is None.
     y_range : list, optional
         Range of the y-axis.  Default is None.
+    x_lim : list, optional
+        Limits of the x-axis.  Default is None.
+    y_lim : list, optional
+        Limits of the y-axis.  Default is None.
     v_min : float, optional
         Minimum value of the colorbar.  If None, then the minimum value of the input array is used.
         Default is None.
@@ -2161,6 +2151,12 @@ def array_to_image(
         aspect=aspect,
         interpolation=None,
     )
+
+    # Set the x and y limits
+    if x_lim is not None:
+        ax.set_xlim(x_lim)
+    if y_lim is not None:
+        ax.set_ylim(y_lim)
 
     # Turn on the grid
     ax.grid(True, color="k", alpha=0.5, linestyle="-")
