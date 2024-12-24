@@ -82,6 +82,7 @@ html_context = {
     "display_github": True,  # Enable the "View page source" link
     "display_versions": True,
     "versions": versions,
+    "base_url": html_baseurl,
     "github_user": "Lexi-BU",  # GitHub username or organization name
     "github_repo": "lexi",  # Repository name
     "github_version": "stable",  # Branch name
