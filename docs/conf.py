@@ -53,6 +53,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "myst_parser",
+    "jupyter_sphinx",
+    "nbsphinx",
 ]
 
 autosummary_generate = True
@@ -91,8 +93,12 @@ autodoc_default_options = {
     "member-order": "bysource",
     "special-members": True,
     "undoc-members": True,
+    "show-inheritance": True,
     "exclude-members": "__weakref__",
 }
+
+# Disable autodoc typehints to simplify the output
+autodoc_typehints = "none"
 
 # -- Options for autodock mock imports ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports

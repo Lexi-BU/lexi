@@ -32,6 +32,7 @@ def validate_input(key, value):
     ----------
     key : str
         The name of the input parameter
+
     value : any
         The value of the input parameter
 
@@ -44,6 +45,7 @@ def validate_input(key, value):
     ------
     ValueError
         If the input parameter is not valid
+
     """
     if key == "time_range":
         if not isinstance(value, list):
@@ -224,21 +226,26 @@ def download_files_from_github(
     folder contains the first 950 files, and the second folder contains the remaining files. The
     reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
     folder contains more than 1000 files, then the files are split into multiple folders. The folder
-    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hardcoded in the
+    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hard-coded in the
     function.
 
     Parameters
     ----------
     file_name_list : list
         List of file names to download
+
     repo : str
         Name of the GitHub repository
+
     folder_path : str
         Path to the folder in the GitHub repository
+
     branch : str, optional
         Name of the branch in the GitHub repository. Default is "main"
+
     save_dir : str, optional
         Directory to save the downloaded files. Default is "downloaded_data"
+
     verbose : bool, optional
         If True, print messages. Default is False
 
@@ -251,6 +258,7 @@ def download_files_from_github(
     ------
     ValueError
         If the status code of the response is not 200
+
     """
     # GitHub API URL for the folder
     # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
@@ -385,10 +393,36 @@ def get_lexi_data(
     -------
     df : pandas DataFrame
         LEXI data
+
     df_spc_prams : pandas DataFrame
         Spacecraft parameters data
+
     df_merged : pandas DataFrame
         Merged LEXI and spacecraft parameters data
+
+    Example Usage
+    -------------
+
+    >>> from lexi.lexi import get_lexi_data
+
+    >>> df_lexi = get_lexi_data(
+            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            verbose=True
+        )
+
+    Jupyter Notebook Usage:
+    -----------------------
+
+    .. jupyter-execute::
+
+        from lexi.lexi import get_lexi_data
+
+        df_lexi = get_lexi_data(
+            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            verbose=False
+        )
+
+        print(df_lexi.head())
 
     """
 
@@ -645,6 +679,30 @@ def get_spc_prams(
 
     df_merged : pandas DataFrame
         Merged LEXI and spacecraft parameters data
+
+    Example Usage
+    -------------
+
+    >>> from lexi.lexi import get_spc_prams
+
+    >>> df_spc = lexi.get_spc_prams(
+            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            verbose=True
+        )
+
+    Jupyter Notebook Usage:
+    -----------------------
+
+    .. jupyter-execute::
+
+        from lexi.lexi import get_spc_prams
+
+        df_spc = get_spc_prams(
+            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            verbose=False
+        )
+
+        print(df_spc.head())
 
     """
     # Validate time_range
@@ -971,6 +1029,7 @@ def vignette(d: float = 0.0):
     -------
     f : float
         Vignetting factor
+
     """
 
     # Set the vignetting factor
@@ -1027,7 +1086,8 @@ def get_exposure_maps(
         Time step in seconds for time resolution of the look direction datum.
 
     ra_range : list, optional
-        Range of right ascension in degrees. If no range is provided, the range of the spacecraft ephemeris data is used.
+        Range of right ascension in degrees. If no range is provided, the range of the spacecraft
+        ephemeris data is used.
 
     dec_range : list, optional
         Range of declination in degrees. If no range is provided, the range of the spacecraft
@@ -1091,6 +1151,45 @@ def get_exposure_maps(
                 Start time of each exposure map
             - stop_time_arr : numpy array
                 Stop time of each exposure map
+
+    Example Usage
+    -------------
+    The following example shows how to get the exposure maps for a given time range:
+
+    >>> from lexi.lexi import get_exposure_maps
+
+    >>> exposure_maps_dict = get_exposure_maps(
+        time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            ra_range=[160, 230],
+            dec_range=[-20, 5],
+            ra_res=0.25,
+            dec_res=0.25,
+            time_integrate=500,
+            save_exposure_map_file=True,
+            save_exposure_map_image=True,
+            verbose=True
+        )
+
+    Jupyter Notebook Usage:
+    -----------------------
+
+    .. jupyter-execute::
+
+        from lexi.lexi import get_exposure_maps
+
+        exposure_maps_dict = get_exposure_maps(
+            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            ra_range=[190, 310],
+            dec_range=[-33, 3],
+            ra_res=0.5,
+            dec_res=0.5,
+            save_exposure_map_file=False,
+            save_exposure_map_image=True,
+            verbose=False,
+            array_to_image_kwargs={"display": True}
+        )
+
+        print(exposure_maps_dict.keys())
 
     """
 
@@ -1252,10 +1351,11 @@ def get_exposure_maps(
                 )
                 # Add the delta to the full map
                 exposure_maps[map_idx] += exposure_delt
-                print(
-                    f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
-                    end="\r",
-                )
+                if verbose:
+                    print(
+                        f"Computing exposure map ==> \x1b[1;32;255m {np.round(map_idx/len(integ_groups)*100, 6)}\x1b[0m % complete",
+                        end="\r",
+                    )
         t_start = time_range[0].strftime("%Y%m%d_%H%M%S")
         t_stop = time_range[1].strftime("%Y%m%d_%H%M%S")
         ra_start = ra_range[0]
@@ -1447,6 +1547,50 @@ def get_sky_backgrounds(
                 Start time of each sky background
             - stop_time_arr : numpy array
                 Stop time of each sky background
+
+    Example Usage
+    -------------
+    The following example demonstrates how to get sky backgrounds for a given time range and RA/DEC
+    range and resolution using ROSAT data and exposure maps:
+
+    >>> from lexi.lexi import get_sky_backgrounds
+
+    >>> sky_background_dict = get_sky_backgrounds(
+            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            ra_range=[160, 230],
+            dec_range=[-20, 5],
+            ra_res=0.5,
+            dec_res=0.5,
+            time_integrate=500,
+            save_exposure_map_file=True,
+            save_sky_backgrounds_file=True,
+            save_exposure_map_image=True,
+            save_sky_backgrounds_image=True,
+            verbose=True
+        )
+
+    Jupyter Notebook Usage:
+    -----------------------
+
+    .. jupyter-execute::
+
+        from lexi.lexi import get_sky_backgrounds
+
+        sky_background_dict = get_sky_backgrounds(
+            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            ra_range=[190, 310],
+            dec_range=[-33, 3],
+            ra_res=0.5,
+            dec_res=0.5,
+            save_exposure_map_file=False,
+            save_sky_backgrounds_file=False,
+            save_exposure_map_image=True,
+            save_sky_backgrounds_image=False,
+            verbose=False,
+            array_to_image_kwargs={"display": True}
+        )
+
+        print(sky_background_dict.keys())
 
     """
 
@@ -1729,6 +1873,54 @@ def get_lexi_images(
                 Right ascension resolution of the LEXI images in degrees
             - dec_res : float
                 Declination resolution of the LEXI images in degrees
+
+    Example Usage
+    -------------
+    The following example shows how to get LEXI images for a given time range and RA/DEC range and
+    resolution
+
+    >>> from lexi.lexi import get_lexi_images
+
+    >>> lexi_images_dict = lexi.get_lexi_images(
+            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            ra_range=[190, 310],
+            dec_range=[-33, 3],
+            ra_res=0.5,
+            dec_res=0.5,
+            # time_integrate=500,
+            background_correction_on=True,
+            save_exposure_map_file=True,
+            save_sky_backgrounds_file=True,
+            save_exposure_map_image=True,
+            save_sky_backgrounds_image=True,
+            save_lexi_images=True,
+            verbose=True
+        )
+
+    Jupyter Notebook Usage:
+    -----------------------
+
+    .. jupyter-execute::
+
+        from lexi.lexi import get_lexi_images
+
+        lexi_images_dict = get_lexi_images(
+            time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:41"],
+            ra_range=[220, 240],
+            dec_range=[-30, -15],
+            ra_res=1,
+            dec_res=1,
+            background_correction_on=False,
+            save_exposure_map_file=False,
+            save_sky_backgrounds_file=False,
+            save_exposure_map_image=False,
+            save_sky_backgrounds_image=False,
+            save_lexi_images=True,
+            verbose=False,
+            array_to_image_kwargs={"display": True}
+        )
+
+        print(lexi_images_dict.keys())
     """
 
     # Validate each of the inputs
@@ -1984,56 +2176,81 @@ def array_to_image(
     ----------
     ra_res : float, optional
         Right ascension resolution in degrees. Default is None.
+
     dec_res : float, optional
         Declination resolution in degrees. Default is None.
+
     time_integrate : int or float, optional
         Integration time in seconds. Default is None.
+
     input_array : np.ndarray
         2D array to convert to an image.
+
     x_range : list, optional
         Range of the x-axis.  Default is None.
+
     y_range : list, optional
         Range of the y-axis.  Default is None.
+
     x_lim : list, optional
         Limits of the x-axis.  Default is None.
+
     y_lim : list, optional
         Limits of the y-axis.  Default is None.
+
     v_min : float, optional
         Minimum value of the colorbar.  If None, then the minimum value of the input array is used.
         Default is None.
+
     v_max : float, optional
         Maximum value of the colorbar.  If None, then the maximum value of the input array is used.
         Default is None.
+
     cmap : str, optional
         Colormap to use.  Default is 'viridis'.
+
     norm : mpl.colors.Normalize, optional
         Normalization to use for the colorbar colors.  Default is None.
+
     norm_type : str, optional
         Normalization type to use.  Options are 'linear' or 'log'.  Default is 'linear'.
+
     aspect : str, optional
         Aspect ratio to use.  Default is 'auto'.
+
     figure_title : str, optional
         Title of the figure.  Default is None.
+
     show_colorbar : bool, optional
         If True, then show the colorbar.  Default is True.
+
     cbar_label : str, optional
         Label of the colorbar.  Default is None.
+
     cbar_orientation : str, optional
         Orientation of the colorbar.  Options are 'vertical' or 'horizontal'.  Default is 'vertical'.
+
     show_axes : bool, optional
         If True, then show the axes.  Default is True.
+
     display : bool, optional
         If True, then display the figure.  Default is False.
+
     figure_size : tuple, optional
         Size of the figure.  Default is (10, 10).
+
     figure_format : str, optional
         Format of the figure.  Default is 'png'.
+
     figure_font_size : float, optional
         Font size of the figure.  Default is 12.
+
     save : bool, optional
         If True, then save the figure.  Default is False.
+
     save_path : str, optional
         Path to save the figure to.  Default is None.
+
     save_name : str, optional
         Name of the figure to save.  Default is None.
 
@@ -2043,6 +2260,24 @@ def array_to_image(
         Figure object.
     ax : matplotlib.axes._subplots.AxesSubplot
         Axes object.
+
+    Example Usage
+    -------------
+    The following demonstrates how to use the `array_to_image` function:
+
+    .. jupyter-execute::
+
+        from lexi.lexi import array_to_image
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # Create a 2D array
+        input_array = np.random.rand(100, 100)
+
+        # Print the shape of the input array
+        # The shape should be (100, 100)
+        print(input_array.shape)
+
     """
     # Try to use latex rendering
     # plt.rc("text", usetex=False)
@@ -2266,6 +2501,6 @@ def array_to_image(
         plt.show()
 
     # Close the figure
-    plt.close()
+    # plt.close()
 
     return fig, ax
