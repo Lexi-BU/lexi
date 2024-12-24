@@ -1,10 +1,9 @@
 import os
 import sys
-import subprocess
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
-# sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../../"))
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -15,38 +14,8 @@ sys.path.insert(0, os.path.abspath("../"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "LEXI"
-copyright = "LEXI Team @ Boston University, 2024"
+copyright = "2024, Ramiz Qudsi, Brian Walsh, Cadin Connor"
 author = "Ramiz Qudsi, Brian Walsh, Cadin Connor"
-
-html_baseurl = "https://lexi-bu.github.io/"
-
-
-def get_git_versions():
-    try:
-        # Fetch tags
-        tags = subprocess.check_output(
-            ["git", "tag"], universal_newlines=True
-        ).splitlines()
-        # Fetch branches
-        branches = subprocess.check_output(
-            ["git", "branch", "-r"], universal_newlines=True
-        ).splitlines()
-        # Clean up branches (remove remote name, e.g., "origin/")
-        branches = [
-            branch.strip().replace("origin/", "")
-            for branch in branches
-            if "origin/HEAD" not in branch
-        ]
-
-        # Combine and sort
-        versions = sorted(set(tags + branches), reverse=True)
-        return versions
-    except Exception as e:
-        print(f"Error fetching Git versions: {e}")
-        return ["latest", "stable"]  # Fallback versions
-
-
-versions = get_git_versions()
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -80,14 +49,13 @@ html_logo = "_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,  # Enable the "View page source" link
-    "display_versions": True,
-    "versions": versions,
     "github_user": "Lexi-BU",  # GitHub username or organization name
     "github_repo": "lexi",  # Repository name
     "github_version": "stable",  # Branch name
     "conf_py_path": "/lexi/",  # Path to the relevant file directory
     "source_suffix": ".py",  # Set to Python file extension
 }
+
 # -- Options for autodoc -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc
 

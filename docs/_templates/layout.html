@@ -3,12 +3,3 @@
 {% block sourcelink %}
 <a href="https://github.com/Lexi-BU/lexi/" target="_blank">View page source</a>
 {% endblock %}
-
-<div class="version-selector">
-    <h3>Versions</h3>
-    <ul>
-    {% for version in versions %}
-        <li><a href="{{ html_baseurl }}/{{ version }}/">{{ version }}</a></li>
-    {% endfor %}
-    </ul>
-</div>
