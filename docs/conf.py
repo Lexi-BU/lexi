@@ -20,8 +20,6 @@ author = "Ramiz Qudsi, Brian Walsh, Cadin Connor"
 
 html_baseurl = "https://lexi-bu.github.io/"
 
-import subprocess
-
 
 def get_git_versions():
     try:
