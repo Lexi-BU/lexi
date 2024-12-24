@@ -5,7 +5,7 @@ import numpy as np
 importlib.reload(lexi)
 
 input_params = {
-    "time_range": ["2025-03-04T08:53:41", "2025-03-08T08:53:41"],
+    "time_range": ["2025-03-04 08:53:41", "2025-03-04 09:23:41"],
     # "time_zone": "UTC",
     # "time_integrate": 120,
     # "time_step": "5",
@@ -23,11 +23,17 @@ input_params = {
     # "save_sky_backgrounds_image": True,
     # "background_correction_on": False,
     # "save_lexi_images": True,
-    "verbose": False,
+    "verbose": True,
+    # "spc_prams": True,
+    "lexi_data": True,
+    "return_data_type": "meh",
+    # "spc_prams_kwargs": {"time_step": "60", "interp_method": "index"},
+    # "lexi_data_kwargs": {
     # "force_compute": False,
 }
 
-df = lexi.get_lexi_data(**input_params)
+# df1, df2, df3 = lexi.get_lexi_data(**input_params)
+df3 = lexi.get_spc_prams(**input_params)
 # df = lexi.get_spc_prams(**input_params)
 
 # exposure_maps_dict = lexi.get_exposure_maps(**input_params)
