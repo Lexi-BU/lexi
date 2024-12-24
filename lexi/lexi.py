@@ -433,7 +433,6 @@ def get_lexi_data(
     else:
         new_time_range = time_range
 
-    print(f"Time range: {time_range[0]} to {time_range[1]}")
     # Read the file_list data
     lexi_file_list_name = (
         Path(__file__).resolve().parent / ".lexi_data/all_lexi_file_list.csv"
@@ -681,8 +680,13 @@ def get_spc_prams(
                     )
 
     # Modify the time_range based on the time_pad value
-    time_range[0] = time_range[0] - pd.Timedelta(time_pad, unit="s")
-    time_range[1] = time_range[1] + pd.Timedelta(time_pad, unit="s")
+    if time_pad is not None:
+        new_time_range = [
+            time_range[0] - pd.Timedelta(seconds=time_pad),
+            time_range[1] + pd.Timedelta(seconds=time_pad),
+        ]
+    else:
+        new_time_range = time_range
 
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
@@ -723,7 +727,7 @@ def get_spc_prams(
         print(e)
 
     # If the ephemeris data do not span the time_range, send warning
-    if df.index[0] > time_range[0] or df.index[-1] < time_range[1]:
+    if df.index[0] > new_time_range[0] or df.index[-1] < new_time_range[1]:
         warnings.warn(
             "Ephemeris data do not cover the full time range requested."
             "End regions will be forward/backfilled."
@@ -731,14 +735,14 @@ def get_spc_prams(
         # Add the just the two endpoints to the index
         df = df.reindex(
             index=np.union1d(
-                pd.date_range(time_range[0], time_range[1], periods=2), df.index
+                pd.date_range(new_time_range[0], new_time_range[1], periods=2), df.index
             )
         )
 
     # While slicing the dataframe, we need to make sure that the start and stop times are rounded
     # to the nearest minute.
-    t_start = time_range[0].floor("min")
-    t_stop = time_range[1].ceil("min")
+    t_start = new_time_range[0].floor("min")
+    t_stop = new_time_range[1].ceil("min")
     dfslice = df[t_start:t_stop]
     dfresamp = dfslice.resample(pd.Timedelta(time_step, unit="s"))
     dfinterp = dfresamp.interpolate(method=interp_method, limit_direction="both")
@@ -746,7 +750,7 @@ def get_spc_prams(
     # If lexi_data is True, then get the LEXI data
     if lexi_data:
         df_lexi = get_lexi_data(
-            time_range=time_range,
+            time_range=new_time_range,
             time_zone=time_zone,
             verbose=verbose,
             **(lexi_data_kwargs if lexi_data_kwargs else {}),

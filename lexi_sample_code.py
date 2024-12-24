@@ -24,11 +24,11 @@ input_params = {
     # "background_correction_on": False,
     # "save_lexi_images": True,
     "verbose": True,
-    "spc_prams": True,
-    # "lexi_data": True,
+    # "spc_prams": True,
+    "lexi_data": True,
     "return_data_type": "all",
-    "time_pad": 600,
-    "data_clip": False,
+    "time_pad": 900,
+    "data_clip": True,
     # "spc_prams_kwargs": {"time_step": "60", "interp_method": "index"},
     # "lexi_data_kwargs": {
     # "force_compute": False,
@@ -36,7 +36,7 @@ input_params = {
 
 # df1, df2, df3 = lexi.get_lexi_data(**input_params)
 # df3 = lexi.get_spc_prams(**input_params)
-df1, df2, df3 = lexi.get_lexi_data(**input_params)
+df1, df2, df3 = lexi.get_spc_prams(**input_params)
 print(df1, df2, df3)
 print(input_params["time_range"])
 # exposure_maps_dict = lexi.get_exposure_maps(**input_params)
