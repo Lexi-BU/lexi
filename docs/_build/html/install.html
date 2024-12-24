@@ -82,7 +82,205 @@
       </nav>
 
       <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Lexi-BU/lexi/blob/stable/lexi/install.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-guide">
+<h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading"></a></h1>
+<p>The next section of this document will guide you through the installation process of <cite>lexi</cite>.</p>
+<p>Though it is not necessary, we strongly recommend that you install Lexi in a virtual environment.
+This will prevent any conflicts with other Python packages you may have installed.</p>
+<p>A virtual environment is a self-contained directory tree that contains a Python installation for a
+particular version of Python, plus a number of additional packages. You can install packages into a
+virtual environment without affecting the system Python installation. This is especially useful when
+you need to install packages that might conflict with other packages you have installed.</p>
+<section id="creating-a-virtual-environment">
+<h2>Creating a Virtual Environment<a class="headerlink" href="#creating-a-virtual-environment" title="Link to this heading"></a></h2>
+<p>There are several ways to create a virtual environment. We recommend using <cite>python3</cite> to do so.</p>
+<p>For this exercise, we will assume that you have a directory called <cite>Documents/lexi</cite> where you will
+install Lexi and create your virtual environment. Please replace <cite>Documents/lexi</cite> with the actual
+path to the directory where you want to install Lexi and create your virtual environment.</p>
+<ul class="simple">
+<li><p>Change into the <cite>Documents/lexi</cite> directory.</p></li>
+</ul>
+<section id="using-python3">
+<h3>Using python3<a class="headerlink" href="#using-python3" title="Link to this heading"></a></h3>
+<p>You can create a virtual environment called <cite>lexi_venv</cite> (or any other name you might like) using
+<cite>python3</cite> by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>lexi_venv
+</pre></div>
+</div>
+<p>You can activate the virtual environment by running the following command:</p>
+<section id="on-linux-macos">
+<h4>On Linux/MacOS:<a class="headerlink" href="#on-linux-macos" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>lexi_venv/bin/activate
+</pre></div>
+</div>
+</section>
+<section id="on-windows">
+<h4>On Windows:<a class="headerlink" href="#on-windows" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\l</span>exi_venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+</pre></div>
+</div>
+<p>You can deactivate the virtual environment by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>deactivate
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="installing-lexi">
+<h2>Installing Lexi<a class="headerlink" href="#installing-lexi" title="Link to this heading"></a></h2>
+<section id="installing-from-source">
+<h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading"></a></h3>
+<p>After you have created and activated your virtual environment, you can install Lexi directly from GitHub by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Lexi-BU/lexi
+</pre></div>
+</div>
+</section>
+<section id="installing-from-a-local-copy">
+<h3>Installing from a Local Copy<a class="headerlink" href="#installing-from-a-local-copy" title="Link to this heading"></a></h3>
+<p>After you have created and activated your virtual environment, you can install Lexi from a local copy
+by following these steps:</p>
+<ol class="arabic simple">
+<li><p>Download <cite>lexi-version.tar.gz</cite> directory from the following link: <a class="reference external" href="https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz">Download LEXI Software</a></p></li>
+<li><p>Copy the <cite>lexi-version.tar.gz</cite> file into <cite>Documents/lexi</cite> (or any other directory where you want
+to install Lexi in).</p></li>
+<li><p>Activate your virtual environment using the instructions above.</p></li>
+<li><p>Install Lexi by running the following command (replace <code class="docutils literal notranslate"><span class="pre">lexi-version.tar.gz</span></code> with the actual name of the file you downloaded):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lexi-version.tar.gz
+</pre></div>
+</div>
+<p>This will install Lexi and all its dependencies.</p>
+</section>
+</section>
+</section>
+<section id="verifying-the-installation">
+<h1>Verifying the Installation<a class="headerlink" href="#verifying-the-installation" title="Link to this heading"></a></h1>
+<p>You can verify that Lexi was installed by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>show<span class="w"> </span>lexi
+</pre></div>
+</div>
+<p>This should produce output similar to the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span> <span class="n">lexi</span>
+<span class="n">Version</span><span class="p">:</span> <span class="mf">0.0.1</span>
+<span class="n">Summary</span><span class="p">:</span> <span class="n">Main</span> <span class="n">repository</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">data</span> <span class="n">analysis</span> <span class="n">related</span> <span class="n">to</span> <span class="n">LEXI</span>
+<span class="n">Home</span><span class="o">-</span><span class="n">page</span><span class="p">:</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">qudsiramiz</span>
+<span class="n">Author</span><span class="o">-</span><span class="n">email</span><span class="p">:</span> <span class="n">qudsiramiz</span><span class="nd">@gmail</span><span class="o">.</span><span class="n">com</span>
+<span class="n">License</span><span class="p">:</span> <span class="n">GNU</span> <span class="n">GPLv3</span>
+<span class="n">Location</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">cephadrius</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="n">lexi_code_test_v2</span><span class="o">/</span><span class="n">lexi_test_v2</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.10</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span>
+<span class="n">Requires</span><span class="p">:</span> <span class="n">cdflib</span><span class="p">,</span> <span class="n">matplotlib</span><span class="p">,</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">pytest</span><span class="p">,</span> <span class="n">toml</span>
+<span class="n">Required</span><span class="o">-</span><span class="n">by</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>You can also verify that Lexi was installed by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>list
+</pre></div>
+</div>
+<p>This should produce output similar to the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Package<span class="w">         </span>Version
+---------------<span class="w"> </span>-------
+.....................
+kiwisolver<span class="w">      </span><span class="m">1</span>.4.5
+lexi<span class="w">            </span><span class="m">0</span>.0.1
+matplotlib<span class="w">      </span><span class="m">3</span>.8.2
+numpy<span class="w">           </span><span class="m">1</span>.26.4
+.....................
+</pre></div>
+</div>
+<p>You can open a Python shell and import Lexi by running the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python
+import<span class="w"> </span>lexi
+lexi.__version__
+</pre></div>
+</div>
+<p>This should produce output similar to the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;0.0.1&#39;</span>
+</pre></div>
+</div>
+<p>If that worked, congratulations! You have successfully installed Lexi.</p>
+</section>
+<section id="using-lexi-software">
+<h1>Using LEXI Software<a class="headerlink" href="#using-lexi-software" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
+to demonstrate how to use <cite>lexi</cite> to analyze data from LEXI.</p>
+</div>
+<section id="using-the-example-jupyter-notebook">
+<h2>Using the Example Jupyter Notebook<a class="headerlink" href="#using-the-example-jupyter-notebook" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>If you haven’t already, download the example folder from the following link:
+<a class="reference external" href="https://lexi-bu.github.io/software/examples.zip">Download LEXI Examples</a>
+and extract it to a directory of your choice. We will refer to this directory as <cite>examples</cite> for the rest of this document.</p></li>
+<li><p>Activate your virtual environment. If you haven’t already created a virtual environment, please
+refer to the <span class="xref std std-ref">creating-a-virtual-environment</span> section for instructions on how to do so.
+Remember that you can activate your virtual environment by running the following command:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>lexi_venv/bin/activate
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\l</span>exi_venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Change into the <cite>examples</cite> directory.</p></li>
+<li><p>If you haven’t already, install Jupyter Notebook by running the following command:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>jupyter
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Open the Jupyter Notebook by running the following command:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter<span class="w"> </span>notebook<span class="w"> </span>lexi_tutorial.ipynb
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>This will open a new tab in your web browser and will look like the image below:</p></li>
+</ol>
+<img alt="Jupyter Notebook Screenshot" src="_images/lexi_notebook_screeenshot.png" />
+<ol class="arabic simple" start="7">
+<li><p>You can now run the cells in the Jupyter Notebook to see how to use <cite>lexi</cite> to analyze data from
+LEXI.</p></li>
+</ol>
+</section>
+</section>
 
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="LEXI Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright LEXI Team @ Boston University, 2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
       </div>
     </section>
   </div>

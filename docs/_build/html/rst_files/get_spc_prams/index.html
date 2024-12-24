@@ -78,7 +78,125 @@
       </nav>
 
       <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Functions</a></li>
+      <li class="breadcrumb-item active">Get Spacecraft Parameters (<cite>lexi.lexi.get_spc_prams</cite>)</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Lexi-BU/lexi/blob/stable/lexi/rst_files/get_spc_prams/index.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-spacecraft-parameters-lexi-lexi-get-spc-prams">
+<h1>Get Spacecraft Parameters (<cite>lexi.lexi.get_spc_prams</cite>)<a class="headerlink" href="#get-spacecraft-parameters-lexi-lexi-get-spc-prams" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="lexi.lexi.get_spc_prams">
+<span class="sig-prename descclassname"><span class="pre">lexi.lexi.</span></span><span class="sig-name descname"><span class="pre">get_spc_prams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lexi_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merged'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lexi_data_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi.lexi.get_spc_prams" title="Link to this definition"></a></dt>
+<dd><p>Function to get spacecraft ephemeris data</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>time_range<span class="classifier">list</span></dt><dd><p>Time range to consider. [start time, end time]. Times can be expressed in the following</p>
+</dd>
+<dt>formats:</dt><dd><ol class="arabic simple">
+<li><p>A string in the format ‘YYYY-MM-DDTHH:MM:SS’ (e.g. ‘2022-01-01T00:00:00’)</p></li>
+<li><p>A datetime object</p></li>
+<li><p>A float in the format of a UNIX timestamp (e.g. 1640995200.0)</p></li>
+</ol>
+</dd>
+</dl>
+<p>This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+Note that endpoints are inclusive (the end time is a closed interval); this is because he time
+range slicing is done with pandas, and label slicing in pandas is inclusive.</p>
+<dl>
+<dt>time_zone<span class="classifier">str, optional</span></dt><dd><p>The timezone of the time range of interest. Default is “UTC”</p>
+</dd>
+<dt>time_step<span class="classifier">int or float, optional</span></dt><dd><p>Time step in seconds for time resolution of the look direction datum.</p>
+</dd>
+<dt>interp_method<span class="classifier">str, optional</span></dt><dd><p>Interpolation method used when upsampling/resampling ephemeris data, ROSAT data. Options:
+‘linear’, ‘index’, ‘values’, ‘pad’. See pandas.DataFrame.interpolate documentation for
+more information. Default is ‘linear’.</p>
+</dd>
+<dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>If True, print messages. Default is True</p>
+</dd>
+<dt>lexi_data<span class="classifier">bool, optional</span></dt><dd><p>If True, get the LEXI data for the same time range as the spacecraft parameters. Default is
+False.</p>
+</dd>
+<dt>return_data_type<span class="classifier">str, optional</span></dt><dd><p>Type of data to return. This parameter is only used when lexi_data is True. This defines what
+kind of dataframes to return. Valid options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘merged’: Merged LEXI and spacecraft parameters dataframes using the ‘pd.merge_asof’
+function with a tolerance of 1 minute and direction of ‘nearest’. Default option.</p></li>
+<li><p>‘lexi’: LEXI data only</p></li>
+<li><p>‘spc_prams’: Spacecraft parameters data only</p></li>
+<li><p>‘both’: Both LEXI and spacecraft parameters dataframes</p></li>
+<li><p>‘all’: All three dataframes</p></li>
+</ul>
+</div></blockquote>
+<p>Default is ‘merged’</p>
+</dd>
+<dt>lexi_data_kwargs<span class="classifier">dict, optional</span></dt><dd><p>Keyword arguments to pass to the get_lexi_data function. Default is None. If None, then the
+default values of the get_lexi_data function are used.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>df<span class="classifier">pandas DataFrame</span></dt><dd><p>Spacecraft parameters data</p>
+</dd>
+<dt>df_lexi<span class="classifier">pandas DataFrame</span></dt><dd><p>LEXI data</p>
+</dd>
+<dt>df_merged<span class="classifier">pandas DataFrame</span></dt><dd><p>Merged LEXI and spacecraft parameters data</p>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_range</strong> (<em>list</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>time_zone</strong> (<em>str</em>)</p></li>
+<li><p><strong>time_step</strong> (<em>float</em>)</p></li>
+<li><p><strong>interp_method</strong> (<em>str</em>)</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>)</p></li>
+<li><p><strong>lexi_data</strong> (<em>bool</em>)</p></li>
+<li><p><strong>return_data_type</strong> (<em>str</em>)</p></li>
+<li><p><strong>lexi_data_kwargs</strong> (<em>dict</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../modules.html" class="btn btn-neutral float-left" title="Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../download_files_from_github/index.html" class="btn btn-neutral float-right" title="Download Files from GitHub (lexi.lexi.download_files_from_github)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright LEXI Team @ Boston University, 2024.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
       </div>
     </section>
   </div>
