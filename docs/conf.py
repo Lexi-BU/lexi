@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
@@ -8,6 +9,34 @@ sys.path.insert(0, os.path.abspath("../"))
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+
+def get_git_versions():
+    try:
+        # Fetch tags
+        tags = subprocess.check_output(
+            ["git", "tag"], universal_newlines=True
+        ).splitlines()
+        # Fetch branches
+        branches = subprocess.check_output(
+            ["git", "branch", "-r"], universal_newlines=True
+        ).splitlines()
+        # Clean up branches (remove remote name, e.g., "origin/")
+        branches = [
+            branch.strip().replace("origin/", "")
+            for branch in branches
+            if "origin/HEAD" not in branch
+        ]
+
+        # Combine and sort
+        versions = sorted(set(tags + branches), reverse=True)
+        return versions
+    except Exception as e:
+        print(f"Error fetching Git versions: {e}")
+        return ["latest", "stable"]  # Fallback versions
+
+
+versions = get_git_versions()
 
 # -- Project information -----------------------------------------------------
 project = "LEXI"
@@ -46,6 +75,8 @@ html_logo = "_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,
+    "display_versions": True,
+    "versions": versions,
     "github_user": "Lexi-BU",
     "github_repo": "lexi",
     "github_version": "stable",
