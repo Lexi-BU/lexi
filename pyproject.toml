@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "lexi"
-version = "0.0.4"
+version = "0.1.0"
 description = "Main repository for all data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
 maintainers = [
     "Brian Walsh <bwalsh@bu.edu>",
-    "Zoe Chitty <zlch@bu.edu>",
+    "Cadin Connor <cmconnor@bu.edu>",
 ]
 license = "GNU GPLv3"
 readme = "README.md"
