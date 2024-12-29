@@ -13,6 +13,10 @@ import warnings
 
 from lexi import __version__, __doc__
 
+__all__ = [
+    "get_lexi_data", "get_spc_prams", "get_exposure_maps", "get_sky_backgrounds", "get_lexi_images", "array_to_image"
+]
+
 # Add the docstring to the package
 __doc__ = __doc__
 

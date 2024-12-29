@@ -31,3 +31,20 @@ try:
 except DistributionNotFound:
     # Package is not installed
     __version__ = "0.0.0"
+
+__all__ = [
+    "get_lexi_data",
+    "get_spc_prams",
+    "get_exposure_maps",
+    "get_sky_backgrounds",
+    "get_lexi_images",
+    "array_to_images",
+]
+
+# Import the modules from the package
+from lexi.get_lexi_data import get_lexi_data
+from lexi.get_spc_prams import get_spc_prams
+from lexi.get_exposure_maps import get_exposure_maps
+from lexi.get_sky_backgrounds import get_sky_backgrounds
+from lexi.get_lexi_images import get_lexi_images
+from lexi.array_to_image import array_to_image
