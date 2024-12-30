@@ -74,6 +74,7 @@ html_css_files = [
     "css/custom.css",  # Add custom.css to the list
 ]
 html_logo = "_static/lexi_logo.png"
+html_favicon = "_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,
