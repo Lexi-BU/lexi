@@ -1,7 +1,8 @@
 # lexi/__init__.py
 
 # Import the version from your setup.py file
-from pkg_resources import get_distribution, DistributionNotFound
+from importlib.metadata import version, PackageNotFoundError
+
 
 # Add the docstring to the package
 __doc__ = """
@@ -27,7 +28,18 @@ file.
 """
 
 try:
-    __version__ = get_distribution("lexi").version
-except DistributionNotFound:
-    # Package is not installed
+    __version__ = version("lexi")
+except PackageNotFoundError:
     __version__ = "0.0.0"
+
+# Import the functions from the lexi package
+from .lexi import (
+    validate_input,
+    download_files_from_github,
+    get_lexi_data,
+    get_spc_prams,
+    get_exposure_maps,
+    get_sky_backgrounds,
+    get_lexi_images,
+    array_to_image,
+)

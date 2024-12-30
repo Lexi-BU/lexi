@@ -1,8 +1,10 @@
-# from lexi import lexi as lexi
-# import importlib
+from lexi import lexi as lexi
+import importlib
+import pandas as pd
+
 # import numpy as np
 #
-# importlib.reload(lexi)
+importlib.reload(lexi)
 
 array_to_image_kwargs_exp = {
     "x_range": [190, 240],
@@ -122,3 +124,10 @@ input_params = {
 # lexi_images_dict = lexi.get_lexi_images(**input_params)
 # print(np.shape(lexi_images_dict["lexi_images"]))
 
+
+lexi.get_lexi_data(
+    time_range=[
+        pd.to_datetime("2025-03-04 08:53:41"),
+        pd.to_datetime("2025-03-04 09:23:41"),
+    ]
+)
