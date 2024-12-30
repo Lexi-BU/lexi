@@ -1045,7 +1045,7 @@ def get_exposure_maps(
     save_exposure_map_image: bool = False,
     verbose: bool = True,
     force_compute: bool = False,
-    array_to_image_kwargs: dict = None,
+    array_to_image_kwargs: dict = {},
 ):
     """
     Function to get exposure maps
@@ -1437,7 +1437,7 @@ def get_sky_backgrounds(
     save_sky_backgrounds_image: bool = False,
     verbose: bool = True,
     force_compute: bool = False,
-    array_to_image_kwargs: dict = None,
+    array_to_image_kwargs: dict = {},
 ):
     """
     Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
@@ -1767,7 +1767,7 @@ def get_lexi_images(
     save_sky_backgrounds_image: bool = False,
     save_lexi_images: bool = False,
     verbose: bool = True,
-    array_to_image_kwargs: dict = None,
+    array_to_image_kwargs: dict = {},
 ):
     """
     Function to get LEXI images for a given time range and RA/DEC range and resolution using

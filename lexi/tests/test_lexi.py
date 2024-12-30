@@ -1,10 +1,8 @@
 import unittest
 import pytest
 import warnings
-import pytz
 import numpy as np
 import pandas as pd
-from datetime import datetime
 from unittest.mock import patch
 from lexi.lexi import (
     validate_input,
@@ -158,11 +156,11 @@ def test_get_spc_prams():
 
 # Helper function to create a dummy test for validation
 def test_validate_input():
-    assert validate_input("time_step", 5) == True
-    assert validate_input("ra_range", [0, 360]) == True
-    assert validate_input("dec_range", [-90, 90]) == True
-    assert validate_input("ra_res", 0.1) == True
-    assert validate_input("dec_res", 0.1) == True
+    assert validate_input("time_step", 5) is True
+    assert validate_input("ra_range", [0, 360]) is True
+    assert validate_input("dec_range", [-90, 90]) is True
+    assert validate_input("ra_res", 0.1) is True
+    assert validate_input("dec_res", 0.1) is True
 
 
 # Test: Ensure function returns correct structure (dictionary)
