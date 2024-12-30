@@ -10,6 +10,7 @@ from cdflib import CDF
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
+import datetime
 
 # Define a list of global variables
 # Define the field of view of LEXI in degrees
@@ -44,9 +45,23 @@ def validate_input(key, value):
             raise ValueError("time_range must be a list")
         if len(value) != 2:
             raise ValueError("time_range must have two elements")
-        # Check that all elements are either strings, or datetime objects or Timestamps
-        if not all(isinstance(x, (str, pd.Timestamp)) for x in value):
-            raise ValueError("time_range elements must be strings or datetime objects")
+        # Check that all elements are either one of these types: str, datetime, float, int, float
+        allowed_types = (str, datetime.datetime, int, float)
+        for item in value:
+            if not isinstance(item, allowed_types):
+                raise ValueError(
+                    f"Invalid type: {type(item)} for value {item} in time_range"
+                )
+        # Check if the start time is less than the end time (if they are both numbers)
+        if isinstance(value[0], numbers.Number) and isinstance(
+            value[1], numbers.Number
+        ):
+            if value[0] >= value[1]:
+                raise ValueError("start time must be less than end time")
+        # Check if the start time is less than the end time (if they are both strings)
+        if isinstance(value[0], str) and isinstance(value[1], str):
+            if value[0] >= value[1]:
+                raise ValueError("start time must be less than end time")
 
     if key == "time_zone":
         if not isinstance(value, str):
@@ -427,6 +442,10 @@ def get_lexi_data(
             time_range[0] = pd.to_datetime(time_range[0])
         if isinstance(time_range[1], str):
             time_range[1] = pd.to_datetime(time_range[1])
+        if isinstance(time_range[0], numbers.Number):
+            time_range[0] = pd.to_datetime(time_range[0], unit="s", utc=True)
+        if isinstance(time_range[1], numbers.Number):
+            time_range[1] = pd.to_datetime(time_range[1], unit="s", utc=True)
         # Validate time_zone, if it is not valid, set it to UTC
         if time_zone is not None:
             time_zone_validated = validate_input("time_zone", time_zone)
@@ -447,9 +466,8 @@ def get_lexi_data(
                 time_range[1] = time_range[1].tz_localize("UTC")
                 if verbose:
                     print(
-                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                        "Timezone of input time range set to \033[1;92m UTC \033[0m \n"
                     )
-
     # Modify the time_range based on the time_pad value
     if time_pad is not None:
         new_time_range = [
@@ -706,6 +724,10 @@ def get_spc_prams(
             time_range[0] = pd.to_datetime(time_range[0])
         if isinstance(time_range[1], str):
             time_range[1] = pd.to_datetime(time_range[1])
+        if isinstance(time_range[0], numbers.Number):
+            time_range[0] = pd.to_datetime(time_range[0], unit="s", utc=True)
+        if isinstance(time_range[1], numbers.Number):
+            time_range[1] = pd.to_datetime(time_range[1], unit="s", utc=True)
         # Validate time_zone, if it is not valid, set it to UTC
         if time_zone is not None:
             time_zone_validated = validate_input("time_zone", time_zone)
@@ -726,9 +748,8 @@ def get_spc_prams(
                 time_range[1] = time_range[1].tz_localize("UTC")
                 if verbose:
                     print(
-                        "Timezone of input timer ange set to \033[1;92m UTC \033[0m \n"
+                        "Timezone of input time range set to \033[1;92m UTC \033[0m \n"
                     )
-
     # Modify the time_range based on the time_pad value
     if time_pad is not None:
         new_time_range = [
@@ -1917,25 +1938,39 @@ def get_lexi_images(
 
     # Validate each of the inputs
     time_range_validated = validate_input("time_range", time_range)
+
     if time_range_validated:
-        # Check if each element of time_range is a datetime object, if not then convert it to a datetime
-        # object
+        # If time_range elements are strings, convert them to datetime objects
         if isinstance(time_range[0], str):
             time_range[0] = pd.to_datetime(time_range[0])
         if isinstance(time_range[1], str):
             time_range[1] = pd.to_datetime(time_range[1])
-    time_zone_validated = validate_input("time_zone", time_zone)
-    if time_zone_validated:
-        # Set the timezone to the time_range
-        time_range[0] = time_range[0].tz_localize(time_zone)
-        time_range[1] = time_range[1].tz_localize(time_zone)
-        if verbose:
-            print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
-    else:
-        time_range[0] = time_range[0].tz_localize("UTC")
-        time_range[1] = time_range[1].tz_localize("UTC")
-        if verbose:
-            print("Timezone set to \033[1;92m UTC \033[0m \n")
+        if isinstance(time_range[0], numbers.Number):
+            time_range[0] = pd.to_datetime(time_range[0], unit="s", utc=True)
+        if isinstance(time_range[1], numbers.Number):
+            time_range[1] = pd.to_datetime(time_range[1], unit="s", utc=True)
+        # Validate time_zone, if it is not valid, set it to UTC
+        if time_zone is not None:
+            time_zone_validated = validate_input("time_zone", time_zone)
+            if time_zone_validated:
+                # Check if time_range elements are timezone aware
+                if time_range[0].tzinfo is None:
+                    # Set the timezone to the time_range
+                    time_range[0] = time_range[0].tz_localize(time_zone)
+                    time_range[1] = time_range[1].tz_localize(time_zone)
+                elif time_range[0].tzinfo != time_zone:
+                    # Convert the timezone to the time_range
+                    time_range[0] = time_range[0].tz_convert(time_zone)
+                    time_range[1] = time_range[1].tz_convert(time_zone)
+                if verbose:
+                    print(f"Timezone set to \033[1;92m {time_zone} \033[0m \n")
+            else:
+                time_range[0] = time_range[0].tz_localize("UTC")
+                time_range[1] = time_range[1].tz_localize("UTC")
+                if verbose:
+                    print(
+                        "Timezone of input time range set to \033[1;92m UTC \033[0m \n"
+                    )
 
     interp_method_validated = validate_input("interp_method", interp_method)
     if not interp_method_validated:

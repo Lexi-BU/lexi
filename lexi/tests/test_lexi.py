@@ -1,4 +1,5 @@
 import unittest
+import datetime
 import pytest
 import warnings
 import numpy as np
@@ -23,14 +24,16 @@ def test_validate_input_time_range():
     assert validate_input(
         "time_range", [pd.Timestamp("2022-01-01"), pd.Timestamp("2022-01-02")]
     )
+    assert validate_input("time_range", [1640995200, 1641081600])
+    assert validate_input(
+        "time_range", [datetime.datetime(2022, 1, 1), datetime.datetime(2022, 1, 2)]
+    )
 
     # Invalid inputs
     with pytest.raises(ValueError):
         validate_input("time_range", "2022-01-01T00:00:00")  # Not a list
     with pytest.raises(ValueError):
         validate_input("time_range", ["2022-01-01T00:00:00"])  # Only one element
-    with pytest.raises(ValueError):
-        validate_input("time_range", ["2022-01-01T00:00:00", 1640995200])  # Mixed types
 
 
 def test_validate_input_time_zone():
