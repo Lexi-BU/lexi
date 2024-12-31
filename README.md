@@ -1,4 +1,9 @@
-# LEXI Software
+# Project Description
+
+<div align="center">
+    <img src="./images/lexi_logo.png" alt="LEXI Logo" width="200" height="131">
+</div>
+
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14582916.svg)](https://doi.org/10.5281/zenodo.14582916)
 
