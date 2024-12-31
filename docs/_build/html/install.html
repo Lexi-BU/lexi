@@ -63,6 +63,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-lexi">Installing Lexi</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-a-local-copy">Installing from a Local Copy</a></li>
 </ul>
@@ -77,42 +78,15 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/get_spc_prams/index.html">Get Spacecraft Prams</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_spc_prams/index.html#lexi.lexi.get_spc_prams"><code class="docutils literal notranslate"><span class="pre">get_spc_prams()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/download_files_from_github/index.html">Download Files from GitHub</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/download_files_from_github/index.html#lexi.lexi.download_files_from_github"><code class="docutils literal notranslate"><span class="pre">download_files_from_github()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/get_exposure_maps/index.html">Get Exposure Maps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_exposure_maps/index.html#lexi.lexi.get_exposure_maps"><code class="docutils literal notranslate"><span class="pre">get_exposure_maps()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_data/index.html">Get LEXI Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_data/index.html#lexi.lexi.get_lexi_data"><code class="docutils literal notranslate"><span class="pre">get_lexi_data()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_images/index.html">Get LEXI Images</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_images/index.html#lexi.lexi.get_lexi_images"><code class="docutils literal notranslate"><span class="pre">get_lexi_images()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html">Get Sky Backgrounds</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html#lexi.lexi.get_sky_backgrounds"><code class="docutils literal notranslate"><span class="pre">get_sky_backgrounds()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/array_to_image/index.html">Array to Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/array_to_image/index.html#lexi.lexi.array_to_image"><code class="docutils literal notranslate"><span class="pre">array_to_image()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/validate_input/index.html">Validate Input</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/validate_input/index.html#lexi.lexi.validate_input"><code class="docutils literal notranslate"><span class="pre">validate_input()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="rst_files/vignette/index.html">Vignette</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/vignette/index.html#lexi.lexi.vignette"><code class="docutils literal notranslate"><span class="pre">vignette()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/get_spc_prams/index.html">Get Spacecraft Prams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/download_files_from_github/index.html">Download Files from GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/get_exposure_maps/index.html">Get Exposure Maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_data/index.html">Get LEXI Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_images/index.html">Get LEXI Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html">Get Sky Backgrounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/array_to_image/index.html">Array to Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/validate_input/index.html">Validate Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rst_files/vignette/index.html">Vignette</a></li>
 </ul>
 </li>
 </ul>
@@ -187,6 +161,15 @@ path to the directory where you want to install Lexi and create your virtual env
 </section>
 <section id="installing-lexi">
 <h2>Installing Lexi<a class="headerlink" href="#installing-lexi" title="Link to this heading"></a></h2>
+<p>There are three ways to install Lexi: from pypi, from source, and from a local copy.</p>
+<section id="installing-from-pypi">
+<h3>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading"></a></h3>
+<p>After you have created and activated your virtual environment, you can install Lexi from PyPI by
+running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lexi_bu
+</pre></div>
+</div>
+</section>
 <section id="installing-from-source">
 <h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading"></a></h3>
 <p>After you have created and activated your virtual environment, you can install Lexi directly from GitHub by running the following command:</p>

@@ -56,6 +56,18 @@ You can deactivate the virtual environment by running the following command:
 
 Installing Lexi
 ---------------
+There are three ways to install Lexi: from pypi, from source, and from a local copy.
+
+Installing from PyPI
+~~~~~~~~~~~~~~~~~~~~~
+
+After you have created and activated your virtual environment, you can install Lexi from PyPI by
+running the following command:
+
+.. code-block:: bash
+
+    pip install lexi_bu
+
 
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~

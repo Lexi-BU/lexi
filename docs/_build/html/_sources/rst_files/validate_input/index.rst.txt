@@ -1,8 +1,8 @@
 
-===================
-Validate Input (`lexi.lexi.validate_input`)
-===================
+========================================
+Validate Input (`lexi_bu.lexi.validate_input`)
+========================================
 
-.. py:currentmodule:: lexi.lexi
+.. py:currentmodule:: lexi_bu.lexi
 
 .. autofunction:: validate_input

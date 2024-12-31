@@ -1,8 +1,8 @@
 
-===================
-Get Spacecraft Parameters (`lexi.lexi.get_spc_prams`)
-===================
+========================================
+Get Spacecraft Parameters (`lexi_bu.lexi.get_spc_prams`)
+========================================
 
-.. py:currentmodule:: lexi.lexi
+.. py:currentmodule:: lexi_bu.lexi
 
 .. autofunction:: get_spc_prams

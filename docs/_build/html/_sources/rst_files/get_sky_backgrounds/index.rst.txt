@@ -1,8 +1,8 @@
 
-===================
-Get Sky Backgrounds (`lexi.lexi.get_sky_backgrounds`)
-===================
+========================================
+Get Sky Backgrounds (`lexi_bu.lexi.get_sky_backgrounds`)
+========================================
 
-.. py:currentmodule:: lexi.lexi
+.. py:currentmodule:: lexi_bu.lexi
 
 .. autofunction:: get_sky_backgrounds
