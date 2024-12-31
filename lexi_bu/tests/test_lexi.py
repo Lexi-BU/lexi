@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from unittest.mock import patch
-from lexi.lexi import (
+from lexi_bu.lexi import (
     validate_input,
     get_lexi_data,
     get_spc_prams,

@@ -28,7 +28,7 @@ file.
 """
 
 try:
-    __version__ = version("lexi")
+    __version__ = version("lexi_bu")
 except PackageNotFoundError:
     __version__ = "0.0.0"
 

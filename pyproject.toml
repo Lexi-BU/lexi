@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lexi"
+name = "lexi_bu"
 version = "0.2.0"
 description = "Main repository for all data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
