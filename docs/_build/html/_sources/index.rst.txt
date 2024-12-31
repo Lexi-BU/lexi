@@ -41,3 +41,10 @@ Functions
    :maxdepth: 2
 
    Functions <modules>
+
+Citation and Acknowledgements
+=============================
+.. toctree::
+   :maxdepth: 2
+
+   Citation and Acknowledgements <citation>

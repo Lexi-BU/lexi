@@ -78,6 +78,15 @@ After you have created and activated your virtual environment, you can install L
 
     pip install git+https://github.com/Lexi-BU/lexi
 
+.. note::
+    This will install the latest version of `lexi` from the main branch. If you want to install a specific version, please append the version number to the URL.
+    For example, if you want to install version `0.3.1`, you can run the following command:
+
+    .. code-block:: bash
+
+        pip install git+https://github.com/Lexi-BU/lexi@0.3.1
+
+
 Installing from a Local Copy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
