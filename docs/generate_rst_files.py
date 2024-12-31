@@ -2,7 +2,7 @@ import os
 import ast
 
 # Path to the source file
-source_file = "../lexi/lexi.py"
+source_file = "../lexi_bu/lexi.py"
 
 # Base directory for the docs
 docs_base_dir = "rst_files/"
@@ -28,10 +28,10 @@ def generate_rst(function_name):
         # Template for .rst file content with dynamic function name and title
         rst_template = f"""
 ===================
-{title} (`lexi.lexi.{function_name}`)
+{title} (`lexi_bu.lexi.{function_name}`)
 ===================
 
-.. py:currentmodule:: lexi.lexi
+.. py:currentmodule:: lexi_bu.lexi
 
 .. autofunction:: {function_name}
 """

@@ -1,5 +1,5 @@
 import inspect
-from lexi import lexi  # Import your package/module
+from lexi_bu import lexi  # Import your package/module
 
 # Get a list of all functions in lexi module
 function_names = [
