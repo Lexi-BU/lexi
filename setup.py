@@ -19,7 +19,7 @@ setup(
     url="https://github.com/Lexi-BU/lexi",
     author="Lexi",
     author_email="lunar.lexi01@gmail.com",
-    license="MIT",
+    license="GPLv3",
     keywords="data analysis",
     packages=find_packages(),
     package_data={
