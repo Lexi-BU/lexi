@@ -99,19 +99,19 @@ by following these steps:
         pip install lexi-version.tar.gz
     ```
 
-This will install lexi and all its dependencies.
+This will install `lexi` and all its dependencies.
 
 ## Verifying the installation
 You can verify that lexi was installed by running the following command:
 
 ```bash
-    pip show lexi
+    pip show lexi_bu
 ```
 
 which should produce output similar to the following:
 
 ```
-    Name: lexi
+    Name: lexi_bu
     Version: 0.0.1
     Summary: Main repository for all data analysis related to LEXI
     Home-page: 
@@ -135,7 +135,7 @@ which should produce output similar to the following:
     --------------- -------
     .....................
     kiwisolver      1.4.5
-    lexi            0.0.1
+    lexi_bu         0.0.1
     matplotlib      3.8.2
     numpy           1.26.4
     .....................
@@ -145,7 +145,7 @@ You can open a Python shell and import `lexi` by running the following command:
 
 ```bash
     python
-    import lexi
+    import lexi_bu as lexi
     lexi.__version__
 ``` 
 
