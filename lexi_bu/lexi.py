@@ -410,7 +410,7 @@ def get_lexi_data(
     Example Usage
     -------------
 
-    >>> from lexi.lexi import get_lexi_data
+    >>> from lexi_bu.lexi import get_lexi_data
 
     >>> df_lexi = get_lexi_data(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -422,7 +422,7 @@ def get_lexi_data(
 
     .. jupyter-execute::
 
-        from lexi.lexi import get_lexi_data
+        from lexi_bu.lexi import get_lexi_data
 
         df_lexi = get_lexi_data(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -693,7 +693,7 @@ def get_spc_prams(
     Example Usage
     -------------
 
-    >>> from lexi.lexi import get_spc_prams
+    >>> from lexi_bu.lexi import get_spc_prams
 
     >>> df_spc = lexi.get_spc_prams(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -705,7 +705,7 @@ def get_spc_prams(
 
     .. jupyter-execute::
 
-        from lexi.lexi import get_spc_prams
+        from lexi_bu.lexi import get_spc_prams
 
         df_spc = get_spc_prams(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -1169,7 +1169,7 @@ def get_exposure_maps(
     -------------
     The following example shows how to get the exposure maps for a given time range:
 
-    >>> from lexi.lexi import get_exposure_maps
+    >>> from lexi_bu.lexi import get_exposure_maps
 
     >>> exposure_maps_dict = get_exposure_maps(
         time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -1188,7 +1188,7 @@ def get_exposure_maps(
 
     .. jupyter-execute::
 
-        from lexi.lexi import get_exposure_maps
+        from lexi_bu.lexi import get_exposure_maps
 
         exposure_maps_dict = get_exposure_maps(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
@@ -1566,7 +1566,7 @@ def get_sky_backgrounds(
     The following example demonstrates how to get sky backgrounds for a given time range and RA/DEC
     range and resolution using ROSAT data and exposure maps:
 
-    >>> from lexi.lexi import get_sky_backgrounds
+    >>> from lexi_bu.lexi import get_sky_backgrounds
 
     >>> sky_background_dict = get_sky_backgrounds(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -1587,7 +1587,7 @@ def get_sky_backgrounds(
 
     .. jupyter-execute::
 
-        from lexi.lexi import get_sky_backgrounds
+        from lexi_bu.lexi import get_sky_backgrounds
 
         sky_background_dict = get_sky_backgrounds(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
@@ -1892,7 +1892,7 @@ def get_lexi_images(
     The following example shows how to get LEXI images for a given time range and RA/DEC range and
     resolution
 
-    >>> from lexi.lexi import get_lexi_images
+    >>> from lexi_bu.lexi import get_lexi_images
 
     >>> lexi_images_dict = lexi.get_lexi_images(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
@@ -1915,7 +1915,7 @@ def get_lexi_images(
 
     .. jupyter-execute::
 
-        from lexi.lexi import get_lexi_images
+        from lexi_bu.lexi import get_lexi_images
 
         lexi_images_dict = get_lexi_images(
             time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:41"],
@@ -2294,7 +2294,7 @@ def array_to_image(
 
     .. jupyter-execute::
 
-        from lexi.lexi import array_to_image
+        from lexi_bu.lexi import array_to_image
         import numpy as np
         import matplotlib.pyplot as plt
 

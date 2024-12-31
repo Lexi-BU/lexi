@@ -259,7 +259,7 @@
 
 # %%
 # Import LEXI
-from lexi.lexi import LEXI
+from lexi_bu.lexi import LEXI
 
 
 # %%
