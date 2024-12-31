@@ -96,7 +96,7 @@ by following these steps:
 1. Download `lexi-version.tar.gz` directory from the following link: `Download LEXI Software <https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz>`_
 
 2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
-   to install Lexi in).
+   to install lexi in).
 
 3. Activate your virtual environment using the instructions above.
 
@@ -115,13 +115,13 @@ You can verify that Lexi was installed by running the following command:
 
 .. code-block:: bash
 
-    pip show lexi
+    pip show lexi_bu
 
 This should produce output similar to the following:
 
 .. code-block::
 
-    Name: lexi
+    Name: lexi_bu
     Version: 0.0.1
     Summary: Main repository for all data analysis related to LEXI
     Home-page: 
@@ -146,7 +146,7 @@ This should produce output similar to the following:
     --------------- -------
     .....................
     kiwisolver      1.4.5
-    lexi            0.0.1
+    lexi_bu         0.0.1
     matplotlib      3.8.2
     numpy           1.26.4
     .....................
@@ -156,7 +156,7 @@ You can open a Python shell and import Lexi by running the following commands:
 .. code-block:: bash
 
     python
-    import lexi
+    import lexi_bu as lexi
     lexi.__version__
 
 This should produce output similar to the following:
