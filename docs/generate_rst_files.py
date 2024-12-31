@@ -27,9 +27,9 @@ def generate_rst(function_name):
         title = function_names_dict[function_name]
         # Template for .rst file content with dynamic function name and title
         rst_template = f"""
-===================
+========================================
 {title} (`lexi_bu.lexi.{function_name}`)
-===================
+========================================
 
 .. py:currentmodule:: lexi_bu.lexi
 
