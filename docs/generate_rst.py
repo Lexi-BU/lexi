@@ -13,7 +13,7 @@ with open("functions.rst", "w") as f:
     f.write("   :template: function.rst\n")
     f.write("   :nosignatures:\n\n")
     for name in function_names:
-        f.write(f"   lexi.{name}\n")
+        f.write(f"   lexi_bu.{name}\n")
 
 # Print the function names
 print(function_names)
