@@ -1,7 +1,7 @@
 # Project Description
 
 <div align="center">
-    <img src="./images/lexi_logo.png" alt="LEXI Logo" width="200" height="131">
+    <img src="https://raw.githubusercontent.com/Lexi-BU/lexi/stable/images/lexi_logo.png" alt="LEXI Logo" width="200" height="131">
 </div>
 
 
