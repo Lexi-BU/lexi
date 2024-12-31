@@ -1,6 +1,6 @@
 
 ========================================
-Vignette (`lexi_bu.lexi.vignette`)
+Vignette (`lexi.vignette`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi

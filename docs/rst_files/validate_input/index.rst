@@ -1,6 +1,6 @@
 
 ========================================
-Validate Input (`lexi_bu.lexi.validate_input`)
+Validate Input (`lexi.validate_input`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi

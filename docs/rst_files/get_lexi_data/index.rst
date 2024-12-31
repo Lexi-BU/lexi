@@ -1,6 +1,6 @@
 
 ========================================
-Get LEXI Data (`lexi_bu.lexi.get_lexi_data`)
+Get LEXI Data (`lexi.get_lexi_data`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi

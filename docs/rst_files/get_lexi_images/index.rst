@@ -1,6 +1,6 @@
 
 ========================================
-Get LEXI Images (`lexi_bu.lexi.get_lexi_images`)
+Get LEXI Images (`lexi.get_lexi_images`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi
