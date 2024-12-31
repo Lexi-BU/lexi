@@ -199,8 +199,9 @@ choice. We will refer to this directory as `examples` for the rest of this docum
 ```
 
 6. This will open a new tab in your web browser and will look like the image below:
-
-![Jupyter Notebook](./images/lexi_notebook_screeenshot.png)
+<div align="center">
+    <img src="./images/lexi_notebook_screeenshot.png" alt="Jupyter Notebook">
+</div>
 
 7. You can now run the cells in the Jupyter Notebook to see how to use `lexi` to analyze data from
    LEXI.
