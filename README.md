@@ -1,5 +1,8 @@
-# lexi
-Main repository for all data analysis related to LEXI
+# LEXI Software
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14582916.svg)](https://doi.org/10.5281/zenodo.14582916)
+
+A python package for data analysis related to LEXI
 
 # Installation Guide
 
