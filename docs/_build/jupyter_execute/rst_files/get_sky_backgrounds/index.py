@@ -4,7 +4,7 @@
 # In[1]:
 
 
-from lexi.lexi import get_sky_backgrounds
+from lexi_bu.lexi import get_sky_backgrounds
 
 sky_background_dict = get_sky_backgrounds(
     time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],

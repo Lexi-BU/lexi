@@ -4,7 +4,7 @@
 # In[1]:
 
 
-from lexi.lexi import array_to_image
+from lexi_bu.lexi import array_to_image
 import numpy as np
 import matplotlib.pyplot as plt
 

@@ -1,6 +1,6 @@
 
 ========================================
-Array to Image (`lexi_bu.lexi.array_to_image`)
+Array to Image (`lexi.array_to_image`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi

@@ -4,7 +4,7 @@
 # In[1]:
 
 
-from lexi.lexi import get_lexi_images
+from lexi_bu.lexi import get_lexi_images
 
 lexi_images_dict = get_lexi_images(
     time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:41"],

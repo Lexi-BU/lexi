@@ -4,7 +4,7 @@
 # In[1]:
 
 
-from lexi.lexi import get_lexi_data
+from lexi_bu.lexi import get_lexi_data
 
 df_lexi = get_lexi_data(
     time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],

@@ -4,7 +4,7 @@
 # In[1]:
 
 
-from lexi.lexi import get_exposure_maps
+from lexi_bu.lexi import get_exposure_maps
 
 exposure_maps_dict = get_exposure_maps(
     time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],

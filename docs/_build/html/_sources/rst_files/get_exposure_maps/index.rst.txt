@@ -1,6 +1,6 @@
 
 ========================================
-Get Exposure Maps (`lexi_bu.lexi.get_exposure_maps`)
+Get Exposure Maps (`lexi.get_exposure_maps`)
 ========================================
 
 .. py:currentmodule:: lexi_bu.lexi
