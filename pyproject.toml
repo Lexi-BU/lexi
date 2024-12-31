@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lexi_bu"
-version = "0.3.2"
+version = "0.3.3"
 description = "A python package for data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
 maintainers = [
