@@ -94,18 +94,22 @@ Installing from a Local Copy
 After you have created and activated your virtual environment, you can install Lexi from a local copy
 by following these steps:
 
-1. Download `lexi-version.tar.gz` directory from the following link: `Download LEXI Software <https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz>`_
+.. note::
+    We will use version `0.3.4` as an example. Please replace `0.3.4` with the actual version number
+    you want to install.
 
-2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
+1. Download `lexi-0.3.4.tar.gz` directory from the following link: `Download LEXI Software <https://github.com/Lexi-BU/lexi/archive/refs/tags/v0.3.4.tar.gz>`_
+
+2. Copy the `lexi-0.3.4.tar.gz` file into `Documents/lexi` (or any other directory where you want
    to install `lexi` in).
 
 3. Activate your virtual environment using the instructions above.
 
-4. Install `lexi` by running the following command (replace ``lexi-version.tar.gz`` with the actual name of the file you downloaded):
+4. Install `lexi` by running the following command (replace ``lexi-0.3.4.tar.gz`` with the actual name of the file you downloaded):
 
 .. code-block:: bash
 
-    pip install lexi-version.tar.gz
+    pip install lexi-0.3.4.tar.gz
 
 This will install `lexi` and all its dependencies.
 
