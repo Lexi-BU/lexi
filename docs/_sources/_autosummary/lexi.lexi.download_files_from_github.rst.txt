@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.download_files_from_github:
+﻿lexi.lexi.download\_files\_from\_github
+=======================================
 
-download_files_from_github
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: download_files_from_github

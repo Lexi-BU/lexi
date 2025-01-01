@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.array_to_image:
+﻿lexi.lexi.array\_to\_image
+==========================
 
-array_to_image
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: array_to_image

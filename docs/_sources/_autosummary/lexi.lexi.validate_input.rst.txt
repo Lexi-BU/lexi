@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.validate_input:
+﻿lexi.lexi.validate\_input
+=========================
 
-validate_input
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: validate_input

@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.vignette:
+﻿lexi.lexi.vignette
+==================
 
-vignette
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: vignette

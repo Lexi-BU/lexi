@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.get_sky_backgrounds:
+﻿lexi.lexi.get\_sky\_backgrounds
+===============================
 
-get_sky_backgrounds
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: get_sky_backgrounds

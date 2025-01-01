@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.get_spc_prams:
+﻿lexi.lexi.get\_spc\_prams
+=========================
 
-get_spc_prams
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: get_spc_prams

@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.get_lexi_data:
+﻿lexi.lexi.get\_lexi\_data
+=========================
 
-get_lexi_data
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: get_lexi_data

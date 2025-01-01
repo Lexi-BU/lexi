@@ -1,9 +1,6 @@
-﻿
-.. _lexi.lexi.get_lexi_images:
+﻿lexi.lexi.get\_lexi\_images
+===========================
 
-get_lexi_images
-=============================
+.. currentmodule:: lexi.lexi
 
-**Docstring:**
-
-
+.. autofunction:: get_lexi_images
