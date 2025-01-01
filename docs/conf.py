@@ -69,12 +69,12 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "sphinx_rtd_theme"
-html_static_path = ["src/_static"]  # Ensure _static is in the static path
+html_static_path = ["_static"]  # Ensure _static is in the static path
 html_css_files = [
     "css/custom.css",  # Add custom.css to the list
 ]
-html_logo = "src/_static/lexi_logo.png"
-html_favicon = "src/_static/lexi_logo.png"
+html_logo = "_static/lexi_logo.png"
+html_favicon = "_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,
