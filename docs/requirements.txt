@@ -10,3 +10,4 @@ pytest
 cdflib
 jupyter
 jupyter_sphinx
+nbsphinx
