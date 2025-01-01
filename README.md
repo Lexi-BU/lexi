@@ -81,23 +81,27 @@ For example, if you want to install version `0.3.1`, you can run the following c
 ```
 
 ### Installing from a local copy
-We don't recommend this, however if you must here are the details.
+We don't recommend this, however if you must, here are the details.
 
 After you have created and activated your virtual environment, you can install `lexi` from a local copy
 by following these steps:
 
-1. Download `lexi-version.tar.gz` directory from the following link: [Download LEXI
-   Software](https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz) 
+NOTE: We will use version `0.3.4` as an example. Please replace `0.3.4` with the actual version number
+    you want to install.
 
-2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
+1. Download `lexi-0.3.4.tar.gz` directory from the following link: [Download LEXI
+   Software](https://github.com/Lexi-BU/lexi/archive/refs/tags/v0.3.4.tar.gz)
+
+2. Copy the `lexi-0.3.4.tar.gz` file into `Documents/lexi` (or any other directory where you want
    to install `lexi` in).
 
 3. Activate your virtual environment using the instructions above.
 
-4. Install `lexi` by running the following command (NOTE: replace `lexi-version.tar.gz` with the actual name of the file you downloaded):
+4. Install `lexi` by running the following command (NOTE: replace `lexi-0.3.4.tar.gz` with the actual
+   name of the file you downloaded):
 
     ```bash
-        pip install lexi-version.tar.gz
+        pip install lexi-0.3.4.tar.gz
     ```
 
 This will install `lexi` and all its dependencies.
@@ -212,23 +216,23 @@ choice. We will refer to this directory as `examples` for the rest of this docum
 If you use `lexi` in your research, please cite the following paper:
 
 ```
-    @software{qudsi_ramiz_2024_14582916,
+    @software{ramiz_qudsi_2025_14585868,
                 author       = {Ramiz Qudsi and
                                 Zoe Chitty and
                                 Cadin Connor and
                                 Brian Walsh},
-                title        = {Lexi-BU/lexi: v0.3.2},
-                month        = dec,
-                year         = 2024,
-                publisher    = {Zenodo},
-                version      = {v0.3.2},
-                doi          = {10.5281/zenodo.14582916},
-                url          = {https://doi.org/10.5281/zenodo.14582916},
-                swhid        = {swh:1:dir:087f5896e7d34b12d04e04e2310c0f268c1512e0
-                                ;origin=https://doi.org/10.5281/zenodo.14582915;vi
-                                sit=swh:1:snp:b175fa9c0fa5bbb8f345d12bc8ef97d58f48
-                                f4ff;anchor=swh:1:rel:b38f7dab7d6cb8181e655225ea15
-                                55119a96e80a;path=Lexi-BU-lexi-8dd9403
-                                },
-                }
+                  title        = {Lexi-BU/lexi: v0.3.4},
+                  month        = jan,
+                  year         = 2025,
+                  publisher    = {Zenodo},
+                  version      = {v0.3.4},
+                  doi          = {10.5281/zenodo.14585868},
+                  url          = {https://doi.org/10.5281/zenodo.14585868},
+                  swhid        = {swh:1:dir:0f71ede7ba2db5f1548c45f330b2c945af59794b
+                                   ;origin=https://doi.org/10.5281/zenodo.14582915;vi
+                                   sit=swh:1:snp:6552c7107029bb957e1e2592742d13109209
+                                   1a11;anchor=swh:1:rel:5ca1c846400ca145a0d2599c9951
+                                   04421046558a;path=Lexi-BU-lexi-74dd3c2
+                                  },
+}
 ```
