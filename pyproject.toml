@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lexi_bu"
-version = "0.3.3"
+version = "0.3.4"
 description = "A python package for data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
 maintainers = [
@@ -12,7 +12,7 @@ readme = "README.md"
 url = "https://lexi-bu.github.io/"
 repository = "https://github.com/Lexi-BU/lexi"
 issues = "https://github.com/Lexi-BU/lexi/issues"
-documentation = "https://lexi-bu.github.io/"
+documentation = "https://lexi-bu.github.io/lexi"
 
 [tool.poetry.dependencies]
 python = ">=3.9"

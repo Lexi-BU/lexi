@@ -1,5 +1,3 @@
-# Project Description
-
 <div align="center">
     <img src="https://raw.githubusercontent.com/Lexi-BU/lexi/stable/images/lexi_logo.png" alt="LEXI Logo" width="200" height="131">
 </div>
@@ -7,26 +5,26 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14582916.svg)](https://doi.org/10.5281/zenodo.14582916)
 
-A python package for data analysis related to [LEXI](https://sites.bu.edu/lexi/).
+A python package for data analysis related to [LEXI](https://lexi-bu.github.io/).
 
 # Installation Guide
 
 The next section of this document will guide you through the installation process of `lexi`.
 
-Though it is not necessary, we strongly recommend that you install lexi in a virtual environment.
+Though it is not necessary, we strongly recommend that you install `lexi` in a virtual environment.
 This will prevent any conflicts with other Python packages you may have installed.
 
 A virtual environment is a self-contained directory tree that contains a Python installation for a
 particular version of Python, plus a number of additional packages. You can install packages into a
-virtual environment without affecting the system Python installation. This is especially useful when
+virtual environment without affecting the system's Python installation. This is especially useful when
 you need to install packages that might conflict with other packages you have installed.
 
 ## Creating a virtual environment
 There are several ways to create a virtual environment. We recommend using `python3` to do so.
 
 For this exercise, we will assume that you have a directory called `Documents/lexi` where you will
-install lexi and create your virtual environment. Please replace `Documents/lexi` with the actual
-path to the directory where you want to install lexi and create your virtual environment.
+install `lexi` and create your virtual environment. Please replace `Documents/lexi` with the actual
+path to the directory where you want to install `lexi` and create your virtual environment.
 
 - cd into `Documents/lexi`
 
@@ -58,17 +56,17 @@ You can deactivate the virtual environment by running the following command:
     deactivate
 ```
 
-## Installing Lexi
+## Installing `lexi`
 
 ### Installing from PyPI
-After you have created and activated your virtual environment, you can install lexi from PyPI by running the following command:
+After you have created and activated your virtual environment, you can install `lexi` from PyPI by running the following command:
 
 ```bash
     pip install lexi_bu
 ```
 
 ### Installing from source
-After you have created and activated your virtual environment, you can install lexi directly from
+After you have created and activated your virtual environment, you can install `lexi` directly from
 GitHub by running the following command:
 
 ```bash
@@ -83,17 +81,20 @@ For example, if you want to install version `0.3.1`, you can run the following c
 ```
 
 ### Installing from a local copy
-After you have created and activated your virtual environment, you can install lexi from a local copy
+We don't recommend this, however if you must here are the details.
+
+After you have created and activated your virtual environment, you can install `lexi` from a local copy
 by following these steps:
 
-1. Download `lexi-version.tar.gz` directory from the following link: [Download LEXI Software](https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz)
+1. Download `lexi-version.tar.gz` directory from the following link: [Download LEXI
+   Software](https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz) 
 
 2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
-   to install lexi in).
+   to install `lexi` in).
 
 3. Activate your virtual environment using the instructions above.
 
-4. Install lexi by running the following command (NOTE: replace `lexi-version.tar.gz` with the actual name of the file you downloaded):
+4. Install `lexi` by running the following command (NOTE: replace `lexi-version.tar.gz` with the actual name of the file you downloaded):
 
     ```bash
         pip install lexi-version.tar.gz
@@ -102,7 +103,7 @@ by following these steps:
 This will install `lexi` and all its dependencies.
 
 ## Verifying the installation
-You can verify that lexi was installed by running the following command:
+You can verify that `lexi` was installed by running the following command:
 
 ```bash
     pip show lexi_bu
