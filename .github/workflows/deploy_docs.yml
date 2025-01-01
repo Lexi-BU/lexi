@@ -30,12 +30,12 @@ jobs:
           pip install sphinx-autodoc-typehints
 
       - name: Build the documentation
-        run: sphinx-build -b html docs docs/
+        run: sphinx-build -b html src docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
+          publish_dir: docs/
           destination_repo: Lexi-BU/lexi
-          destination_branch: main
+          destination_branch: stable

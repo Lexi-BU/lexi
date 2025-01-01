@@ -1,0 +1,19 @@
+{% extends "!layout.html" %}
+
+{% block sourcelink %}
+<a href="https://github.com/Lexi-BU/lexi/blob/stable/lexi/lexi.py" target="_blank">View page source</a>
+
+<a href="https://github.com/Lexi-BU/lexi/blob/stable/lexi/lexi.py" target="_blank">
+    Edit on GitHub
+</a>
+
+<div class="version-selector">
+    <h3>Versions</h3>
+    <ul>
+    {% for version in versions %}
+        <li><a href="{{ html_baseurl }}/{{ version }}/">{{ version }}</a></li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
