@@ -83,7 +83,7 @@ html_context = {
     "github_user": "Lexi-BU",
     "github_repo": "lexi",
     "github_version": "stable",
-    "conf_py_path": "/docs/",
+    "conf_py_path": "/src/",
 }
 
 # -- Options for autodoc -----------------------------------------------------
@@ -112,8 +112,8 @@ autodoc_mock_imports = [
     "scipy",
     "cdflib",
     "jupyter",
-    "lexi.__init__",
-    "lexi.__version__",
+    "lexi_bu.__init__",
+    "lexi_bu.__version__",
 ]
 
 html_theme_options = {
