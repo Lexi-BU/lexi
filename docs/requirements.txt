@@ -9,3 +9,4 @@ toml
 pytest
 cdflib
 jupyter
+jupyter_sphinx
