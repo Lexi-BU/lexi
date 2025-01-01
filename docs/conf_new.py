@@ -34,7 +34,7 @@ html_theme = "sphinx_rtd_theme"
 html_css_files = [
     "css/custom.css",
 ]
-html_logo = "_static/lexi_logo.png"
+html_logo = "src/_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,
