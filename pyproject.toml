@@ -9,9 +9,8 @@ maintainers = [
 ]
 license = "GNU GPLv3"
 readme = "README.md"
-url = "https://lexi-bu.github.io/"
+homepage = "https://lexi-bu.github.io/"
 repository = "https://github.com/Lexi-BU/lexi"
-issues = "https://github.com/Lexi-BU/lexi/issues"
 documentation = "https://lexi-bu.github.io/lexi"
 
 [tool.poetry.dependencies]
