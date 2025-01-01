@@ -17,10 +17,10 @@ Creating a Virtual Environment
 There are several ways to create a virtual environment. We recommend using `python3` to do so.
 
 For this exercise, we will assume that you have a directory called `Documents/lexi` where you will
-install Lexi and create your virtual environment. Please replace `Documents/lexi` with the actual
-path to the directory where you want to install Lexi and create your virtual environment.
+install `lexi` and create your virtual environment. Please replace `Documents/lexi` with the actual
+path to the directory where you want to install `lexi` and create your virtual environment.
 
-- Change into the `Documents/lexi` directory.
+- Navigate to the `Documents/lexi` directory.
 
 Using python3
 ~~~~~~~~~~~~~
@@ -54,14 +54,14 @@ You can deactivate the virtual environment by running the following command:
 
     deactivate
 
-Installing Lexi
+Installing `lexi`
 ---------------
-There are three ways to install Lexi: from pypi, from source, and from a local copy.
+There are three ways to install `lexi`: from pypi, from source, and from a local copy.
 
 Installing from PyPI
 ~~~~~~~~~~~~~~~~~~~~~
 
-After you have created and activated your virtual environment, you can install Lexi from PyPI by
+After you have created and activated your virtual environment, you can install `lexi` from PyPI by
 running the following command:
 
 .. code-block:: bash
@@ -72,7 +72,8 @@ running the following command:
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~
 
-After you have created and activated your virtual environment, you can install Lexi directly from GitHub by running the following command:
+After you have created and activated your virtual environment, you can install `lexi` directly from
+GitHub by running the following command:
 
 .. code-block:: bash
 
@@ -96,22 +97,22 @@ by following these steps:
 1. Download `lexi-version.tar.gz` directory from the following link: `Download LEXI Software <https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz>`_
 
 2. Copy the `lexi-version.tar.gz` file into `Documents/lexi` (or any other directory where you want
-   to install lexi in).
+   to install `lexi` in).
 
 3. Activate your virtual environment using the instructions above.
 
-4. Install Lexi by running the following command (replace ``lexi-version.tar.gz`` with the actual name of the file you downloaded):
+4. Install `lexi` by running the following command (replace ``lexi-version.tar.gz`` with the actual name of the file you downloaded):
 
 .. code-block:: bash
 
     pip install lexi-version.tar.gz
 
-This will install Lexi and all its dependencies.
+This will install `lexi` and all its dependencies.
 
 Verifying the Installation
 ==========================
 
-You can verify that Lexi was installed by running the following command:
+You can verify that `lexi` was installed by running the following command:
 
 .. code-block:: bash
 
@@ -132,7 +133,7 @@ This should produce output similar to the following:
     Requires: cdflib, matplotlib, pandas, pytest, toml
     Required-by: 
 
-You can also verify that Lexi was installed by running the following command:
+You can also verify that `lexi` was installed by running the following command:
 
 .. code-block:: bash
 
@@ -151,7 +152,7 @@ This should produce output similar to the following:
     numpy           1.26.4
     .....................
 
-You can open a Python shell and import Lexi by running the following commands:
+You can open a Python shell and import `lexi` by running the following commands:
 
 .. code-block:: bash
 
@@ -165,9 +166,9 @@ This should produce output similar to the following:
 
     '0.0.1'
 
-If that worked, congratulations! You have successfully installed Lexi.
+If that worked, congratulations! You have successfully installed `lexi`.
 
-Using LEXI Software
+Using `lexi` Software
 ===================
 
 .. note::
