@@ -11,3 +11,8 @@ cdflib
 jupyter
 jupyter_sphinx
 nbsphinx
+myst_parser
+sphinx-tabs
+sphinx-reredirects
+sphinx-issues
+sphinx-autodoc-typehints

@@ -20,22 +20,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install -r docs/requirements.txt
-          pip install sphinx
-          pip install sphinx-rtd-theme
-          pip install myst_parser
-          pip install sphinx-tabs
-          pip install sphinx-reredirects
-          pip install sphinx-issues
-          pip install sphinx-autodoc-typehints
+          pip install -r src/requirements.txt
 
       - name: Build the documentation
-        run: sphinx-build -b html src docs/
+        run: sphinx-build -b html src docs/_build/html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/
-          destination_repo: Lexi-BU/lexi
-          destination_branch: stable
+          publish_dir: docs/_build/html
