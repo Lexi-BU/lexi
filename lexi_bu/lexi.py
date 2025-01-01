@@ -695,7 +695,7 @@ def get_spc_prams(
 
     >>> from lexi_bu.lexi import get_spc_prams
 
-    >>> df_spc = lexi.get_spc_prams(
+    >>> df_spc = get_spc_prams(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
             verbose=True
         )
@@ -1894,7 +1894,7 @@ def get_lexi_images(
 
     >>> from lexi_bu.lexi import get_lexi_images
 
-    >>> lexi_images_dict = lexi.get_lexi_images(
+    >>> lexi_images_dict = get_lexi_images(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
