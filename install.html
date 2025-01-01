@@ -9,15 +9,22 @@
   <title>Installation Guide &mdash; LEXI  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3be3e096" />
 
   
+    <link rel="shortcut icon" href="_static/lexi_logo.png"/>
     <link rel="canonical" href="https://lexi-bu.github.io/install.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -56,6 +63,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-lexi">Installing Lexi</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-a-local-copy">Installing from a Local Copy</a></li>
 </ul>
@@ -71,43 +79,46 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/get_spc_prams/index.html">Get Spacecraft Prams</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_spc_prams/index.html#lexi.lexi.get_spc_prams"><code class="docutils literal notranslate"><span class="pre">get_spc_prams()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/get_spc_prams/index.html#lexi_bu.lexi.get_spc_prams"><code class="docutils literal notranslate"><span class="pre">get_spc_prams()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/download_files_from_github/index.html">Download Files from GitHub</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/download_files_from_github/index.html#lexi.lexi.download_files_from_github"><code class="docutils literal notranslate"><span class="pre">download_files_from_github()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/download_files_from_github/index.html#lexi_bu.lexi.download_files_from_github"><code class="docutils literal notranslate"><span class="pre">download_files_from_github()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/get_exposure_maps/index.html">Get Exposure Maps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_exposure_maps/index.html#lexi.lexi.get_exposure_maps"><code class="docutils literal notranslate"><span class="pre">get_exposure_maps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/get_exposure_maps/index.html#lexi_bu.lexi.get_exposure_maps"><code class="docutils literal notranslate"><span class="pre">get_exposure_maps()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_data/index.html">Get LEXI Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_data/index.html#lexi.lexi.get_lexi_data"><code class="docutils literal notranslate"><span class="pre">get_lexi_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_data/index.html#lexi_bu.lexi.get_lexi_data"><code class="docutils literal notranslate"><span class="pre">get_lexi_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/get_lexi_images/index.html">Get LEXI Images</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_images/index.html#lexi.lexi.get_lexi_images"><code class="docutils literal notranslate"><span class="pre">get_lexi_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/get_lexi_images/index.html#lexi_bu.lexi.get_lexi_images"><code class="docutils literal notranslate"><span class="pre">get_lexi_images()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html">Get Sky Backgrounds</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html#lexi.lexi.get_sky_backgrounds"><code class="docutils literal notranslate"><span class="pre">get_sky_backgrounds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/get_sky_backgrounds/index.html#lexi_bu.lexi.get_sky_backgrounds"><code class="docutils literal notranslate"><span class="pre">get_sky_backgrounds()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/array_to_image/index.html">Array to Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/array_to_image/index.html#lexi.lexi.array_to_image"><code class="docutils literal notranslate"><span class="pre">array_to_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/array_to_image/index.html#lexi_bu.lexi.array_to_image"><code class="docutils literal notranslate"><span class="pre">array_to_image()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/validate_input/index.html">Validate Input</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/validate_input/index.html#lexi.lexi.validate_input"><code class="docutils literal notranslate"><span class="pre">validate_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/validate_input/index.html#lexi_bu.lexi.validate_input"><code class="docutils literal notranslate"><span class="pre">validate_input()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="rst_files/vignette/index.html">Vignette</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rst_files/vignette/index.html#lexi.lexi.vignette"><code class="docutils literal notranslate"><span class="pre">vignette()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rst_files/vignette/index.html#lexi_bu.lexi.vignette"><code class="docutils literal notranslate"><span class="pre">vignette()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation and Acknowledgements</a></li>
 </ul>
 
         </div>
@@ -180,11 +191,28 @@ path to the directory where you want to install Lexi and create your virtual env
 </section>
 <section id="installing-lexi">
 <h2>Installing Lexi<a class="headerlink" href="#installing-lexi" title="Link to this heading"></a></h2>
+<p>There are three ways to install Lexi: from pypi, from source, and from a local copy.</p>
+<section id="installing-from-pypi">
+<h3>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading"></a></h3>
+<p>After you have created and activated your virtual environment, you can install Lexi from PyPI by
+running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lexi_bu
+</pre></div>
+</div>
+</section>
 <section id="installing-from-source">
 <h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading"></a></h3>
 <p>After you have created and activated your virtual environment, you can install Lexi directly from GitHub by running the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Lexi-BU/lexi
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will install the latest version of <cite>lexi</cite> from the main branch. If you want to install a specific version, please append the version number to the URL.
+For example, if you want to install version <cite>0.3.1</cite>, you can run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Lexi-BU/lexi@0.3.1
+</pre></div>
+</div>
 </div>
 </section>
 <section id="installing-from-a-local-copy">
@@ -194,7 +222,7 @@ by following these steps:</p>
 <ol class="arabic simple">
 <li><p>Download <cite>lexi-version.tar.gz</cite> directory from the following link: <a class="reference external" href="https://lexi-bu.github.io/software/dist/lexi-0.0.1.tar.gz">Download LEXI Software</a></p></li>
 <li><p>Copy the <cite>lexi-version.tar.gz</cite> file into <cite>Documents/lexi</cite> (or any other directory where you want
-to install Lexi in).</p></li>
+to install lexi in).</p></li>
 <li><p>Activate your virtual environment using the instructions above.</p></li>
 <li><p>Install Lexi by running the following command (replace <code class="docutils literal notranslate"><span class="pre">lexi-version.tar.gz</span></code> with the actual name of the file you downloaded):</p></li>
 </ol>
@@ -208,11 +236,11 @@ to install Lexi in).</p></li>
 <section id="verifying-the-installation">
 <h1>Verifying the Installation<a class="headerlink" href="#verifying-the-installation" title="Link to this heading"></a></h1>
 <p>You can verify that Lexi was installed by running the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>show<span class="w"> </span>lexi
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>show<span class="w"> </span>lexi_bu
 </pre></div>
 </div>
 <p>This should produce output similar to the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span> <span class="n">lexi</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Name</span><span class="p">:</span> <span class="n">lexi_bu</span>
 <span class="n">Version</span><span class="p">:</span> <span class="mf">0.0.1</span>
 <span class="n">Summary</span><span class="p">:</span> <span class="n">Main</span> <span class="n">repository</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">data</span> <span class="n">analysis</span> <span class="n">related</span> <span class="n">to</span> <span class="n">LEXI</span>
 <span class="n">Home</span><span class="o">-</span><span class="n">page</span><span class="p">:</span>
@@ -233,7 +261,7 @@ to install Lexi in).</p></li>
 ---------------<span class="w"> </span>-------
 .....................
 kiwisolver<span class="w">      </span><span class="m">1</span>.4.5
-lexi<span class="w">            </span><span class="m">0</span>.0.1
+lexi_bu<span class="w">         </span><span class="m">0</span>.0.1
 matplotlib<span class="w">      </span><span class="m">3</span>.8.2
 numpy<span class="w">           </span><span class="m">1</span>.26.4
 .....................
@@ -241,7 +269,7 @@ numpy<span class="w">           </span><span class="m">1</span>.26.4
 </div>
 <p>You can open a Python shell and import Lexi by running the following commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python
-import<span class="w"> </span>lexi
+import<span class="w"> </span>lexi_bu<span class="w"> </span>as<span class="w"> </span>lexi
 lexi.__version__
 </pre></div>
 </div>
