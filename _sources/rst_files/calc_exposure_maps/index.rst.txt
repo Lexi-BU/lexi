@@ -1,6 +1,6 @@
 
 ========================================
-Get Exposure Maps (`lexi.calc_exposure_maps`)
+Calculate Exposure Maps (`lexi.calc_exposure_maps`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi

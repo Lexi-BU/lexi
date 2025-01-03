@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Get Exposure Maps (lexi.calc_exposure_maps) &mdash; LEXI  documentation</title>
+  <title>Calculate Exposure Maps (lexi.calc_exposure_maps) &mdash; LEXI  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
@@ -28,8 +28,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Get Sky Backgrounds (lexi.calc_sky_backgrounds)" href="../calc_sky_backgrounds/index.html" />
-    <link rel="prev" title="Get LEXI Images (lexi.make_lexi_images)" href="../make_lexi_images/index.html" /> 
+    <link rel="next" title="Calculate Sky Backgrounds (lexi.calc_sky_backgrounds)" href="../calc_sky_backgrounds/index.html" />
+    <link rel="prev" title="Make Lexi Images (lexi.make_lexi_images)" href="../make_lexi_images/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -136,7 +136,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../modules.html">Functions</a></li>
-      <li class="breadcrumb-item active">Get Exposure Maps (<cite>lexi.calc_exposure_maps</cite>)</li>
+      <li class="breadcrumb-item active">Calculate Exposure Maps (<cite>lexi.calc_exposure_maps</cite>)</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/Lexi-BU/lexi/blob/stable/docs/rst_files/calc_exposure_maps/index.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -146,8 +146,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="get-exposure-maps-lexi-calc-exposure-maps">
-<h1>Get Exposure Maps (<cite>lexi.calc_exposure_maps</cite>)<a class="headerlink" href="#get-exposure-maps-lexi-calc-exposure-maps" title="Link to this heading"></a></h1>
+  <section id="calculate-exposure-maps-lexi-calc-exposure-maps">
+<h1>Calculate Exposure Maps (<cite>lexi.calc_exposure_maps</cite>)<a class="headerlink" href="#calculate-exposure-maps-lexi-calc-exposure-maps" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="lexi_xray.lexi.calc_exposure_maps">
 <span class="sig-prename descclassname"><span class="pre">lexi_xray.lexi.</span></span><span class="sig-name descname"><span class="pre">calc_exposure_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">360]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-90,</span> <span class="pre">90]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_exposure_map_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_compute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_to_image_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi_xray.lexi.calc_exposure_maps" title="Link to this definition"></a></dt>
@@ -339,8 +339,8 @@ default values of the array_to_image function are used.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../make_lexi_images/index.html" class="btn btn-neutral float-left" title="Get LEXI Images (lexi.make_lexi_images)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../calc_sky_backgrounds/index.html" class="btn btn-neutral float-right" title="Get Sky Backgrounds (lexi.calc_sky_backgrounds)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../make_lexi_images/index.html" class="btn btn-neutral float-left" title="Make Lexi Images (lexi.make_lexi_images)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../calc_sky_backgrounds/index.html" class="btn btn-neutral float-right" title="Calculate Sky Backgrounds (lexi.calc_sky_backgrounds)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

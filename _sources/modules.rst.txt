@@ -3,7 +3,6 @@ Functions
 =========
 
 .. toctree::
-   :caption: Functions:
    :maxdepth: 1
 
    Make Lexi Images <./rst_files/make_lexi_images/index.rst>
