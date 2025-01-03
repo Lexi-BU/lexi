@@ -1,6 +1,6 @@
 
 ========================================
-Get Sky Backgrounds (`lexi.calc_sky_backgrounds`)
+Calculate Sky Backgrounds (`lexi.calc_sky_backgrounds`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi

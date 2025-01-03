@@ -8,13 +8,13 @@ source_file = "../lexi_xray/lexi.py"
 docs_base_dir = "rst_files/"
 
 function_names_dict = {
-    "make_lexi_images": "Get LEXI Images",
-    "calc_sky_backgrounds": "Get Sky Backgrounds",
-    "calc_exposure_maps": "Get Exposure Maps",
-    "array_to_image": "Array to Image",
+    "make_lexi_images": "Make Lexi Images",
+    "calc_exposure_maps": "Calculate Exposure Maps",
+    "calc_sky_backgrounds": "Calculate Sky Backgrounds",
     "get_lexi_data": "Get LEXI Data",
-    "get_spc_prams": "Get Spacecraft Parameters",
     "download_files_from_github": "Download Files from GitHub",
+    "get_spc_prams": "Get Spacecraft Parameters",
+    "array_to_image": "Array to Image",
     "validate_input": "Validate Input",
     "vignette": "Vignette",
 }

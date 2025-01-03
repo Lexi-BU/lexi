@@ -1,6 +1,6 @@
 
 ========================================
-Get LEXI Images (`lexi.make_lexi_images`)
+Make Lexi Images (`lexi.make_lexi_images`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi
