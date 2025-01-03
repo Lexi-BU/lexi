@@ -2,19 +2,19 @@ import os
 import ast
 
 # Path to the source file
-source_file = "../lexi_bu/lexi.py"
+source_file = "../lexi_xray/lexi.py"
 
 # Base directory for the docs
 docs_base_dir = "rst_files/"
 
 function_names_dict = {
+    "make_lexi_images": "Get LEXI Images",
+    "calc_sky_backgrounds": "Get Sky Backgrounds",
+    "calc_exposure_maps": "Get Exposure Maps",
     "array_to_image": "Array to Image",
-    "download_files_from_github": "Download Files from GitHub",
-    "get_exposure_maps": "Get Exposure Maps",
     "get_lexi_data": "Get LEXI Data",
-    "get_lexi_images": "Get LEXI Images",
-    "get_sky_backgrounds": "Get Sky Backgrounds",
     "get_spc_prams": "Get Spacecraft Parameters",
+    "download_files_from_github": "Download Files from GitHub",
     "validate_input": "Validate Input",
     "vignette": "Vignette",
 }
@@ -31,7 +31,7 @@ def generate_rst(function_name):
 {title} (`lexi.{function_name}`)
 ========================================
 
-.. py:currentmodule:: lexi_bu.lexi
+.. py:currentmodule:: lexi_xray.lexi
 
 .. autofunction:: {function_name}
 """

@@ -62,7 +62,7 @@ You can deactivate the virtual environment by running the following command:
 After you have created and activated your virtual environment, you can install `lexi` from PyPI by running the following command:
 
 ```bash
-    pip install lexi_bu
+    pip install lexi_xray
 ```
 
 ### Installing from source
@@ -110,13 +110,13 @@ This will install `lexi` and all its dependencies.
 You can verify that `lexi` was installed by running the following command:
 
 ```bash
-    pip show lexi_bu
+    pip show lexi_xray
 ```
 
 which should produce output similar to the following:
 
 ```
-    Name: lexi_bu
+    Name: lexi_xray
     Version: 0.0.1
     Summary: Main repository for all data analysis related to LEXI
     Home-page: 
@@ -140,7 +140,7 @@ which should produce output similar to the following:
     --------------- -------
     .....................
     kiwisolver      1.4.5
-    lexi_bu         0.0.1
+    lexi_xray         0.0.1
     matplotlib      3.8.2
     numpy           1.26.4
     .....................
@@ -150,8 +150,9 @@ You can open a Python shell and import `lexi` by running the following command:
 
 ```bash
     python
-    import lexi_bu as lexi
-    lexi.__version__
+    from lexi_xray import lexi as lexi
+    import lexi_xray
+    lexi_xray.__version__
 ``` 
 
 which should produce output similar to the following:

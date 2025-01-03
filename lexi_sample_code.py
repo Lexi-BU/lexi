@@ -1,4 +1,4 @@
-from lexi_bu import lexi as lexi
+from lexi_xray import lexi as lexi
 import importlib
 import pandas as pd
 

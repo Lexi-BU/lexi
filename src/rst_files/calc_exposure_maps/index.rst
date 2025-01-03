@@ -1,8 +1,8 @@
 
 ========================================
-Get LEXI Data (`lexi.get_lexi_data`)
+Get Exposure Maps (`lexi.calc_exposure_maps`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi
 
-.. autofunction:: get_lexi_data
+.. autofunction:: calc_exposure_maps

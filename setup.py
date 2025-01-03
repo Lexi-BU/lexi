@@ -15,7 +15,7 @@ install_requires = [dep for dep in dependencies.keys() if dep.lower() != "python
 
 # Setup function
 setup(
-    name="lexi_bu",
+    name="lexi_xray",
     version=version,
     description="Data analysis tools for the Lexi project",
     long_description=Path("README.md").read_text(encoding="utf-8"),

@@ -5,13 +5,13 @@ import warnings
 import numpy as np
 import pandas as pd
 from unittest.mock import patch
-from lexi_bu.lexi import (
+from lexi_xray.lexi import (
     validate_input,
     get_lexi_data,
     get_spc_prams,
-    get_exposure_maps,
-    get_sky_backgrounds,
-    get_lexi_images,
+    calc_exposure_maps,
+    calc_sky_backgrounds,
+    make_lexi_images,
 )
 
 # Suppress warnings in tests for cleaner output
@@ -74,8 +74,8 @@ def test_validate_input_dec_range():
 def test_validate_input_numeric_positive():
     # Valid inputs
     assert validate_input("time_step", 10)
-    assert validate_input("ra_res", 0.1)
-    assert validate_input("dec_res", 0.1)
+    assert validate_input("ra_res", 0.5)
+    assert validate_input("dec_res", 0.5)
 
     # Invalid inputs
     assert not validate_input("time_step", -10)  # Negative value
@@ -162,14 +162,14 @@ def test_validate_input():
     assert validate_input("time_step", 5) is True
     assert validate_input("ra_range", [0, 360]) is True
     assert validate_input("dec_range", [-90, 90]) is True
-    assert validate_input("ra_res", 0.1) is True
-    assert validate_input("dec_res", 0.1) is True
+    assert validate_input("ra_res", 0.5) is True
+    assert validate_input("dec_res", 0.5) is True
 
 
 # Test: Ensure function returns correct structure (dictionary)
-def test_get_exposure_maps_basic():
+def test_calc_exposure_maps_basic():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    exposure_maps_dict = get_exposure_maps(
+    exposure_maps_dict = calc_exposure_maps(
         time_range=time_range, ra_range=[160, 230], dec_range=[-20, 5]
     )
 
@@ -201,7 +201,7 @@ def test_get_exposure_maps_basic():
 #
 #     # Invalid RA/DEC range
 #     with patch("builtins.print") as mocked_print:
-#         exposure_maps_dict = get_exposure_maps(
+#         exposure_maps_dict = calc_exposure_maps(
 #             time_range=time_range, ra_range=[400, 360], dec_range=[-100, 100]
 #         )
 #
@@ -225,7 +225,7 @@ def test_get_exposure_maps_basic():
 # Test: Check if exposure map is computed correctly
 def test_exposure_map_computation():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    exposure_maps_dict = get_exposure_maps(
+    exposure_maps_dict = calc_exposure_maps(
         time_range=time_range,
         ra_range=[160, 230],
         dec_range=[-20, 5],
@@ -248,7 +248,7 @@ def test_exposure_map_computation():
 #     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
 #
 #     with patch("builtins.print") as mocked_print:
-#         exposure_maps_dict = get_exposure_maps(
+#         exposure_maps_dict = calc_exposure_maps(
 #             time_range=time_range,
 #             ra_range=[160, 230],
 #             dec_range=[-20, 5],
@@ -265,13 +265,13 @@ def test_incorrect_time_range():
     incorrect_time_range = ["2025-03-02 08:50:00", "not a datetime"]
 
     with pytest.raises(ValueError):
-        get_exposure_maps(time_range=incorrect_time_range)
+        calc_exposure_maps(time_range=incorrect_time_range)
 
 
 # Test: Check time_integrate default behavior
 def test_time_integrate_default():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    exposure_maps_dict = get_exposure_maps(
+    exposure_maps_dict = calc_exposure_maps(
         time_range=time_range, ra_range=[160, 230], dec_range=[-20, 5]
     )
     time_diff = (
@@ -287,7 +287,7 @@ def test_time_integrate_default():
 #     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
 #
 #     with patch("builtins.print") as mocked_print:
-#         exposure_maps_dict = get_exposure_maps(
+#         exposure_maps_dict = calc_exposure_maps(
 #             time_range=time_range,
 #             ra_range=[160, 230],
 #             dec_range=[-20, 5],
@@ -299,9 +299,9 @@ def test_time_integrate_default():
 
 
 # Test: Ensure function returns correct structure (dictionary)
-def test_get_sky_backgrounds_basic():
+def test_calc_sky_backgrounds_basic():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    sky_backgrounds_dict = get_sky_backgrounds(
+    sky_backgrounds_dict = calc_sky_backgrounds(
         time_range=time_range, ra_range=[160, 230], dec_range=[-20, 5]
     )
 
@@ -328,7 +328,7 @@ def test_get_sky_backgrounds_basic():
 # Test: Check if sky background is computed correctly
 def test_sky_background_computation():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    sky_backgrounds_dict = get_sky_backgrounds(
+    sky_backgrounds_dict = calc_sky_backgrounds(
         time_range=time_range,
         ra_range=[160, 230],
         dec_range=[-20, 5],
@@ -349,13 +349,13 @@ def test_incorrect_time_range_sky_backgrounds():
     incorrect_time_range = ["2025-03-02 08:50:00", "not a datetime"]
 
     with pytest.raises(ValueError):
-        get_sky_backgrounds(time_range=incorrect_time_range)
+        calc_sky_backgrounds(time_range=incorrect_time_range)
 
 
 # Test: Ensure function returns correct structure (dictionary)
-def test_get_lexi_images_basic():
+def test_make_lexi_images_basic():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    lexi_images_dict = get_lexi_images(
+    lexi_images_dict = make_lexi_images(
         time_range=time_range, ra_range=[160, 230], dec_range=[-20, 5]
     )
 
@@ -382,7 +382,7 @@ def test_get_lexi_images_basic():
 # Test: Check if lexi images are computed correctly
 def test_lexi_images_computation():
     time_range = ["2025-03-04 08:53:41", "2025-03-04 09:23:41"]
-    lexi_images_dict = get_lexi_images(
+    lexi_images_dict = make_lexi_images(
         time_range=time_range,
         ra_range=[160, 230],
         dec_range=[-20, 5],

@@ -112,8 +112,8 @@ autodoc_mock_imports = [
     "scipy",
     "cdflib",
     "jupyter",
-    "lexi_bu.__init__",
-    "lexi_bu.__version__",
+    "lexi_xray.__init__",
+    "lexi_xray.__version__",
 ]
 
 html_theme_options = {

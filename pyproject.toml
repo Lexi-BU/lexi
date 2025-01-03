@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lexi_bu"
+name = "lexi_xray"
 version = "0.3.4"
 description = "A python package for data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
@@ -9,7 +9,7 @@ maintainers = [
 ]
 license = "GNU GPLv3"
 readme = "README.md"
-homepage = "https://lexi-bu.github.io/"
+homepage = "https://sites.bu.edu/lexi/"
 repository = "https://github.com/Lexi-BU/lexi"
 documentation = "https://lexi-bu.github.io/lexi"
 
