@@ -1,8 +1,8 @@
 
 ========================================
-Get LEXI Data (`lexi.get_lexi_data`)
+Get LEXI Images (`lexi.make_lexi_images`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi
 
-.. autofunction:: get_lexi_data
+.. autofunction:: make_lexi_images

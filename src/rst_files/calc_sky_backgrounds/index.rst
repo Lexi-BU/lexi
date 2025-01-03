@@ -1,8 +1,8 @@
 
 ========================================
-Get LEXI Data (`lexi.get_lexi_data`)
+Get Sky Backgrounds (`lexi.calc_sky_backgrounds`)
 ========================================
 
 .. py:currentmodule:: lexi_xray.lexi
 
-.. autofunction:: get_lexi_data
+.. autofunction:: calc_sky_backgrounds

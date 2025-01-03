@@ -132,24 +132,24 @@ def validate_input(key, value):
     if key == "ra_res":
         if not isinstance(value, numbers.Number):
             warnings.warn(
-                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.1 \033[0m \n"
+                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.5 \033[0m \n"
             )
             return False
         if value <= 0:
             warnings.warn(
-                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.1 \033[0m \n"
+                "\n \033[1;92m ra_res \033[1;91m must be a positive number. Setting ra_res to default value of \033[1;92m 0.5 \033[0m \n"
             )
             return False
 
     if key == "dec_res":
         if not isinstance(value, numbers.Number):
             warnings.warn(
-                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.1 \033[0m \n"
+                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.5 \033[0m \n"
             )
             return False
         if value <= 0:
             warnings.warn(
-                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.1 \033[0m \n"
+                "\n \033[1;92m dec_res \033[1;91m must be a positive number. Setting dec_res to default value of \033[1;92m 0.5 \033[0m \n"
             )
             return False
 
@@ -410,7 +410,7 @@ def get_lexi_data(
     Example Usage
     -------------
 
-    >>> from lexi_bu.lexi import get_lexi_data
+    >>> from lexi_xray.lexi import get_lexi_data
 
     >>> df_lexi = get_lexi_data(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -422,7 +422,7 @@ def get_lexi_data(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import get_lexi_data
+        from lexi_xray.lexi import get_lexi_data
 
         df_lexi = get_lexi_data(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -693,7 +693,7 @@ def get_spc_prams(
     Example Usage
     -------------
 
-    >>> from lexi_bu.lexi import get_spc_prams
+    >>> from lexi_xray.lexi import get_spc_prams
 
     >>> df_spc = get_spc_prams(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -705,7 +705,7 @@ def get_spc_prams(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import get_spc_prams
+        from lexi_xray.lexi import get_spc_prams
 
         df_spc = get_spc_prams(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
@@ -1052,15 +1052,15 @@ def vignette(d: float = 0.0):
     return f
 
 
-def get_exposure_maps(
+def calc_exposure_maps(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
     time_step: float = 5,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
-    ra_res: float = 0.1,
-    dec_res: float = 0.1,
+    ra_res: float = 0.5,
+    dec_res: float = 0.5,
     time_integrate: float = None,
     save_exposure_map_file: bool = False,
     save_exposure_map_image: bool = False,
@@ -1107,10 +1107,10 @@ def get_exposure_maps(
         ephemeris data is used.
 
     ra_res : float, optional
-        Right ascension resolution in degrees. Default is 0.1 degrees.
+        Right ascension resolution in degrees. Default is 0.5 degrees.
 
     dec_res : float, optional
-        Declination resolution in degrees. Default is 0.1 degrees.
+        Declination resolution in degrees. Default is 0.5 degrees.
 
     time_integrate : int or float, optional
         Integration time in seconds. If no integration time is provided, the time span of the
@@ -1169,9 +1169,9 @@ def get_exposure_maps(
     -------------
     The following example shows how to get the exposure maps for a given time range:
 
-    >>> from lexi_bu.lexi import get_exposure_maps
+    >>> from lexi_xray.lexi import calc_exposure_maps
 
-    >>> exposure_maps_dict = get_exposure_maps(
+    >>> exposure_maps_dict = calc_exposure_maps(
         time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
             ra_range=[160, 230],
             dec_range=[-20, 5],
@@ -1188,9 +1188,9 @@ def get_exposure_maps(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import get_exposure_maps
+        from lexi_xray.lexi import calc_exposure_maps
 
-        exposure_maps_dict = get_exposure_maps(
+        exposure_maps_dict = calc_exposure_maps(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
@@ -1224,12 +1224,12 @@ def get_exposure_maps(
     # Validate ra_res
     ra_res_validated = validate_input("ra_res", ra_res)
     if not ra_res_validated:
-        ra_res = 0.1
+        ra_res = 0.5
 
     # Validate dec_res
     dec_res_validated = validate_input("dec_res", dec_res)
     if not dec_res_validated:
-        dec_res = 0.1
+        dec_res = 0.5
 
     # Get spacecraft ephemeris data
     spc_df = get_spc_prams(
@@ -1442,7 +1442,7 @@ def get_exposure_maps(
     return exposure_maps_dict
 
 
-def get_sky_backgrounds(
+def calc_sky_backgrounds(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
@@ -1450,8 +1450,8 @@ def get_sky_backgrounds(
     time_integrate: float = None,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
-    ra_res: float = 0.1,
-    dec_res: float = 0.1,
+    ra_res: float = 0.5,
+    dec_res: float = 0.5,
     save_exposure_map_file: bool = False,
     save_exposure_map_image: bool = False,
     save_sky_backgrounds_file: bool = False,
@@ -1504,10 +1504,10 @@ def get_sky_backgrounds(
         ephemeris data is used.
 
     ra_res : float, optional
-        Right ascension resolution in degrees. Default is 0.1 degrees.
+        Right ascension resolution in degrees. Default is 0.5 degrees.
 
     dec_res : float, optional
-        Declination resolution in degrees. Default is 0.1 degrees.
+        Declination resolution in degrees. Default is 0.5 degrees.
 
     save_exposure_map_file : bool, optional
         If True, save the exposure maps to a binary file. Default is False.
@@ -1566,9 +1566,9 @@ def get_sky_backgrounds(
     The following example demonstrates how to get sky backgrounds for a given time range and RA/DEC
     range and resolution using ROSAT data and exposure maps:
 
-    >>> from lexi_bu.lexi import get_sky_backgrounds
+    >>> from lexi_xray.lexi import calc_sky_backgrounds
 
-    >>> sky_background_dict = get_sky_backgrounds(
+    >>> sky_background_dict = calc_sky_backgrounds(
             time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
             ra_range=[160, 230],
             dec_range=[-20, 5],
@@ -1587,9 +1587,9 @@ def get_sky_backgrounds(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import get_sky_backgrounds
+        from lexi_xray.lexi import calc_sky_backgrounds
 
-        sky_background_dict = get_sky_backgrounds(
+        sky_background_dict = calc_sky_backgrounds(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
@@ -1608,7 +1608,7 @@ def get_sky_backgrounds(
     """
 
     # Get exposure maps
-    exposure_maps_dict = get_exposure_maps(
+    exposure_maps_dict = calc_exposure_maps(
         time_range=time_range,
         time_zone=time_zone,
         interp_method=interp_method,
@@ -1771,15 +1771,15 @@ def get_sky_backgrounds(
     return sky_backgrounds_dict
 
 
-def get_lexi_images(
+def make_lexi_images(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
     time_step: float = 5,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
-    ra_res: float = 0.1,
-    dec_res: float = 0.1,
+    ra_res: float = 0.5,
+    dec_res: float = 0.5,
     time_integrate: float = None,
     background_correction_on: bool = True,
     save_exposure_map_file: bool = False,
@@ -1834,10 +1834,10 @@ def get_lexi_images(
         ephemeris data is used.
 
     ra_res : float, optional
-        Right ascension resolution in degrees. Default is 0.1 degrees.
+        Right ascension resolution in degrees. Default is 0.5 degrees.
 
     dec_res : float, optional
-        Declination resolution in degrees. Default is 0.1 degrees.
+        Declination resolution in degrees. Default is 0.5 degrees.
 
     background_correction_on : bool, optional
         If True, apply the background correction to the LEXI images. Default is True.
@@ -1892,9 +1892,9 @@ def get_lexi_images(
     The following example shows how to get LEXI images for a given time range and RA/DEC range and
     resolution
 
-    >>> from lexi_bu.lexi import get_lexi_images
+    >>> from lexi_xray.lexi import make_lexi_images
 
-    >>> lexi_images_dict = get_lexi_images(
+    >>> lexi_images_dict = make_lexi_images(
             time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
@@ -1915,9 +1915,9 @@ def get_lexi_images(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import get_lexi_images
+        from lexi_xray.lexi import make_lexi_images
 
-        lexi_images_dict = get_lexi_images(
+        lexi_images_dict = make_lexi_images(
             time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:41"],
             ra_range=[220, 240],
             dec_range=[-30, -15],
@@ -2091,7 +2091,7 @@ def get_lexi_images(
     # Do background correction if requested
     if background_correction_on:
         # Get sky backgrounds
-        sky_backgrounds_dict = get_sky_backgrounds(
+        sky_backgrounds_dict = calc_sky_backgrounds(
             time_range=time_range,
             time_zone=time_zone,
             interp_method=interp_method,
@@ -2294,7 +2294,7 @@ def array_to_image(
 
     .. jupyter-execute::
 
-        from lexi_bu.lexi import array_to_image
+        from lexi_xray.lexi import array_to_image
         import numpy as np
         import matplotlib.pyplot as plt
 

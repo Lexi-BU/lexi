@@ -13,11 +13,11 @@ following usable modules:
       specified time range.
     - **get_spc_prams**: This module is used to get the spacecraft parameters from the LEXI dataset using
       a specified time range.
-    - **get_exposure_maps**: This module is used to get the exposure maps from the LEXI dataset using a
+    - **calc_exposure_maps**: This module is used to get the exposure maps from the LEXI dataset using a
       specified time range and some other input parameters.
-    - **get_sky_backgrounds**: This module is used to get the sky backgrounds from the LEXI dataset which
+    - **calc_sky_backgrounds**: This module is used to get the sky backgrounds from the LEXI dataset which
       corresponds to the exposure maps. The module uses the exposure maps to get the sky backgrounds.
-    - **get_lexi_images**: This module is used to get the LEXI images from the LEXI dataset using a
+    - **make_lexi_images**: This module is used to get the LEXI images from the LEXI dataset using a
       specified time range and some other input parameters. The module uses the exposure maps and sky
       backgrounds to get the LEXI images. One can either get a background corrected image or a raw
       image from the data set.
@@ -28,7 +28,7 @@ file.
 """
 
 try:
-    __version__ = version("lexi_bu")
+    __version__ = version("lexi_xray")
 except PackageNotFoundError:
     __version__ = "0.0.0"
 
@@ -38,8 +38,8 @@ from .lexi import (
     download_files_from_github,
     get_lexi_data,
     get_spc_prams,
-    get_exposure_maps,
-    get_sky_backgrounds,
-    get_lexi_images,
+    calc_exposure_maps,
+    calc_sky_backgrounds,
+    make_lexi_images,
     array_to_image,
 )
