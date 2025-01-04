@@ -120,4 +120,11 @@ html_theme_options = {
     "collapse_navigation": False,
     "navigation_depth": 4,
     "titles_only": False,
+    "display_version": True,
+    "prev_next_buttons_location": "both",
+    "style_external_links": True,
+    "style_nav_header_background": "#042444",
+    "style_nav_header_text": "#ffffff",
+    # "flyout_display": "attached",
+    "version_selector": True,
 }
