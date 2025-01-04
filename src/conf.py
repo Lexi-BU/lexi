@@ -55,6 +55,10 @@ extensions = [
     "myst_parser",
     "jupyter_sphinx",
     "nbsphinx",
+    "sphinx_togglebutton",
+    "sphinx_copybutton",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
 ]
 
 autosummary_generate = True
@@ -69,6 +73,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "sphinx_rtd_theme"
+# html_theme = "furo"
 html_static_path = ["_static"]  # Ensure _static is in the static path
 html_css_files = [
     "css/custom.css",  # Add custom.css to the list
@@ -127,4 +132,5 @@ html_theme_options = {
     "style_nav_header_text": "#ffffff",
     # "flyout_display": "attached",
     "version_selector": True,
+    "theme_switcher": False,
 }

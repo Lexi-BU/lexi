@@ -345,7 +345,7 @@ def get_lexi_data(
     verbose: bool = True,
     spc_prams: bool = False,
     return_data_type: str = "merged",
-    spc_prams_kwargs: dict = None,
+    spc_prams_kwargs: dict = {},
 ):
     """
     Function to get LEXI data from the CDAweb website (eventually). Currently the code is set up to
@@ -354,7 +354,7 @@ def get_lexi_data(
 
     Parameters
     ----------
-    time_range : list
+    time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
     formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
@@ -409,6 +409,7 @@ def get_lexi_data(
 
     Example Usage
     -------------
+    The following example shows how to use the get_lexi_data function to get LEXI data for a specific time range:
 
     >>> from lexi_xray.lexi import get_lexi_data
 
@@ -628,7 +629,7 @@ def get_spc_prams(
 
     Parameters
     ----------
-    time_range : list
+    time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
     formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
@@ -692,6 +693,8 @@ def get_spc_prams(
 
     Example Usage
     -------------
+    The following example shows how to use the get_spc_prams function to get spacecraft parameters
+    data for a specific time range
 
     >>> from lexi_xray.lexi import get_spc_prams
 
@@ -1073,7 +1076,7 @@ def calc_exposure_maps(
 
     Parameters
     ----------
-    time_range : list
+    time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
     formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
@@ -1466,7 +1469,7 @@ def calc_sky_backgrounds(
 
     Parameters
     ----------
-    time_range : list
+    time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
     formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
@@ -1796,7 +1799,7 @@ def make_lexi_images(
 
     Parameters
     ----------
-    time_range : list
+    time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
     formats:
             1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
