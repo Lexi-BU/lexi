@@ -4,10 +4,10 @@ Citation and Acknowledgements
 
 Contributors
 ------------
-- Ramiz Qudsi
-- Cadin Connor
-- Brian Walsh
-- Zoe Chitty
+- `Ramiz Qudsi <https://www.qudsiramiz.space/>`_
+- `Cadin Connor <https://github.com/cadin3>`_
+- `Brian Walsh <https://sites.bu.edu/bwalsh/>`_
+- `Zoe Chitty <https://github.com/vpsx>`_
 
 Citation 
 --------
