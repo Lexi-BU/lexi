@@ -229,12 +229,13 @@ def download_files_from_github(
     CDAweb website. For now, we will use this function to download the files from the GitHub to be
     used as a placeholder until we have the real data hosted on the appropriate website.
 
-    NOTE: In this function, we are using two folders to store and download the files. The first
-    folder contains the first 950 files, and the second folder contains the remaining files. The
-    reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
-    folder contains more than 1000 files, then the files are split into multiple folders. The folder
-    names are as follows: files_0_to_950, files_950_to_1917. The folder names are hard-coded in the
-    function.
+    .. note::
+        In this function, we are using two folders to store and download the files. The first
+        folder contains the first 950 files, and the second folder contains the remaining files. The
+        reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
+        folder contains more than 1000 files, then the files are split into multiple folders. The folder
+        names are as follows: files_0_to_950, files_950_to_1917. The folder names are hard-coded in the
+        function.
 
     Parameters
     ----------
@@ -267,6 +268,7 @@ def download_files_from_github(
         If the status code of the response is not 200
 
     """
+
     # GitHub API URL for the folder
     # NOTE: The GitHub API only returns a maximum of 1000 files per request. If the folder contains
     # more than 1000 files, then the files are split into multiple folders. The first folder contains
@@ -356,15 +358,18 @@ def get_lexi_data(
     ----------
     time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        formats:
+                1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+                2. A datetime object
+                3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
 
-    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
 
-    Note that endpoints are inclusive (the end time is a closed interval); this is because
-    the time range slicing is done with pandas, and label slicing in pandas is inclusive.
+        This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+        .. note::
+            The endpoints are inclusive (the end time is a closed interval); this is because he time
+            range slicing is done with pandas, and label slicing in pandas is inclusive.
+
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
@@ -414,7 +419,7 @@ def get_lexi_data(
     >>> from lexi_xray.lexi import get_lexi_data
 
     >>> df_lexi = get_lexi_data(
-            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             verbose=True
         )
 
@@ -426,7 +431,7 @@ def get_lexi_data(
         from lexi_xray.lexi import get_lexi_data
 
         df_lexi = get_lexi_data(
-            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             verbose=False
         )
 
@@ -631,14 +636,18 @@ def get_spc_prams(
     ----------
     time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        formats:
+                1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+                2. A datetime object
+                3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
 
-    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
-    Note that endpoints are inclusive (the end time is a closed interval); this is because he time
-    range slicing is done with pandas, and label slicing in pandas is inclusive.
+
+        This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+        .. note::
+            The endpoints are inclusive (the end time is a closed interval); this is because he time
+            range slicing is done with pandas, and label slicing in pandas is inclusive.
+
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
@@ -699,7 +708,7 @@ def get_spc_prams(
     >>> from lexi_xray.lexi import get_spc_prams
 
     >>> df_spc = get_spc_prams(
-            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             verbose=True
         )
 
@@ -711,13 +720,14 @@ def get_spc_prams(
         from lexi_xray.lexi import get_spc_prams
 
         df_spc = get_spc_prams(
-            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             verbose=False
         )
 
         print(df_spc.head())
 
     """
+
     # Validate time_range
     time_range_validated = validate_input("time_range", time_range)
 
@@ -1072,31 +1082,35 @@ def calc_exposure_maps(
     array_to_image_kwargs: dict = {},
 ):
     """
-    Function to get exposure maps
+    Function to compute the exposure maps for a given time range and RA/DEC range using the LEXI data
+    and spacecraft ephemeris data.
 
     Parameters
     ----------
     time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        formats:
+                1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+                2. A datetime object
+                3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
 
-    This time range defines the time range of the ephemeris data and the time range of he LEXI data.
 
-    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
-    range slicing is done with pandas, and label slicing in pandas is inclusive.
+        This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+        .. note::
+            The endpoints are inclusive (the end time is a closed interval); this is because he time
+            range slicing is done with pandas, and label slicing in pandas is inclusive.
+
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
 
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
-    Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+        Options:
+            'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
 
-    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+        See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
 
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
@@ -1175,7 +1189,7 @@ def calc_exposure_maps(
     >>> from lexi_xray.lexi import calc_exposure_maps
 
     >>> exposure_maps_dict = calc_exposure_maps(
-        time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+        time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[160, 230],
             dec_range=[-20, 5],
             ra_res=0.25,
@@ -1194,7 +1208,7 @@ def calc_exposure_maps(
         from lexi_xray.lexi import calc_exposure_maps
 
         exposure_maps_dict = calc_exposure_maps(
-            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
             ra_res=0.5,
@@ -1464,32 +1478,36 @@ def calc_sky_backgrounds(
     array_to_image_kwargs: dict = {},
 ):
     """
-    Function to get sky backgrounds for a given time range and RA/DEC range and resolution using
+
+    Function to compute sky backgrounds for a given time range and RA/DEC range and resolution using
     ROSAT data and exposure maps
 
     Parameters
     ----------
     time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        formats:
+                1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+                2. A datetime object
+                3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
 
-    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
 
-    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
-    range slicing is done with pandas, and label slicing in pandas is inclusive.
+        This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+        .. note::
+            The endpoints are inclusive (the end time is a closed interval); this is because he time
+            range slicing is done with pandas, and label slicing in pandas is inclusive.
+
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
 
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
-    Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+        Options:
+            'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
 
-    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+        See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
 
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
@@ -1572,7 +1590,7 @@ def calc_sky_backgrounds(
     >>> from lexi_xray.lexi import calc_sky_backgrounds
 
     >>> sky_background_dict = calc_sky_backgrounds(
-            time_range=["2025-03-02 08:50:00", "2025-03-02 09:23:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[160, 230],
             dec_range=[-20, 5],
             ra_res=0.5,
@@ -1593,7 +1611,7 @@ def calc_sky_backgrounds(
         from lexi_xray.lexi import calc_sky_backgrounds
 
         sky_background_dict = calc_sky_backgrounds(
-            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
             ra_res=0.5,
@@ -1794,32 +1812,35 @@ def make_lexi_images(
     array_to_image_kwargs: dict = {},
 ):
     """
-    Function to get LEXI images for a given time range and RA/DEC range and resolution using
+
+    Function to generate LEXI images for a given time range and RA/DEC range and resolution using
     ROSAT data and exposure maps
 
     Parameters
     ----------
     time_range : list, required
         Time range to consider. [start time, end time]. Times can be expressed in the following
-    formats:
-            1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
-            2. A datetime object
-            3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
+        formats:
+                1. A string in the format 'YYYY-MM-DDTHH:MM:SS' (e.g. '2022-01-01T00:00:00')
+                2. A datetime object
+                3. A float in the format of a UNIX timestamp (e.g. 1640995200.0)
 
-    This time range defines the time range of the ephemeris data and the time range of the LEXI data.
 
-    Note that endpoints are inclusive (the end time is a closed interval); this is because the time
-    range slicing is done with pandas, and label slicing in pandas is inclusive.
+        This time range defines the time range of the ephemeris data and the time range of he LEXI data.
+
+        .. note::
+            The endpoints are inclusive (the end time is a closed interval); this is because he time
+            range slicing is done with pandas, and label slicing in pandas is inclusive.
 
     time_zone : str, optional
         The timezone of the time range of interest. Default is "UTC"
 
     interp_method : str, optional
         Interpolation method used when upsampling/resampling ephemeris data, ROSAT data.
-    Options:
-        'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
+        Options:
+            'linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic'.
 
-    See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
+        See pandas.DataFrame.interpolate documentation for more information. Default is 'linear'.
 
     time_step : int or float, optional
         Time step in seconds for time resolution of the look direction datum.
@@ -1898,7 +1919,7 @@ def make_lexi_images(
     >>> from lexi_xray.lexi import make_lexi_images
 
     >>> lexi_images_dict = make_lexi_images(
-            time_range=["2025-03-02 08:04:00", "2025-03-08 23:43:00"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[190, 310],
             dec_range=[-33, 3],
             ra_res=0.5,
@@ -1921,7 +1942,7 @@ def make_lexi_images(
         from lexi_xray.lexi import make_lexi_images
 
         lexi_images_dict = make_lexi_images(
-            time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:41"],
+            time_range=["2025-03-04 08:50:00", "2025-03-04 09:23:00"],
             ra_range=[220, 240],
             dec_range=[-30, -15],
             ra_res=1,
@@ -2293,20 +2314,7 @@ def array_to_image(
 
     Example Usage
     -------------
-    The following demonstrates how to use the `array_to_image` function:
-
-    .. jupyter-execute::
-
-        from lexi_xray.lexi import array_to_image
-        import numpy as np
-        import matplotlib.pyplot as plt
-
-        # Create a 2D array
-        input_array = np.random.rand(100, 100)
-
-        # Print the shape of the input array
-        # The shape should be (100, 100)
-        print(input_array.shape)
+    TODO: Add example usage
 
     """
     # Try to use latex rendering

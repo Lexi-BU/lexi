@@ -83,7 +83,7 @@ html_favicon = "_static/lexi_logo.png"
 
 html_context = {
     "display_github": True,
-    "display_versions": True,
+    # "display_versions": True,
     "versions": versions,
     "github_user": "Lexi-BU",
     "github_repo": "lexi",
@@ -129,8 +129,8 @@ html_theme_options = {
     "prev_next_buttons_location": "both",
     "style_external_links": True,
     "style_nav_header_background": "#042444",
-    "style_nav_header_text": "#ffffff",
+    # "style_nav_header_text": "#ffffff",
     # "flyout_display": "attached",
-    "version_selector": True,
-    "theme_switcher": False,
+    # "version_selector": True,
+    # "theme_switcher": False,
 }
