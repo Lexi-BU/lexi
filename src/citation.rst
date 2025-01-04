@@ -1,6 +1,17 @@
 Citation and Acknowledgements
 =============================
 
+
+Contributors
+------------
+- Ramiz Qudsi
+- Cadin Connor
+- Brian Walsh
+- Zoe Chitty
+
+Citation 
+--------
+
 If you use this software in your research, please use the following citation:
 
 .. code-block:: latex
@@ -24,3 +35,7 @@ If you use this software in your research, please use the following citation:
                                    04421046558a;path=Lexi-BU-lexi-74dd3c2
                                   },
         }
+
+Acknowledgements
+----------------
+This work was supported by the NASA Grant ********
