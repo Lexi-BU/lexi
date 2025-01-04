@@ -11,7 +11,9 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
       <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3be3e096" />
+      <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=004ebab9" />
 
   
     <link rel="shortcut icon" href="../../_static/lexi_logo.png"/>
@@ -22,9 +24,17 @@
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/thebelab-helper.js"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,7 +167,7 @@
 <h1>Validate Input (<cite>lexi.validate_input</cite>)<a class="headerlink" href="#validate-input-lexi-validate-input" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="lexi_xray.lexi.validate_input">
-<span class="sig-prename descclassname"><span class="pre">lexi_xray.lexi.</span></span><span class="sig-name descname"><span class="pre">validate_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi_xray.lexi.validate_input" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">lexi_xray.lexi.</span></span><span class="sig-name descname"><span class="pre">validate_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lexi_xray/lexi.html#validate_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexi_xray.lexi.validate_input" title="Link to this definition"></a></dt>
 <dd><p>Function to validate the input parameters for LEXI functions</p>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>

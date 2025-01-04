@@ -11,7 +11,9 @@
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
       <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3be3e096" />
+      <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=004ebab9" />
 
   
     <link rel="shortcut icon" href="../../_static/lexi_logo.png"/>
@@ -22,9 +24,17 @@
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/thebelab-helper.js"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,17 +167,20 @@
 <h1>Download Files from GitHub (<cite>lexi.download_files_from_github</cite>)<a class="headerlink" href="#download-files-from-github-lexi-download-files-from-github" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="lexi_xray.lexi.download_files_from_github">
-<span class="sig-prename descclassname"><span class="pre">lexi_xray.lexi.</span></span><span class="sig-name descname"><span class="pre">download_files_from_github</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'main'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'downloaded_data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lexi_xray.lexi.download_files_from_github" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">lexi_xray.lexi.</span></span><span class="sig-name descname"><span class="pre">download_files_from_github</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'main'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'downloaded_data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/lexi_xray/lexi.html#download_files_from_github"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexi_xray.lexi.download_files_from_github" title="Link to this definition"></a></dt>
 <dd><p>Function to download files from a GitHub repository. Eventually, this function will be removed
 and we will be able to use the <cite>get_lexi_data</cite> function to download the files directly from the
 CDAweb website. For now, we will use this function to download the files from the GitHub to be
 used as a placeholder until we have the real data hosted on the appropriate website.</p>
-<p>NOTE: In this function, we are using two folders to store and download the files. The first
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this function, we are using two folders to store and download the files. The first
 folder contains the first 950 files, and the second folder contains the remaining files. The
 reason for this is that the GitHub API only returns a maximum of 1000 files per request. If the
 folder contains more than 1000 files, then the files are split into multiple folders. The folder
 names are as follows: files_0_to_950, files_950_to_1917. The folder names are hard-coded in the
 function.</p>
+</div>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
 <dl class="simple">
