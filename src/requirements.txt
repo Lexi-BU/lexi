@@ -16,4 +16,5 @@ sphinx-tabs
 sphinx-reredirects
 sphinx-issues
 sphinx-autodoc-typehints
-sphinx_togglebutton
+sphinx-togglebutton
+sphinx-copybutton
