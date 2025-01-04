@@ -22,9 +22,10 @@ following usable modules:
       backgrounds to get the LEXI images. One can either get a background corrected image or a raw
       image from the data set.
 
-The package is developed by the LEXI team at the Boston University.
-For more information, please visit the LEXI website at https://lexi-bu.github.io/ or read the README
-file.
+The package development is by the LEXI team at the Boston University and supported by institutes
+involved in the development of LEXI payload.
+For more information, please visit the LEXI website at https://sites.bu.edu/lexi/ or read the README
+file. 
 """
 
 try:
