@@ -88,30 +88,6 @@ GitHub by running the following command:
         pip install git+https://github.com/Lexi-BU/lexi@0.3.1
 
 
-Installing from a Local Copy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After you have created and activated your virtual environment, you can install Lexi from a local copy
-by following these steps:
-
-.. note::
-    We will use version `0.3.4` as an example. Please replace `0.3.4` with the actual version number
-    you want to install.
-
-1. Download `lexi-0.3.4.tar.gz` directory from the following link: `Download LEXI Software <https://github.com/Lexi-BU/lexi/archive/refs/tags/v0.3.4.tar.gz>`_
-
-2. Copy the `lexi-0.3.4.tar.gz` file into `Documents/lexi` (or any other directory where you want
-   to install `lexi` in).
-
-3. Activate your virtual environment using the instructions above.
-
-4. Install `lexi` by running the following command (replace ``lexi-0.3.4.tar.gz`` with the actual name of the file you downloaded):
-
-.. code-block:: bash
-
-    pip install lexi-0.3.4.tar.gz
-
-This will install `lexi` and all its dependencies.
 
 Verifying the Installation
 ==========================
@@ -151,7 +127,7 @@ This should produce output similar to the following:
     --------------- -------
     .....................
     kiwisolver      1.4.5
-    lexi_xray         0.0.1
+    lexi_xray         0.4.1
     matplotlib      3.8.2
     numpy           1.26.4
     .....................
@@ -169,7 +145,7 @@ This should produce output similar to the following:
 
 .. code-block::
 
-    '0.0.1'
+    '0.4.1'
 
 If that worked, congratulations! You have successfully installed `lexi`.
 
@@ -177,52 +153,24 @@ Using `lexi` Software
 =====================
 
 .. note::
-   We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
+   We will add more examples and tutorials in the future. For now, we will use a Google Colab Notebook
    to demonstrate how to use `lexi` to analyze data from LEXI.
 
-Using the Example Jupyter Notebook
-----------------------------------
+Using the Example Google Colab Notebook
+----------------------------------------
 
-1. If you haven't already, download the example folder from the following link: 
-   `Download LEXI Examples <https://lexi-bu.github.io/software/examples.zip>`_ 
-   and extract it to a directory of your choice. We will refer to this directory as `examples` for the rest of this document.
+1. If you haven't already, download the example notebook from the following link: 
+   `Concise Tutorial
+   <https://colab.research.google.com/drive/1Q0dmH7QrwRXZh8ZrzfOQbshBA-B86y6T?usp=sharing>`_
 
-2. Activate your virtual environment. If you haven't already created a virtual environment, please
-   refer to the `creating a virtual environment` section for instructions on how to do so.
-   Remember that you can activate your virtual environment by running the following command:
+   `Detailed Tutorial <https://colab.research.google.com/drive/1rVOE_INV3bO2O_s0K7u58zHxbNhawELt?usp=sharing>`_
 
-On Linux/MacOS:
-^^^^^^^^^^^^^^^
+2. Open the notebook in Google Colab by clicking on the link above.
 
-.. code-block:: bash
+3. The notebook will then guide you through the process of using `lexi` to analyze data from LEXI.
 
-    source lexi_venv/bin/activate
+4. If you want to run the notebook on your local machine, you can download the notebook from the link
+   above and run it in a Jupyter Notebook environment.
 
-On Windows:
-^^^^^^^^^^^
-
-.. code-block:: bash
-
-    .\lexi_venv\Scripts\activate
-
-3. Change into the `examples` directory.
-
-4. If you haven't already, install Jupyter Notebook by running the following command:
-
-.. code-block:: bash
-
-    pip install jupyter
-
-5. Open the Jupyter Notebook by running the following command:
-
-.. code-block:: bash
-
-    jupyter notebook lexi_tutorial.ipynb
-
-6. This will open a new tab in your web browser and will look like the image below:
-
-.. image:: _static/lexi_notebook_screeenshot.png
-   :alt: Jupyter Notebook Screenshot
-
-7. You can now run the cells in the Jupyter Notebook to see how to use `lexi` to analyze data from
-   LEXI.
+5. If you encounter any issues, please report them to us by creating an issue on our GitHub
+   repository `here <https://github.com/Lexi-BU/lexi/issues>`_.

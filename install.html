@@ -79,14 +79,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#installing-lexi">Installing <cite>lexi</cite></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-from-source">Installing from Source</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#installing-from-a-local-copy">Installing from a Local Copy</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#verifying-the-installation">Verifying the Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#using-lexi-software">Using <cite>lexi</cite> Software</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#using-the-example-jupyter-notebook">Using the Example Jupyter Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-example-google-colab-notebook">Using the Example Google Colab Notebook</a></li>
 </ul>
 </li>
 </ul>
@@ -238,27 +237,6 @@ For example, if you want to install version <cite>0.3.1</cite>, you can run the 
 </div>
 </div>
 </section>
-<section id="installing-from-a-local-copy">
-<h3>Installing from a Local Copy<a class="headerlink" href="#installing-from-a-local-copy" title="Link to this heading"></a></h3>
-<p>After you have created and activated your virtual environment, you can install Lexi from a local copy
-by following these steps:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We will use version <cite>0.3.4</cite> as an example. Please replace <cite>0.3.4</cite> with the actual version number
-you want to install.</p>
-</div>
-<ol class="arabic simple">
-<li><p>Download <cite>lexi-0.3.4.tar.gz</cite> directory from the following link: <a class="reference external" href="https://github.com/Lexi-BU/lexi/archive/refs/tags/v0.3.4.tar.gz">Download LEXI Software</a></p></li>
-<li><p>Copy the <cite>lexi-0.3.4.tar.gz</cite> file into <cite>Documents/lexi</cite> (or any other directory where you want
-to install <cite>lexi</cite> in).</p></li>
-<li><p>Activate your virtual environment using the instructions above.</p></li>
-<li><p>Install <cite>lexi</cite> by running the following command (replace <code class="docutils literal notranslate"><span class="pre">lexi-0.3.4.tar.gz</span></code> with the actual name of the file you downloaded):</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lexi-0.3.4.tar.gz
-</pre></div>
-</div>
-<p>This will install <cite>lexi</cite> and all its dependencies.</p>
-</section>
 </section>
 </section>
 <section id="verifying-the-installation">
@@ -289,7 +267,7 @@ to install <cite>lexi</cite> in).</p></li>
 ---------------<span class="w"> </span>-------
 .....................
 kiwisolver<span class="w">      </span><span class="m">1</span>.4.5
-lexi_xray<span class="w">         </span><span class="m">0</span>.0.1
+lexi_xray<span class="w">         </span><span class="m">0</span>.4.1
 matplotlib<span class="w">      </span><span class="m">3</span>.8.2
 numpy<span class="w">           </span><span class="m">1</span>.26.4
 .....................
@@ -303,7 +281,7 @@ lexi_xray.__version__
 </pre></div>
 </div>
 <p>This should produce output similar to the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;0.0.1&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;0.4.1&#39;</span>
 </pre></div>
 </div>
 <p>If that worked, congratulations! You have successfully installed <cite>lexi</cite>.</p>
@@ -312,45 +290,22 @@ lexi_xray.__version__
 <h1>Using <cite>lexi</cite> Software<a class="headerlink" href="#using-lexi-software" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
+<p>We will add more examples and tutorials in the future. For now, we will use a Google Colab Notebook
 to demonstrate how to use <cite>lexi</cite> to analyze data from LEXI.</p>
 </div>
-<section id="using-the-example-jupyter-notebook">
-<h2>Using the Example Jupyter Notebook<a class="headerlink" href="#using-the-example-jupyter-notebook" title="Link to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p>If you haven’t already, download the example folder from the following link:
-<a class="reference external" href="https://lexi-bu.github.io/software/examples.zip">Download LEXI Examples</a>
-and extract it to a directory of your choice. We will refer to this directory as <cite>examples</cite> for the rest of this document.</p></li>
-<li><p>Activate your virtual environment. If you haven’t already created a virtual environment, please
-refer to the <cite>creating a virtual environment</cite> section for instructions on how to do so.
-Remember that you can activate your virtual environment by running the following command:</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>lexi_venv/bin/activate
-</pre></div>
-</div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\l</span>exi_venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
-</pre></div>
-</div>
-<ol class="arabic simple" start="3">
-<li><p>Change into the <cite>examples</cite> directory.</p></li>
-<li><p>If you haven’t already, install Jupyter Notebook by running the following command:</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>jupyter
-</pre></div>
-</div>
-<ol class="arabic simple" start="5">
-<li><p>Open the Jupyter Notebook by running the following command:</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter<span class="w"> </span>notebook<span class="w"> </span>lexi_tutorial.ipynb
-</pre></div>
-</div>
-<ol class="arabic simple" start="6">
-<li><p>This will open a new tab in your web browser and will look like the image below:</p></li>
-</ol>
-<img alt="Jupyter Notebook Screenshot" src="_images/lexi_notebook_screeenshot.png" />
-<ol class="arabic simple" start="7">
-<li><p>You can now run the cells in the Jupyter Notebook to see how to use <cite>lexi</cite> to analyze data from
-LEXI.</p></li>
+<section id="using-the-example-google-colab-notebook">
+<h2>Using the Example Google Colab Notebook<a class="headerlink" href="#using-the-example-google-colab-notebook" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>If you haven’t already, download the example notebook from the following link:
+<a class="reference external" href="https://colab.research.google.com/drive/1Q0dmH7QrwRXZh8ZrzfOQbshBA-B86y6T?usp=sharing">Concise Tutorial</a></p>
+<p><a class="reference external" href="https://colab.research.google.com/drive/1rVOE_INV3bO2O_s0K7u58zHxbNhawELt?usp=sharing">Detailed Tutorial</a></p>
+</li>
+<li><p>Open the notebook in Google Colab by clicking on the link above.</p></li>
+<li><p>The notebook will then guide you through the process of using <cite>lexi</cite> to analyze data from LEXI.</p></li>
+<li><p>If you want to run the notebook on your local machine, you can download the notebook from the link
+above and run it in a Jupyter Notebook environment.</p></li>
+<li><p>If you encounter any issues, please report them to us by creating an issue on our GitHub
+repository <a class="reference external" href="https://github.com/Lexi-BU/lexi/issues">here</a>.</p></li>
 </ol>
 </section>
 </section>
