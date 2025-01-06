@@ -17,16 +17,16 @@ If you use this software in your research, please use the following citation:
 .. code-block:: latex
 
     @Software{Qudsi2025,
-        author    = {Ramiz Qudsi and Zoe Chitty and Cadin Connor and Brian Walsh},
+        author    = {Qudsi, Ramiz and Chitty, Zoe and Connor, Cadin and Walsh, Brian},
         title     = {Lexi-BU/lexi: v0.4.0},
         doi       = {10.5281/zenodo.14606885},
         url       = {https://doi.org/10.5281/zenodo.14606885},
         version   = {v0.4.0},
         month     = jan,
         publisher = {Zenodo},
+        path=Lexi-BU-lexi-e01a2a4 },
         year      = {2025},
     }
-
 
 Acknowledgements
 ----------------
