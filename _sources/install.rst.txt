@@ -55,11 +55,11 @@ You can deactivate the virtual environment by running the following command:
     deactivate
 
 Installing `lexi`
----------------
+-----------------
 There are three ways to install `lexi`: from pypi, from source, and from a local copy.
 
 Installing from PyPI
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 After you have created and activated your virtual environment, you can install `lexi` from PyPI by
 running the following command:
@@ -174,7 +174,7 @@ This should produce output similar to the following:
 If that worked, congratulations! You have successfully installed `lexi`.
 
 Using `lexi` Software
-===================
+=====================
 
 .. note::
    We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
@@ -188,7 +188,7 @@ Using the Example Jupyter Notebook
    and extract it to a directory of your choice. We will refer to this directory as `examples` for the rest of this document.
 
 2. Activate your virtual environment. If you haven't already created a virtual environment, please
-   refer to the :ref:`creating-a-virtual-environment` section for instructions on how to do so.
+   refer to the `creating a virtual environment` section for instructions on how to do so.
    Remember that you can activate your virtual environment by running the following command:
 
 On Linux/MacOS:
