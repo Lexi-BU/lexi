@@ -80,32 +80,6 @@ For example, if you want to install version `0.3.1`, you can run the following c
     pip install git+https://github.com/Lexi-BU/lexi@0.3.1
 ```
 
-### Installing from a local copy
-We don't recommend this, however if you must, here are the details.
-
-After you have created and activated your virtual environment, you can install `lexi` from a local copy
-by following these steps:
-
-NOTE: We will use version `0.3.4` as an example. Please replace `0.3.4` with the actual version number
-    you want to install.
-
-1. Download `lexi-0.3.4.tar.gz` directory from the following link: [Download LEXI
-   Software](https://github.com/Lexi-BU/lexi/archive/refs/tags/v0.3.4.tar.gz)
-
-2. Copy the `lexi-0.3.4.tar.gz` file into `Documents/lexi` (or any other directory where you want
-   to install `lexi` in).
-
-3. Activate your virtual environment using the instructions above.
-
-4. Install `lexi` by running the following command (NOTE: replace `lexi-0.3.4.tar.gz` with the actual
-   name of the file you downloaded):
-
-    ```bash
-        pip install lexi-0.3.4.tar.gz
-    ```
-
-This will install `lexi` and all its dependencies.
-
 ## Verifying the installation
 You can verify that `lexi` was installed by running the following command:
 
@@ -140,7 +114,7 @@ which should produce output similar to the following:
     --------------- -------
     .....................
     kiwisolver      1.4.5
-    lexi_xray         0.0.1
+    lexi_xray         0.4.1
     matplotlib      3.8.2
     numpy           1.26.4
     .....................
@@ -158,7 +132,7 @@ You can open a Python shell and import `lexi` by running the following command:
 which should produce output similar to the following:
 
 ```bash
-'0.0.1'
+'0.4.1'
 ```
 If that worked, congratulations! You have successfully installed `lexi`.
 
@@ -168,72 +142,35 @@ If that worked, congratulations! You have successfully installed `lexi`.
 NOTE: We will add more examples and tutorials in the future. For now, we will use a Jupyter Notebook
 to demonstrate how to use `lexi` to analyze data from LEXI.
 
-## Using the Example Jupyter Notebook
-1. If you haven't already, download the example folder from the following link: [Download LEXI
-Examples](https://lexi-bu.github.io/software/examples.zip) and extract it to a directory of your
-choice. We will refer to this directory as `examples` for the rest of this document.
+## Using the Example Google Colab Notebook
+1. 1. If you haven't already, download the example notebook from the following link:
+    [Concise
+      Tutorial](https://colab.research.google.com/drive/1Q0dmH7QrwRXZh8ZrzfOQbshBA-B86y6T?usp=sharing)
 
-2. Activate your virtual environment. If you haven't already created a virtual environment, please
-   refer to the [creating a virtual environment](#creating-a-virtual-environment) section for
-   instructions on how to do so. Remember that you can activate your virtual environment by running
-   the following command:
+    [Detailed Tutorial](https://colab.research.google.com/drive/1rVOE_INV3bO2O_s0K7u58zHxbNhawELt?usp=sharing)
+2. Open the notebook in Google Colab by clicking on the link above.
 
-#### on Linux/MacOS:
+3. The notebook will then guide you through the process of using `lexi` to analyze data from LEXI.
 
-```bash
-    source lexi_venv/bin/activate
-```
+4. If you want to run the notebook on your local machine, you can download the notebook from the link
+   above and run it in a Jupyter Notebook environment.
 
-#### on Windows:
-
-```bash
-    .\lexi_venv\Scripts\activate
-```
-
-3. `cd` into the `examples` directory and 
-
-4. If you haven't already, install Jupyter Notebook by running the following command:
-
-```bash
-    pip install jupyter
-```
-
-5. Open the Jupyter Notebook by running the following command:
-
-```bash
-    jupyter notebook lexi_tutorial.ipynb
-```
-
-6. This will open a new tab in your web browser and will look like the image below:
-<div align="center">
-    <img src="https://raw.githubusercontent.com/Lexi-BU/lexi/refs/heads/stable/images/lexi_notebook_screeenshot.png" alt="Jupyter Notebook">
-</div>
-
-7. You can now run the cells in the Jupyter Notebook to see how to use `lexi` to analyze data from
-   LEXI.
-
+5. If you encounter any issues, please report them to us by creating an issue on our GitHub
+   repository [here](https://github.com/Lexi-BU/lexi/issues).
 
 ## Citation
 If you use `lexi` in your research, please cite the following paper:
 
 ```
-    @software{ramiz_qudsi_2025_14585868,
-                author       = {Ramiz Qudsi and
-                                Zoe Chitty and
-                                Cadin Connor and
-                                Brian Walsh},
-                  title        = {Lexi-BU/lexi: v0.3.4},
-                  month        = jan,
-                  year         = 2025,
-                  publisher    = {Zenodo},
-                  version      = {v0.3.4},
-                  doi          = {10.5281/zenodo.14585868},
-                  url          = {https://doi.org/10.5281/zenodo.14585868},
-                  swhid        = {swh:1:dir:0f71ede7ba2db5f1548c45f330b2c945af59794b
-                                   ;origin=https://doi.org/10.5281/zenodo.14582915;vi
-                                   sit=swh:1:snp:6552c7107029bb957e1e2592742d13109209
-                                   1a11;anchor=swh:1:rel:5ca1c846400ca145a0d2599c9951
-                                   04421046558a;path=Lexi-BU-lexi-74dd3c2
-                                  },
-}
+    @Software{Qudsi2025,
+        author    = {Qudsi, Ramiz and Chitty, Zoe and Connor, Cadin and Walsh, Brian},
+        title     = {Lexi-BU/lexi: v0.4.0},
+        doi       = {10.5281/zenodo.14606885},
+        url       = {https://doi.org/10.5281/zenodo.14606885},
+        version   = {v0.4.0},
+        month     = jan,
+        publisher = {Zenodo},
+        path=Lexi-BU-lexi-e01a2a4 },
+        year      = {2025},
+    }
 ```
