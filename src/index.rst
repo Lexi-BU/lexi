@@ -58,3 +58,10 @@ Citation and Acknowledgements
    :maxdepth: 2
 
    Citation and Acknowledgements <citation>
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
