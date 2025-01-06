@@ -1,1 +1,1 @@
-recursive-include lexi/.lexi_data *
+recursive-include lexi_xray/.lexi_data *
