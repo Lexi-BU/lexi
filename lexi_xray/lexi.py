@@ -1342,12 +1342,31 @@ def calc_exposure_maps(
             pd.Timedelta(time_integrate, unit="s"), origin="start"
         )
 
+        resampled_groups = spc_df.resample(
+            pd.Timedelta(time_integrate, unit="s"), origin="start"
+        )
+
+        # Filter out groups that fall outside the time_range
+        integ_groups = [
+            group
+            for _, group in resampled_groups
+            if not group.empty
+            and group.index.min() >= time_range[0]
+            and group.index.max() <= time_range[1]
+        ]
+
+        # Filter out the groups if their minimum and maximum times are same
+        integ_groups = [
+            group for group in integ_groups if group.index.min() != group.index.max()
+        ]
+
         # Get the min and max times of each group
         start_time_arr = []
         stop_time_arr = []
-        for _, group in integ_groups:
+        for group in integ_groups:
             start_time_arr.append(group.index.min())
             stop_time_arr.append(group.index.max())
+
         # Make as many empty exposure maps as there are integration groups
         exposure_maps = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
@@ -1356,7 +1375,7 @@ def calc_exposure_maps(
         ra_grid_mod = ra_grid  # % 360
         dec_grid_mod = dec_grid  # % 90
 
-        for map_idx, (_, group) in enumerate(integ_groups):
+        for map_idx, (group) in enumerate(integ_groups):
             for row in group.itertuples():
                 # Get distance in degrees to the pointing step
                 # Wrap-proofing: First make everything [0,360), then +-360 on second operand
@@ -1444,6 +1463,8 @@ def calc_exposure_maps(
             array_to_image_kwargs["x_range"] = ra_range
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        if "save" not in array_to_image_kwargs:
+            array_to_image_kwargs["save"] = save_exposure_map_image
         for i, exposure in enumerate(exposure_maps_dict["exposure_maps"]):
             array_to_image(
                 input_array=exposure,
@@ -1775,6 +1796,8 @@ def calc_sky_backgrounds(
             array_to_image_kwargs["x_range"] = ra_range
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        if "save" not in array_to_image_kwargs:
+            array_to_image_kwargs["save"] = save_sky_backgrounds_image
         for i, sky_background in enumerate(sky_backgrounds_dict["sky_backgrounds"]):
             array_to_image(
                 input_array=sky_background,
@@ -2135,6 +2158,10 @@ def make_lexi_images(
         # NOTE: Chnage the factor of 0.001 in the line below to the actual factor that should be
         # (ideallly 1)
         sky_backgrounds = 0.01 * sky_backgrounds_dict["sky_backgrounds"]
+        # Print the shape of the sky_backgrounds
+
+        print(f"Shape of the sky_backgrounds: {sky_backgrounds.shape}")
+        print(f"Shape of the histograms: {histograms.shape}")
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
@@ -2165,6 +2192,8 @@ def make_lexi_images(
             array_to_image_kwargs["x_range"] = ra_range
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        if "save" not in array_to_image_kwargs:
+            array_to_image_kwargs["save"] = save_lexi_images
         for i, histogram in enumerate(lexi_images_dict["lexi_images"]):
             array_to_image(
                 input_array=histogram,
@@ -2512,7 +2541,7 @@ def array_to_image(
         if save_path is None:
             save_path = Path.cwd() / f"figures/{key}"
             if verbose:
-                print("save_path not provided. Saving figure to default lcoation \n")
+                print("save_path not provided. Saving figure to default location \n")
         Path(save_path).mkdir(parents=True, exist_ok=True)
         if save_name is None or save_name == "default":
             start_time_str = start_time.strftime("%Y%m%d_%H%M%S")

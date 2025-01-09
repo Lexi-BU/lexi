@@ -2,8 +2,8 @@ from lexi_xray import lexi as lexi
 import importlib
 import pandas as pd
 
-# import numpy as np
-#
+import numpy as np
+
 importlib.reload(lexi)
 
 array_to_image_kwargs_exp = {
@@ -75,7 +75,7 @@ array_to_image_kwargs_lex = {
     "cbar_label": "Counts",
     "cbar_orientation": "vertical",
     "show_axes": True,
-    "display": False,
+    "display": True,
     "figure_size": (5, 5),
     "figure_format": "png",
     "figure_font_size": 12,
@@ -94,12 +94,12 @@ input_params = {
     "ra_range": [190, 240],
     "dec_range": [-30, -10],
     "save_exposure_map_file": True,
-    "save_exposure_map_image": False,
-    "save_sky_backgrounds_file": True,
-    "save_sky_backgrounds_image": False,
-    "save_lexi_images": True,
+    "save_exposure_map_image": True,
+    # "save_sky_backgrounds_file": True,
+    # "save_sky_backgrounds_image": False,
+    # "save_lexi_images": True,
     "verbose": True,
-    "background_correction_on": True,
+    # "background_correction_on": True,
     "array_to_image_kwargs": array_to_image_kwargs_lex,
 }
 
@@ -109,10 +109,24 @@ input_params = {
 # df1, df2, df3 = lexi.get_spc_prams(**input_params)
 # print(df1, df2, df3)
 # print(input_params["time_range"])
-# exposure_maps_dict = lexi.get_lexi_images(**input_params)
+# exposure_maps_dict = lexi.calc_exposure_maps(**input_params)
 
+lexi_images_dict = lexi.make_lexi_images(
+    time_range=["2025-03-04 08:53:41", "2025-03-04 09:23:49"],
+    ra_range=[190, 310],
+    dec_range=[-33, 3],
+    ra_res=0.5,
+    dec_res=0.5,
+    time_integrate=600,
+    background_correction_on=True,
+    save_exposure_map_file=True,
+    save_sky_backgrounds_file=True,
+    save_exposure_map_image=True,
+    save_sky_backgrounds_image=True,
+    save_lexi_images=True,
+)
 # exposure_maps = exposure_maps_dict["exposure_maps"]
-
+print(f"the shape of exposure_maps is {np.shape(lexi_images_dict['lexi_images'])}")
 # print(np.shape(exposure_maps))
 # print(np.shape(exposure_maps[0]))
 # print(np.nanmin(exposure_maps[0]), np.nanmax(exposure_maps[0]))
@@ -125,9 +139,9 @@ input_params = {
 # print(np.shape(lexi_images_dict["lexi_images"]))
 
 
-lexi.get_lexi_data(
-    time_range=[
-        pd.to_datetime("2025-03-04 08:53:41"),
-        pd.to_datetime("2025-03-04 09:23:41"),
-    ]
-)
+# lexi.get_lexi_data(
+#     time_range=[
+#         pd.to_datetime("2025-03-04 08:53:41"),
+#         pd.to_datetime("2025-03-04 09:23:41"),
+#     ]
+# )
