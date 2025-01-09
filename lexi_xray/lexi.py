@@ -620,7 +620,7 @@ def get_lexi_data(
 def get_spc_prams(
     time_range: list = None,
     time_zone: str = "UTC",
-    time_step: float = 5,
+    time_step: float = 1,
     time_pad: float = 300,
     data_clip: bool = True,
     interp_method: str = "linear",
@@ -775,7 +775,7 @@ def get_spc_prams(
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
     if not time_step_validated:
-        time_step = 5
+        time_step = 1
 
     # Validate interp_method
     interp_method_validated = validate_input("interp_method", interp_method)
@@ -1069,7 +1069,7 @@ def calc_exposure_maps(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
-    time_step: float = 5,
+    time_step: float = 1,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
     ra_res: float = 0.5,
@@ -1226,7 +1226,7 @@ def calc_exposure_maps(
     # Validate time_step
     time_step_validated = validate_input("time_step", time_step)
     if not time_step_validated:
-        time_step = 5
+        time_step = 1
         if verbose:
             print(
                 f"\033[1;91m Time step \033[1;92m (time_step) \033[1;91m not provided. Setting time step to \033[1;92m {time_step} seconds \033[0m\n"
@@ -1252,6 +1252,7 @@ def calc_exposure_maps(
     spc_df = get_spc_prams(
         time_range=time_range,
         time_zone=time_zone,
+        time_step=time_step,
         interp_method=interp_method,
         verbose=verbose,
     )
@@ -1338,10 +1339,6 @@ def calc_exposure_maps(
         print("Exposure map not found, computing now. This may take a while \n")
 
         # Slice to relevant time range; make groups of rows spanning time_integratetion
-        integ_groups = spc_df[time_range[0] : time_range[1]].resample(
-            pd.Timedelta(time_integrate, unit="s"), origin="start"
-        )
-
         resampled_groups = spc_df.resample(
             pd.Timedelta(time_integrate, unit="s"), origin="start"
         )
@@ -1359,7 +1356,6 @@ def calc_exposure_maps(
         integ_groups = [
             group for group in integ_groups if group.index.min() != group.index.max()
         ]
-
         # Get the min and max times of each group
         start_time_arr = []
         stop_time_arr = []
@@ -1474,6 +1470,7 @@ def calc_exposure_maps(
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=exposure_maps_dict["time_integrate"],
+                figure_title="Exposure Map",
                 **(array_to_image_kwargs if array_to_image_kwargs else {}),
             )
 
@@ -1484,7 +1481,7 @@ def calc_sky_backgrounds(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
-    time_step: float = 5,
+    time_step: float = 1,
     time_integrate: float = None,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
@@ -1582,6 +1579,8 @@ def calc_sky_backgrounds(
         Dictionary containing the following keys:
             - sky_backgrounds : numpy array
                 Sky backgrounds
+            - Exposure maps : numpy array
+                Exposure maps
             - ra_arr : numpy array
                 Right ascension array
             - dec_arr : numpy array
@@ -1648,7 +1647,6 @@ def calc_sky_backgrounds(
         print(sky_background_dict.keys())
 
     """
-
     # Get exposure maps
     exposure_maps_dict = calc_exposure_maps(
         time_range=time_range,
@@ -1745,6 +1743,7 @@ def calc_sky_backgrounds(
         # time_integrate, ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
         sky_backgrounds_dict = {
             "sky_backgrounds": sky_backgrounds,
+            "exposure_maps": exposure_maps,
             "ra_arr": exposure_maps_dict["ra_arr"],
             "dec_arr": exposure_maps_dict["dec_arr"],
             "time_range": time_range,
@@ -1787,7 +1786,7 @@ def calc_sky_backgrounds(
     # If requested, save the sky background as an image
     if save_sky_backgrounds_image:
         if verbose:
-            print("Saving sky backgrounds as images")
+            print("Saving sky backgrounds as images...")
         # Check if the following keys are present in the array_to_image_kwargs dictionary, if not
         # then add them:
         # - x_range
@@ -1807,6 +1806,7 @@ def calc_sky_backgrounds(
                 ra_res=ra_res,
                 dec_res=dec_res,
                 time_integrate=sky_backgrounds_dict["time_integrate"],
+                figure_title="Sky Background",
                 **(array_to_image_kwargs if array_to_image_kwargs else {}),
             )
     # If the first element of sky_backgrounds shape is 1, then remove the first dimension
@@ -1819,7 +1819,7 @@ def make_lexi_images(
     time_range: list = None,
     time_zone: str = "UTC",
     interp_method: str = "linear",
-    time_step: float = 5,
+    time_step: float = 1,
     ra_range: list = [0, 360],
     dec_range: list = [-90, 90],
     ra_res: float = 0.5,
@@ -1917,6 +1917,10 @@ def make_lexi_images(
         Dictionary containing the following keys:
             - lexi_images : numpy array
                 LEXI images
+            - exposure_maps : numpy array
+                Exposure maps
+            - sky_backgrounds : numpy array
+                Sky backgrounds (if background_correction_on is True)
             - ra_arr : numpy array
                 Right ascension array
             - dec_arr : numpy array
@@ -2100,13 +2104,27 @@ def make_lexi_images(
     )
 
     # Slice to relevant time range; make groups of rows spanning time_integratetion
-    integ_groups = photons[time_range[0] : time_range[1]].resample(
+    resampled_groups = photons.resample(
         pd.Timedelta(time_integrate, unit="s"), origin="start"
     )
 
+    # Filter out groups that fall outside the time range
+    integ_groups = [
+        group
+        for _, group in resampled_groups
+        if not group.empty
+        and group.index.min() >= time_range[0]
+        and group.index.max() <= time_range[1]
+    ]
+
+    # Filter out the groups if their minimum and maximum times are the same
+    integ_groups = [
+        group for group in integ_groups if group.index.min() != group.index.max()
+    ]
+
     start_time_arr = []
     stop_time_arr = []
-    for _, group in integ_groups:
+    for group in integ_groups:
         start_time_val = group.index.min()
         stop_time_val = group.index.max()
         # If start and stop times are the same, then skip this group
@@ -2117,9 +2135,9 @@ def make_lexi_images(
             stop_time_arr.append(group.index.max())
 
     # Make as many empty lexi histograms as there are integration groups
-    histograms = np.zeros((len(start_time_arr), len(ra_arr), len(dec_arr)))
+    histograms = np.zeros((len(integ_groups), len(ra_arr), len(dec_arr)))
 
-    for hist_idx, (_, group) in enumerate(integ_groups):
+    for hist_idx, group in enumerate(integ_groups):
         # Loop through each photon strike and add it to the map
         for row in group.itertuples():
             try:
@@ -2164,21 +2182,76 @@ def make_lexi_images(
         print(f"Shape of the histograms: {histograms.shape}")
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
+        # NOTE: At this point, the histograms are background corrected and its units are counts in
+        # each bin. The next step is to conver the units to counts per second by dividing each bin by
+        # the exposure time of the LEXI image.
+        exposure_maps = sky_backgrounds_dict["exposure_maps"]
+        # Replace the zeros in the exposure maps and histograms with NaNs to avoid division by zero
+        exposure_maps = np.where(exposure_maps == 0, np.nan, exposure_maps)
+        histograms = np.where(histograms == 0, np.nan, histograms)
+        for i, exposure_map in enumerate(exposure_maps):
+            histograms[i] = histograms[i] / exposure_map
+    if not background_correction_on:
+        # Get the exposure maps
+        exposure_maps_dict = calc_exposure_maps(
+            time_range=time_range,
+            time_zone=time_zone,
+            interp_method=interp_method,
+            time_step=time_step,
+            ra_range=ra_range,
+            dec_range=dec_range,
+            ra_res=ra_res,
+            dec_res=dec_res,
+            time_integrate=time_integrate,
+            save_exposure_map_file=save_exposure_map_file,
+            save_exposure_map_image=save_exposure_map_image,
+            verbose=verbose,
+            array_to_image_kwargs=array_to_image_kwargs,
+        )
+        exposure_maps = exposure_maps_dict["exposure_maps"]
+
+        # Replace the zeros in the exposure_maps and histograms with NaNs to avoid division by zero
+        exposure_maps = np.where(exposure_maps == 0, np.nan, exposure_maps)
+        histograms = np.where(histograms == 0, np.nan, histograms)
+
+        # Convert the histograms to counts per second
+        for i, exposure_map in enumerate(exposure_maps):
+            histograms[i] = histograms[i] / exposure_map
+
     # Define a dictionary to store the histograms, ra_arr, and dec_arr, time_range, and time_integrate,
     # ra_range, and dec_range, ra_res, and dec_res, and save it to a pickle file
-    lexi_images_dict = {
-        "lexi_images": histograms,
-        "ra_arr": ra_arr,
-        "dec_arr": dec_arr,
-        "time_range": time_range,
-        "time_integrate": time_integrate,
-        "ra_range": ra_range,
-        "dec_range": dec_range,
-        "ra_res": ra_res,
-        "dec_res": dec_res,
-        "start_time_arr": start_time_arr,
-        "stop_time_arr": stop_time_arr,
-    }
+    if background_correction_on:
+        lexi_images_dict = {
+            "lexi_images": histograms,
+            "exposure_maps": exposure_maps,
+            "sky_backgrounds": sky_backgrounds,
+            "ra_arr": ra_arr,
+            "dec_arr": dec_arr,
+            "time_range": time_range,
+            "time_integrate": time_integrate,
+            "ra_range": ra_range,
+            "dec_range": dec_range,
+            "ra_res": ra_res,
+            "dec_res": dec_res,
+            "start_time_arr": start_time_arr,
+            "stop_time_arr": stop_time_arr,
+        }
+    if not background_correction_on:
+        lexi_images_dict = {
+            "lexi_images": histograms,
+            "exposure_maps": exposure_maps,
+            "ra_arr": ra_arr,
+            "dec_arr": dec_arr,
+            "time_range": time_range,
+            "time_integrate": time_integrate,
+            "ra_range": ra_range,
+            "dec_range": dec_range,
+            "ra_res": ra_res,
+            "dec_res": dec_res,
+            "start_time_arr": start_time_arr,
+            "stop_time_arr": stop_time_arr,
+        }
+
     print(start_time_arr)
     # If requested, save the histograms as images
     if save_lexi_images:
@@ -2226,7 +2299,7 @@ def array_to_image(
     ra_res: float = None,
     dec_res: float = None,
     time_integrate: float = None,
-    cmap: str = "viridis",
+    cmap: str = None,
     cmin: float = None,
     v_min: float = None,
     v_max: float = None,
@@ -2287,7 +2360,12 @@ def array_to_image(
         Default is None.
 
     cmap : str, optional
-        Colormap to use.  Default is 'viridis'.
+        Colormap to use. By default, based on the `key` being plotted it is set to the following:
+        - exposure_maps: 'cividis'
+        - sky_backgrounds: 'inferno'
+        - lexi_images: 'plasma'
+        - something else: 'viridis'
+        Default is 'viridis'. Other options include 'plasma', 'inferno', 'magma', 'cividis'. See https://matplotlib.org/stable/tutorials/colors/colormaps.html for more options.
 
     norm : mpl.colors.Normalize, optional
         Normalization to use for the colorbar colors.  Default is None.
@@ -2340,10 +2418,6 @@ def array_to_image(
         Figure object.
     ax : matplotlib.axes._subplots.AxesSubplot
         Axes object.
-
-    Example Usage
-    -------------
-    TODO: Add example usage
 
     """
     # Try to use latex rendering
@@ -2411,7 +2485,7 @@ def array_to_image(
             norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
         elif norm_type == "log":
             if array_min <= 0:
-                v_min = 1e-5
+                v_min = 1e-1
             else:
                 v_min = array_min
             if array_max <= 0:
@@ -2433,6 +2507,16 @@ def array_to_image(
             "Either both v_min and v_max must be specified or neither can be specified"
         )
 
+    # Assign "cmap" based on the input "key"
+    if cmap is None:
+        if "sky_backgrounds" in key:
+            cmap = "inferno"
+        elif "exposure_maps" in key:
+            cmap = "cividis"
+        elif "lexi_images" in key:
+            cmap = "plasma"
+        else:
+            cmap = "viridis"
     # Create the figure
     fig, ax = plt.subplots(
         figsize=figure_size, dpi=dpi, facecolor=facecolor, edgecolor=edgecolor
@@ -2489,7 +2573,7 @@ def array_to_image(
     )
     if show_colorbar:
         if cbar_label is None:
-            cbar_label = "Value"
+            cbar_label = "Counts/sec"
         if cbar_orientation == "vertical":
             cax = fig.add_axes(
                 [
