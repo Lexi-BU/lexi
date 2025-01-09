@@ -18,15 +18,15 @@ If you use this software in your research, please use the following citation:
 
     @Software{Qudsi2025,
         author    = {Qudsi, Ramiz and Chitty, Zoe and Connor, Cadin and Walsh, Brian},
-        title     = {Lexi-BU/lexi: v0.4.0},
-        doi       = {10.5281/zenodo.14606885},
-        url       = {https://doi.org/10.5281/zenodo.14606885},
-        version   = {v0.4.0},
+        title     = {Lexi-BU/lexi: v0.5.0},
+        doi       = {10.5281/zenodo.14623939},
+        url       = {https://doi.org/10.5281/zenodo.14623939},
+        version   = {v0.5.0},
         month     = jan,
         publisher = {Zenodo},
-        path=Lexi-BU-lexi-e01a2a4 },
         year      = {2025},
     }
+
 
 Acknowledgements
 ----------------
