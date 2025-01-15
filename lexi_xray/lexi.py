@@ -1455,10 +1455,27 @@ def calc_exposure_maps(
         # then add them:
         # - x_range
         # - y_range
+        # - save
         if "x_range" not in array_to_image_kwargs:
             array_to_image_kwargs["x_range"] = ra_range
+        elif "x_range" in array_to_image_kwargs:
+            # Check to ensure that the x_range is the same as the ra_range
+            if array_to_image_kwargs["x_range"] != ra_range:
+                array_to_image_kwargs["x_range"] = ra_range
+                if verbose:
+                    print(
+                        f"\033[1;91m x_range \033[1;92m (x_range) \033[1;91m in array_to_image_kwargs is not the same as the RA range. Setting x_range to the RA range: \033[1;92m {ra_range} \033[0m\n"
+                    )
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        elif "y_range" in array_to_image_kwargs:
+            # Check to ensure that the y_range is the same as the dec_range
+            if array_to_image_kwargs["y_range"] != dec_range:
+                array_to_image_kwargs["y_range"] = dec_range
+                if verbose:
+                    print(
+                        f"\033[1;91m y_range \033[1;92m (y_range) \033[1;91m in array_to_image_kwargs is not the same as the DEC range. Setting y_range to the DEC range: \033[1;92m {dec_range} \033[0m\n"
+                    )
         if "save" not in array_to_image_kwargs:
             array_to_image_kwargs["save"] = save_exposure_map_image
         for i, exposure in enumerate(exposure_maps_dict["exposure_maps"]):
@@ -1791,10 +1808,27 @@ def calc_sky_backgrounds(
         # then add them:
         # - x_range
         # - y_range
+        # - save
         if "x_range" not in array_to_image_kwargs:
             array_to_image_kwargs["x_range"] = ra_range
+        elif "x_range" in array_to_image_kwargs:
+            # Check to ensure that the x_range is the same as the ra_range
+            if array_to_image_kwargs["x_range"] != ra_range:
+                array_to_image_kwargs["x_range"] = ra_range
+                if verbose:
+                    print(
+                        f"\033[1;91m x_range \033[1;92m (x_range) \033[1;91m in array_to_image_kwargs is not the same as the RA range. Setting x_range to the RA range: \033[1;92m {ra_range} \033[0m\n"
+                    )
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        elif "y_range" in array_to_image_kwargs:
+            # Check to ensure that the y_range is the same as the dec_range
+            if array_to_image_kwargs["y_range"] != dec_range:
+                array_to_image_kwargs["y_range"] = dec_range
+                if verbose:
+                    print(
+                        f"\033[1;91m y_range \033[1;92m (y_range) \033[1;91m in array_to_image_kwargs is not the same as the DEC range. Setting y_range to the DEC range: \033[1;92m {dec_range} \033[0m\n"
+                    )
         if "save" not in array_to_image_kwargs:
             array_to_image_kwargs["save"] = save_sky_backgrounds_image
         for i, sky_background in enumerate(sky_backgrounds_dict["sky_backgrounds"]):
@@ -2175,11 +2209,8 @@ def make_lexi_images(
         )
         # NOTE: Chnage the factor of 0.001 in the line below to the actual factor that should be
         # (ideallly 1)
-        sky_backgrounds = 0.01 * sky_backgrounds_dict["sky_backgrounds"]
-        # Print the shape of the sky_backgrounds
+        sky_backgrounds = 0.002 * sky_backgrounds_dict["sky_backgrounds"]
 
-        print(f"Shape of the sky_backgrounds: {sky_backgrounds.shape}")
-        print(f"Shape of the histograms: {histograms.shape}")
         histograms = np.maximum(histograms - sky_backgrounds, 0)
 
         # NOTE: At this point, the histograms are background corrected and its units are counts in
@@ -2252,7 +2283,6 @@ def make_lexi_images(
             "stop_time_arr": stop_time_arr,
         }
 
-    print(start_time_arr)
     # If requested, save the histograms as images
     if save_lexi_images:
         if verbose:
@@ -2261,10 +2291,27 @@ def make_lexi_images(
         # then add them:
         # - x_range
         # - y_range
+        # - save
         if "x_range" not in array_to_image_kwargs:
             array_to_image_kwargs["x_range"] = ra_range
+        elif "x_range" in array_to_image_kwargs:
+            # Check to ensure that the x_range is the same as the ra_range
+            if array_to_image_kwargs["x_range"] != ra_range:
+                array_to_image_kwargs["x_range"] = ra_range
+                if verbose:
+                    print(
+                        f"\033[1;91m x_range \033[1;92m (x_range) \033[1;91m in the array_to_image_kwargs dictionary is not the same as the RA range. Setting x_range to the RA range: \033[1;92m {ra_range} \033[0m\n"
+                    )
         if "y_range" not in array_to_image_kwargs:
             array_to_image_kwargs["y_range"] = dec_range
+        elif "y_range" in array_to_image_kwargs:
+            # Check to ensure that the y_range is the same as the dec_range
+            if array_to_image_kwargs["y_range"] != dec_range:
+                array_to_image_kwargs["y_range"] = dec_range
+                if verbose:
+                    print(
+                        f"\033[1;91m y_range \033[1;92m (y_range) \033[1;91m in the array_to_image_kwargs dictionary is not the same as the DEC range. Setting y_range to the DEC range: \033[1;92m {dec_range} \033[0m\n"
+                    )
         if "save" not in array_to_image_kwargs:
             array_to_image_kwargs["save"] = save_lexi_images
         for i, histogram in enumerate(lexi_images_dict["lexi_images"]):
@@ -2305,14 +2352,14 @@ def array_to_image(
     v_max: float = None,
     norm: mpl.colors.LogNorm = mpl.colors.LogNorm(),
     norm_type: str = "log",
-    aspect: str = "auto",
+    aspect: str = "equal",
     figure_title: str = None,
     show_colorbar: bool = True,
     cbar_label: str = None,
     cbar_orientation: str = "vertical",
     show_axes: bool = True,
     display: bool = False,
-    figure_size: tuple = (10, 10),
+    figure_size: tuple = None,
     figure_format: str = "png",
     figure_font_size: float = 12,
     save: bool = False,
@@ -2321,6 +2368,7 @@ def array_to_image(
     dpi: int = 300,
     dark_mode: bool = False,
     verbose: bool = False,
+    display_time: bool = False,
 ):
     """
     Convert a 2D array to an image.
@@ -2374,7 +2422,7 @@ def array_to_image(
         Normalization type to use.  Options are 'linear' or 'log'.  Default is 'linear'.
 
     aspect : str, optional
-        Aspect ratio to use.  Default is 'auto'.
+        Aspect ratio to use.  Default is 'equal'.
 
     figure_title : str, optional
         Title of the figure.  Default is None.
@@ -2395,7 +2443,7 @@ def array_to_image(
         If True, then display the figure.  Default is False.
 
     figure_size : tuple, optional
-        Size of the figure.  Default is (10, 10).
+        Size of the figure.  Default is None.
 
     figure_format : str, optional
         Format of the figure.  Default is 'png'.
@@ -2411,6 +2459,9 @@ def array_to_image(
 
     save_name : str, optional
         Name of the figure to save.  Default is None.
+
+    display_time : bool, optional
+        Display the start and end time of the image.  Default is False.
 
     Returns
     -------
@@ -2469,13 +2520,21 @@ def array_to_image(
     if v_min is None and v_max is None:
         array_min = np.nanmin(input_array)
         array_max = np.nanmax(input_array)
+
+        if np.isnan(array_min) and np.isnan(array_max):
+            array_min = 0.1
+            array_max = 1.0
+            if verbose:
+                print(
+                    f"\n\033[91m Warning: Encountered map where array min \033[00m = \033[92m{array_min}\033[00m \033[91m and array max \033[00m = \033[92m{array_max}\033[00m \033[91m are both NaN. Plotting a range of 0.1 to 1.\033[00m \n"
+                )
         if array_min == array_max:
             # In theory, could be a real instance of a perfectly flat map;
             # probably, just an integration window with no photons.
-            print(
-                f"Encountered map where array min {array_min} == array max {array_max}. "
-                "Plotting a range of \u00B1 1."
-            )
+            if verbose:
+                print(
+                    f"\n\033[91m Warning: Encountered map where array min \033[00m = \033[92m{array_min}\033[00m \033[91m and array max \033[00m = \033[92m{array_max}\033[00m \033[91m are both same. Plotting a range of \u00B1 1. \n"
+                )
             array_min -= 1
             array_max += 1
 
@@ -2485,7 +2544,7 @@ def array_to_image(
             norm = mpl.colors.Normalize(vmin=v_min, vmax=v_max)
         elif norm_type == "log":
             if array_min <= 0:
-                v_min = 1e-1
+                v_min = 1e-5
             else:
                 v_min = array_min
             if array_max <= 0:
@@ -2518,9 +2577,12 @@ def array_to_image(
         else:
             cmap = "viridis"
     # Create the figure
-    fig, ax = plt.subplots(
-        figsize=figure_size, dpi=dpi, facecolor=facecolor, edgecolor=edgecolor
-    )
+    if figure_size is None:
+        fig, ax = plt.subplots(dpi=dpi, facecolor=facecolor, edgecolor=edgecolor)
+    else:
+        fig, ax = plt.subplots(
+            figsize=figure_size, dpi=dpi, facecolor=facecolor, edgecolor=edgecolor
+        )
 
     # Plot the image
     im = ax.imshow(
@@ -2539,10 +2601,12 @@ def array_to_image(
     )
 
     # Set the x and y limits
-    if x_lim is not None:
-        ax.set_xlim(x_lim)
-    if y_lim is not None:
-        ax.set_ylim(y_lim)
+    if x_lim is None:
+        # Set the x limits to the x_range
+        ax.set_xlim(x_range)
+    if y_lim is None:
+        # Set the y limits to the y_range
+        ax.set_ylim(y_range)
 
     # Turn on the grid
     ax.grid(True, color="k", alpha=0.5, linestyle="-")
@@ -2550,27 +2614,29 @@ def array_to_image(
     ax.minorticks_on()
     # Set the tick label size
     ax.tick_params(labelsize=0.8 * figure_font_size)
+
     # Add start and stop time as text to the plot
-    ax.text(
-        0.05,
-        0.93,
-        f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
-        horizontalalignment="left",
-        verticalalignment="bottom",
-        transform=ax.transAxes,
-        fontsize=0.8 * figure_font_size,
-        color=textcolor,
-    )
-    ax.text(
-        0.05,
-        0.92,
-        f"Stop Time: {stop_time.strftime('%Y-%m-%d %H:%M:%S')}",
-        horizontalalignment="left",
-        verticalalignment="top",
-        transform=ax.transAxes,
-        fontsize=0.8 * figure_font_size,
-        color=textcolor,
-    )
+    if display_time:
+        ax.text(
+            0.05,
+            0.93,
+            f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
+            horizontalalignment="left",
+            verticalalignment="bottom",
+            transform=ax.transAxes,
+            fontsize=0.8 * figure_font_size,
+            color=textcolor,
+        )
+        ax.text(
+            0.05,
+            0.92,
+            f"Stop Time: {stop_time.strftime('%Y-%m-%d %H:%M:%S')}",
+            horizontalalignment="left",
+            verticalalignment="top",
+            transform=ax.transAxes,
+            fontsize=0.8 * figure_font_size,
+            color=textcolor,
+        )
     if show_colorbar:
         if cbar_label is None:
             cbar_label = "Counts/sec"

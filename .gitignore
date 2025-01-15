@@ -167,6 +167,7 @@ local_data/
 lexi/.DS_Store
 data/
 downloaded_data/
+figures/
 
 # Ignore the ~.lock files
 *.lock
