@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lexi_xray"
-version = "0.5.0"
+version = "0.5.1"
 description = "A python package for data analysis related to LEXI"
 authors = ["qudsiramiz <qudsiramiz@gmail.com>"]
 maintainers = [
