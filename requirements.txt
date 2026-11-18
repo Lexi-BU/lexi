@@ -30,7 +30,7 @@ bleach[css]==6.2.0
     # via nbconvert
 cdflib==1.3.2
     # via lexi_xray (setup.py)
-certifi==2024.12.14
+certifi==2026.10.18
     # via
     #   httpcore
     #   httpx
@@ -146,7 +146,7 @@ jupyter-server==2.15.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.3.4
+jupyterlab==4.5.11
     # via
     #   jupyter
     #   notebook
@@ -170,11 +170,11 @@ matplotlib-inline==0.1.7
     # via
     #   ipykernel
     #   ipython
-mistune==3.1.0
+mistune==3.3.3
     # via nbconvert
 nbclient==0.10.2
     # via nbconvert
-nbconvert==7.16.5
+nbconvert==7.17.2
     # via
     #   jupyter
     #   jupyter-server
@@ -344,7 +344,7 @@ tzdata==2024.2
     # via pandas
 uri-template==1.3.0
     # via jsonschema
-urllib3==2.3.0
+urllib3==2.8.0
     # via requests
 wcwidth==0.2.13
     # via prompt-toolkit
